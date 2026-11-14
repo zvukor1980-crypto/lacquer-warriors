@@ -1,4 +1,4 @@
-const CACHE = "lacquer-warriors-v4";
+const CACHE = "lacquer-warriors-v5";
 const ASSETS = [
   "./",
   "./index.html",
@@ -42,7 +42,34 @@ const ASSETS = [
   "./img/legion/ren.webp",
   "./img/legion/space.webp",
   "./img/legion/sparta.webp",
-  "./img/legion/stone.webp"
+  "./img/legion/stone.webp",
+  "./img/sprites/israel/farm-0.webp",
+  "./img/sprites/israel/farm-1.webp",
+  "./img/sprites/israel/farm-2.webp",
+  "./img/sprites/israel/modern-0.webp",
+  "./img/sprites/israel/modern-1.webp",
+  "./img/sprites/israel/modern-2.webp",
+  "./img/sprites/israel/ren-0.webp",
+  "./img/sprites/israel/ren-1.webp",
+  "./img/sprites/israel/ren-2.webp",
+  "./img/sprites/israel/space-0.webp",
+  "./img/sprites/israel/space-1.webp",
+  "./img/sprites/israel/space-2.webp",
+  "./img/sprites/israel/sparta-0.webp",
+  "./img/sprites/israel/sparta-1.webp",
+  "./img/sprites/israel/sparta-2.webp",
+  "./img/sprites/israel/stone-0.webp",
+  "./img/sprites/israel/stone-1.webp",
+  "./img/sprites/israel/stone-2.webp",
+  "./img/sprites/legion/farm.webp",
+  "./img/sprites/legion/modern-2.webp",
+  "./img/sprites/legion/modern.webp",
+  "./img/sprites/legion/ren-2.webp",
+  "./img/sprites/legion/ren.webp",
+  "./img/sprites/legion/space-2.webp",
+  "./img/sprites/legion/space.webp",
+  "./img/sprites/legion/sparta.webp",
+  "./img/sprites/legion/stone.webp",
 ];
 
 

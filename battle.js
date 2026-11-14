@@ -91,7 +91,8 @@
         range: def.range, speed: def.speed, cd: def.cd,
         timer: 0.15, aoe: def.aoe, proj: def.proj,
         facing, phase: Math.random() * 6, alive: true,
-        frozen: 0, knock: 0, width: type === 2 ? 48 : 32
+        frozen: 0, knock: 0, width: type === 2 ? 56 : 28,
+        attackT: 0, hitT: 0, walking: false
       };
       this.units.push(u);
       return u;
@@ -120,8 +121,10 @@
 
       for (const u of this.units) {
         if (!u.alive) continue;
-        if (u.frozen > 0) { u.frozen -= t; continue; }
-        if (u.knock > 0) {
+        if (u.attackT > 0) u.attackT = Math.max(0, u.attackT - t);
+        if (u.hitT > 0) u.hitT = Math.max(0, u.hitT - t);
+        if (u.frozen > 0) { u.frozen -= t; u.walking = false; continue; }
+        if (u.knock) {
           u.x += u.knock * t;
           u.knock *= Math.max(0, 1 - t * 6);
           u.knock -= t * 8 * Math.sign(u.knock || 1);
@@ -131,12 +134,14 @@
         const foe = this.closestFoe(u);
         const baseX = u.team === "player" ? this.baseX.enemy : this.baseX.player;
         const distBase = Math.abs(baseX - u.x);
+        u.walking = false;
         if (foe && Math.abs(foe.x - u.x) <= u.range) {
           if (u.timer <= 0) this.attackUnit(u, foe);
         } else if (!foe && distBase <= u.range + 8) {
           if (u.timer <= 0) this.attackBase(u);
         } else {
           u.x += u.facing * u.speed * t;
+          u.walking = Math.abs(u.knock) < 6;
         }
       }
 
@@ -158,7 +163,7 @@
       for (const f of this.fx) f.t += t;
       this.fx = this.fx.filter((f) => f.t < f.life);
 
-      this.units = this.units.filter((u) => u.alive || u.deadT < 0.45);
+      this.units = this.units.filter((u) => u.alive || u.deadT < 0.75);
       for (const u of this.units) if (!u.alive) u.deadT = (u.deadT || 0) + t;
 
       if (this.enemyHp <= 0) this.finish(true);
@@ -217,6 +222,12 @@
 
     rollCrit() { return Math.random() < this.crit; }
 
+    muzzleOf(u) {
+      const img = Draw.getSprite(u.team, u.era, u.type);
+      const scale = u.type === 2 ? 1.18 : 1.08;
+      return Draw.muzzleOffset({ era: u.era, type: u.type, team: u.team, facing: u.facing, scale }, img);
+    }
+
     shoot(x, y, target, dmg, aoe, kind, color, glow, facing) {
       const spd = kind === "laser" ? 420 : kind === "cannon" ? 170 : kind === "arrow" ? 230 : kind === "stone" ? 180 : 260;
       this.projectiles.push({
@@ -229,16 +240,18 @@
 
     attackUnit(u, foe) {
       u.timer = u.cd;
+      u.attackT = 0.28;
       const isRanged = u.proj && u.proj !== "none";
       const crit = u.team === "player" && this.rollCrit();
       const dmg = crit ? u.dmg * 1.6 : u.dmg;
+      const tip = this.muzzleOf(u);
       if (isRanged) {
         const colors = { stone: "#888", arrow: "#6a4a20", bullet: "#ffe27a", cannon: "#3a3028", laser: u.team === "player" ? "#5ba7ff" : "#e080ff" };
-        this.shoot(u.x + u.facing * 18, u.y - 34, foe, dmg, u.aoe, u.proj, colors[u.proj] || "#ffe27a", u.proj === "laser" ? colors[u.proj] : null, u.facing);
+        this.shoot(u.x + tip.x, u.y + tip.y, foe, dmg, u.aoe, u.proj, colors[u.proj] || "#ffe27a", u.proj === "laser" ? colors[u.proj] : null, u.facing);
         this.projectiles[this.projectiles.length - 1].crit = crit;
-        this.fx.push({ kind: "flash", x: u.x + u.facing * 18, y: u.y - 34, t: 0, life: 0.16 });
+        this.fx.push({ kind: "flash", x: u.x + tip.x, y: u.y + tip.y, t: 0, life: 0.16 });
       } else {
-        this.fx.push({ kind: "slash", x: u.x + u.facing * 16, y: u.y - 8, t: 0, life: 0.18, facing: u.facing, color: u.team === "player" ? "#c8e8ff" : "#e0b0ff" });
+        this.fx.push({ kind: "slash", x: u.x + tip.x, y: u.y + tip.y, t: 0, life: 0.18, facing: u.facing, color: u.team === "player" ? "#c8e8ff" : "#e0b0ff" });
         this.hit(foe, dmg, u.aoe, foe.x, crit);
       }
     }
@@ -248,10 +261,12 @@
       let dmg = u.dmg;
       const crit = u.team === "player" && this.rollCrit();
       if (crit) dmg *= 1.6;
+      u.attackT = 0.28;
+      const tip = this.muzzleOf(u);
       if (u.proj && u.proj !== "none") {
-        this.fx.push({ kind: "flash", x: u.x + u.facing * 18, y: u.y - 34, t: 0, life: 0.16 });
+        this.fx.push({ kind: "flash", x: u.x + tip.x, y: u.y + tip.y, t: 0, life: 0.16 });
       } else {
-        this.fx.push({ kind: "slash", x: u.x + u.facing * 16, y: u.y - 8, t: 0, life: 0.18, facing: u.facing, color: "#fff" });
+        this.fx.push({ kind: "slash", x: u.x + tip.x, y: u.y + tip.y, t: 0, life: 0.18, facing: u.facing, color: "#fff" });
       }
       if (u.team === "player") {
         this.enemyHp = Math.max(0, this.enemyHp - dmg);
@@ -276,6 +291,7 @@
       const apply = (u, amount, isCrit) => {
         if (!u.alive) return;
         u.hp -= amount;
+        u.hitT = 0.16;
         u.knock = (u.team === "player" ? -1 : 1) * (isCrit ? 40 : 22);
         this.fx.push({ kind: "txt", x: u.x, y: u.y - 40, t: 0, life: 0.55, text: (isCrit ? "КРИТ " : "-") + Math.round(amount), color: isCrit ? "#f5c542" : "#c44", crit: isCrit });
         this.fx.push({ kind: "spark", x: u.x, y: u.y - 16, t: 0, life: 0.25, color: isCrit ? "#ffe27a" : "#fff" });
@@ -381,15 +397,13 @@
       for (const u of list) {
         ctx.save();
         ctx.translate(u.x, u.y);
-        if (!u.alive) {
-          ctx.globalAlpha = Math.max(0, 1 - (u.deadT || 0) / 0.45);
-          ctx.translate(0, (u.deadT || 0) * 20);
-        }
         if (u.frozen > 0) ctx.filter = "saturate(0.6) brightness(1.15)";
         Draw.drawUnit(ctx, {
           era: u.era, type: u.type, team: u.team, look: u.look, skin: this.skin,
           scale: u.type === 2 ? 1.18 : 1.08, facing: u.facing,
-          t: this.time + u.phase, hpRatio: u.alive ? u.hp / u.maxHp : 0
+          t: this.time + u.phase, hpRatio: u.alive ? u.hp / u.maxHp : 0,
+          walking: !!u.walking && u.alive, attack: u.attackT || 0, hit: u.hitT || 0,
+          deadT: u.alive ? 0 : (u.deadT || 0)
         });
         ctx.filter = "none";
         ctx.restore();

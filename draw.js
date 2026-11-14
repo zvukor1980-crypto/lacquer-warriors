@@ -715,8 +715,13 @@
     base = base || "./";
     const list = [];
     ERA_IDS.forEach((id) => {
-      for (let t = 0; t < 3; t++) list.push("img/israel/" + id + "-" + t + ".webp");
+      for (let t = 0; t < 3; t++) {
+        list.push("img/israel/" + id + "-" + t + ".webp");
+        list.push("img/sprites/israel/" + id + "-" + t + ".webp");
+      }
       list.push("img/legion/" + id + ".webp");
+      list.push("img/sprites/legion/" + id + ".webp");
+      list.push("img/sprites/legion/" + id + "-2.webp");
     });
     ["daliya", "noa", "yael", "miri"].forEach((h) => list.push("img/heroes/" + h + ".webp"));
     list.push("img/bg/battle.webp", "img/bg/menu.webp", "img/bg/map.webp");
@@ -729,6 +734,123 @@
   }
 
   function getImg(src) { return imgs[src] || null; }
+
+  function spriteSrc(team, era, type) {
+    era = Math.max(0, Math.min(5, era | 0));
+    const id = ERA_IDS[era];
+    if ((team || "player") === "enemy") {
+      if ((type | 0) === 2) return "img/sprites/legion/" + id + "-2.webp";
+      return "img/sprites/legion/" + id + ".webp";
+    }
+    return "img/sprites/israel/" + id + "-" + (type | 0) + ".webp";
+  }
+
+  function getSprite(team, era, type) {
+    let im = getImg(spriteSrc(team, era, type));
+    if (!im && (team || "player") === "enemy" && (type | 0) === 2) {
+      im = getImg("img/sprites/legion/" + ERA_IDS[Math.max(0, Math.min(5, era | 0))] + ".webp");
+    }
+    return im || null;
+  }
+
+  function spriteDrawSize(opt, img) {
+    const s = opt.scale || 1;
+    const era = opt.era | 0, type = opt.type | 0;
+    const isVeh = type === 2 && era !== 1;
+    const iw = img.naturalWidth || img.width || 1;
+    const ih = img.naturalHeight || img.height || 1;
+    let h = (isVeh ? 88 : 96) * s;
+    let w = h * (iw / ih);
+    const maxW = (isVeh ? 108 : 72) * s;
+    if (w > maxW) { w = maxW; h = w * (ih / iw); }
+    return { w, h, isVeh };
+  }
+
+  function muzzleOffset(opt, img) {
+    const s = opt.scale || 1;
+    const era = opt.era | 0, type = opt.type | 0;
+    const facing = opt.facing == null ? 1 : opt.facing;
+    let w, h;
+    if (img) {
+      const d = spriteDrawSize(opt, img);
+      w = d.w; h = d.h;
+    } else {
+      w = (type === 2 ? 96 : 56) * s;
+      h = (type === 2 ? 80 : 96) * s;
+    }
+    let lx, ly;
+    if (type === 2 && (era === 3 || era === 4 || era === 5)) {
+      lx = w * 0.48; ly = -h * (era === 5 ? 0.40 : 0.55);
+    } else if (type === 2) {
+      lx = w * 0.30; ly = -h * 0.70;
+    } else if (type === 1) {
+      lx = w * 0.46; ly = -h * 0.62;
+    } else {
+      lx = w * 0.40; ly = -h * 0.52;
+    }
+    return { x: facing * lx, y: ly };
+  }
+
+  function drawUnitSprite(ctx, opt, img) {
+    const s = opt.scale || 1;
+    const team = opt.team || "player";
+    const { w, h } = spriteDrawSize(opt, img);
+    const t = opt.t || 0;
+    const walking = !!opt.walking;
+    const attack = Math.max(0, opt.attack || 0);
+    const hit = Math.max(0, opt.hit || 0);
+    const dead = Math.max(0, opt.deadT || 0);
+
+    ctx.save();
+    if (opt.facing === -1) ctx.scale(-1, 1);
+
+    if (dead > 0) {
+      const k = Math.min(1, dead / 0.75);
+      ctx.globalAlpha *= Math.max(0, 1 - k);
+      ctx.translate(-k * 6 * s, k * 16 * s);
+      ctx.rotate(-k * 1.2);
+    }
+
+    ctx.save();
+    ctx.fillStyle = "rgba(0,0,0,0.32)";
+    ctx.beginPath();
+    ctx.ellipse(0, 2 * s, Math.max(10, w * 0.28), Math.max(3, h * 0.045), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    let bob = 0, skew = 0, lunge = 0;
+    if (walking && dead <= 0) {
+      const ph = t * 8.2;
+      bob = Math.sin(ph) * 2.3 * s;
+      skew = Math.sin(ph) * 0.085;
+    }
+    if (attack > 0 && dead <= 0) {
+      const a = 1 - Math.min(1, attack);
+      if (a < 0.32) lunge = (a / 0.32) * 11 * s;
+      else lunge = (1 - (a - 0.32) / 0.68) * 5 * s - ((a - 0.32) / 0.68) * 4 * s;
+    }
+    ctx.translate(lunge, bob);
+    if (skew) ctx.transform(1, 0, skew, 1, 0, 0);
+
+    const dx = -w / 2, dy = -h;
+    ctx.drawImage(img, dx, dy, w, h);
+    if (hit > 0) {
+      ctx.save();
+      ctx.globalAlpha *= Math.min(0.85, hit * 5);
+      ctx.globalCompositeOperation = "lighter";
+      ctx.drawImage(img, dx, dy, w, h);
+      ctx.restore();
+    }
+    ctx.restore();
+
+    if (opt.hpRatio != null && opt.hpRatio < 1 && dead <= 0) {
+      const bw = Math.max(22, w * 0.7), bh = 4 * s;
+      const barY = -h - 8 * s;
+      rr(ctx, -bw / 2, barY, bw, bh, 2); ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.fill();
+      ctx.fillStyle = opt.hpRatio > 0.4 ? "#6bc96a" : "#e85d4c";
+      rr(ctx, -bw / 2, barY, bw * Math.max(0, opt.hpRatio), bh, 2); ctx.fill();
+    }
+  }
 
   function drawUnitToken(ctx, opt, img) {
     const s = opt.scale || 1;
@@ -772,8 +894,8 @@
     const era = opt.era | 0, type = opt.type | 0;
     const team = opt.team || "player";
     const s = opt.scale || 1;
-    const photo = getImg(portraitSrc(team, era, type));
-    if (photo) { drawUnitToken(ctx, opt, photo); return; }
+    const sprite = getSprite(team, era, type);
+    if (sprite) { drawUnitSprite(ctx, opt, sprite); return; }
     const p = opt.look || lookFor(era, type, team, opt.skin);
     const t = opt.t || 0;
     const bob = Math.sin(t * 6 + (opt.phase || 0)) * 1.1 * s;
@@ -1141,6 +1263,6 @@
   global.LW_DRAW = {
     lookFor, drawUnit, drawBaseWithHp, drawBackground, drawProjectile, drawFx,
     drawIsraelFlag, drawLegionEmblem, plate, gloss,
-    portraitSrc, preloadImages, getImg, ERA_IDS
+    portraitSrc, spriteSrc, getSprite, muzzleOffset, preloadImages, getImg, ERA_IDS
   };
 })(window);

@@ -26,6 +26,7 @@
         <div class="sun">☀️</div>
         <h1 class="game-title">Лаковые<br>воительницы</h1>
         <p class="game-sub">Выберите эпоху</p>
+        <p class="faction-line">Играете за <strong>Израиль</strong> против <strong>Тёмного легиона</strong></p>
       </div>
       <div class="map-scroll" id="map-scroll">
         <div class="path-line"></div>
@@ -35,6 +36,7 @@
       <nav class="bottom-nav">
         <button class="nav-item active" data-go="map"><span class="nav-ic">🗺️</span>Карта</button>
         <button class="nav-item" data-go="upgrades"><span class="nav-ic">🛡️</span>Улучшения</button>
+        <button class="nav-item" data-go="shop"><span class="nav-ic">🛒</span>Магазин</button>
       </nav>
     </section>
 
@@ -54,9 +56,32 @@
       <nav class="bottom-nav">
         <button class="nav-item" data-go="map"><span class="nav-ic">🗺️</span>Карта</button>
         <button class="nav-item active" data-go="upgrades"><span class="nav-ic">🛡️</span>Улучшения</button>
+        <button class="nav-item" data-go="shop"><span class="nav-ic">🛒</span>Магазин</button>
       </nav>
     </section>
 
+
+    <!-- SHOP -->
+    <section id="screen-shop" class="screen hidden">
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-shop" aria-label="Назад">←</button>
+        <h2 style="margin:0;font-size:22px;">Магазин</h2>
+        <div class="coin-chip"><span class="coin-icon">★</span><span id="shop-coins">0</span></div>
+      </div>
+      <div id="chest-banner" class="chest-banner"></div>
+      <div class="tabs tabs-wrap" id="shop-tabs">
+        <button class="tab on" data-shop="skills">Навыки</button>
+        <button class="tab" data-shop="heroes">Герои</button>
+        <button class="tab" data-shop="skins">Облик</button>
+        <button class="tab" data-shop="boosts">Усиления</button>
+      </div>
+      <div class="panel" id="panel-shop"></div>
+      <nav class="bottom-nav">
+        <button class="nav-item" data-go="map"><span class="nav-ic">🗺️</span>Карта</button>
+        <button class="nav-item" data-go="upgrades"><span class="nav-ic">🛡️</span>Улучшения</button>
+        <button class="nav-item active" data-go="shop"><span class="nav-ic">🛒</span>Магазин</button>
+      </nav>
+    </section>
     <!-- BATTLE -->
     <section id="screen-battle" class="screen hidden">
       <div class="battle-top">
@@ -73,6 +98,7 @@
       <div id="battle-canvas-wrap">
         <canvas id="battle-canvas"></canvas>
       </div>
+      <div class="skill-bar" id="skill-bar"></div>
       <div class="battle-dock">
         <div class="food-meter">
           <div class="food-fill" id="food-fill"></div>

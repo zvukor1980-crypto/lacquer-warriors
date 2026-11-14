@@ -45,6 +45,9 @@
     if (n >= 10000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K";
     return String(n);
   }
+  function portraitUrl(opt) {
+    return Draw.portraitSrc(opt.team || "player", opt.era, opt.type || 0, opt.hero);
+  }
   function spend(cost) {
     if (save.coins < cost) { toast("Не хватает монет"); return false; }
     save.coins -= cost;
@@ -70,7 +73,7 @@
       const node = document.createElement("div");
       node.className = "era-node " + st;
       node.innerHTML =
-        '<div class="era-portrait"><canvas width="172" height="172"></canvas></div>' +
+        '<div class="era-portrait"><img alt="" src="' + portraitUrl({era:i, type:0}) + '"></div>' +
         '<div class="era-label"><h3></h3><p></p><span class="badge"></span></div>';
       node.querySelector("h3").textContent = era.name;
       node.querySelector("p").textContent = era.year;
@@ -78,11 +81,6 @@
       if (st === "done") { badge.className = "badge done"; badge.textContent = "Пройдена ✓"; }
       else if (st === "current") { badge.className = "badge now"; badge.textContent = "Бой " + save.battle; }
       else { badge.className = "badge lock"; badge.textContent = "🔒 Закрыта"; }
-      const c = node.querySelector("canvas");
-      const ctx = c.getContext("2d");
-      ctx.scale(2, 2);
-      ctx.translate(43, 70);
-      Draw.drawUnit(ctx, { era: i, type: 0, team: "player", skin: save.skin, scale: 0.88, facing: 1, t: i });
       list.appendChild(node);
     });
   }
@@ -114,7 +112,7 @@
     let cards = '<div class="unit-row">';
     era.units.forEach((u, i) => {
       cards += '<div class="unit-card' + (unlocked[i] ? " unlocked" : "") + '">';
-      cards += '<canvas width="172" height="192" data-u="' + i + '"></canvas>';
+      cards += '<img class="unit-photo" alt="" src="' + portraitUrl({era:save.era, type:i}) + '">';
       cards += "<h4>" + u.name + "</h4><div class='role'>" + u.role + " · 🥩" + u.food + "</div>";
       if (!unlocked[i]) {
         cards += '<button class="unlock-btn" data-unlock="' + i + '"' +
@@ -137,10 +135,6 @@
         (save.coins < r.cost ? " disabled" : "") + ">⭐ " + fmt(r.cost) + "</button></div>";
     });
     panel.innerHTML = cards;
-    panel.querySelectorAll("canvas").forEach((c) => {
-      const i = +c.getAttribute("data-u");
-      miniUnit(c, save.era, i, !unlocked[i]);
-    });
     panel.querySelectorAll("[data-unlock]").forEach((b) => {
       b.addEventListener("click", () => unlockUnit(+b.getAttribute("data-unlock")));
     });
@@ -179,17 +173,11 @@
     const to = D.ERAS[save.era + 1];
     panel.innerHTML =
       '<div class="evolve-box"><div class="evolve-arrow">' +
-      '<div class="evolve-era"><canvas id="ev-from" width="180" height="200"></canvas><h3>' + from.name + "</h3></div>" +
+      '<div class="evolve-era"><img alt="" src="' + portraitUrl({era:save.era, type:0}) + '"><h3>' + from.name + "</h3></div>" +
       "<div style='font-size:28px'>➜</div>" +
-      '<div class="evolve-era"><canvas id="ev-to" width="180" height="200"></canvas><h3>' + to.name + "</h3></div>" +
+      '<div class="evolve-era"><img alt="" src="' + portraitUrl({era:save.era+1, type:0}) + '"><h3>' + to.name + "</h3></div>" +
       '</div><p class="hint">Эволюция откроет новых воительниц. Производство еды, здоровье базы и открытые юниты эпохи сбросятся. <strong>Блеск брони, герои, облики и навыки</strong> сохранятся.</p>' +
       '<button class="evolve-btn" id="btn-evolve"' + (save.coins < cost ? " disabled" : "") + ">Эволюционировать · ⭐ " + fmt(cost) + "</button></div>";
-    const a = $("ev-from").getContext("2d");
-    a.translate(90, 148);
-    Draw.drawUnit(a, { era: save.era, type: 0, team: "player", skin: save.skin, scale: 1.1, facing: 1, t: 0 });
-    const b = $("ev-to").getContext("2d");
-    b.translate(90, 148);
-    Draw.drawUnit(b, { era: save.era + 1, type: 0, team: "player", skin: save.skin, scale: 1.1, facing: 1, t: 1 });
     $("btn-evolve").addEventListener("click", evolve);
   }
 
@@ -279,7 +267,7 @@
     let h = '<div class="shop-grid">';
     D.HEROES.forEach((hero) => {
       const owned = !!(save.heroes && save.heroes[hero.id]);
-      h += '<div class="shop-card"><canvas width="160" height="180" data-hero="' + hero.id + '"></canvas><h4>' +
+      h += '<div class="shop-card"><img class="unit-photo" alt="" src="' + portraitUrl({hero:hero.id}) + '"><h4>' +
         hero.icon + " " + hero.name + "</h4><div class='desc'>" + hero.title + " · " + hero.desc + "</div>";
       if (owned) h += "<div class='owned'>Нанята ✓ · пассив действует</div>";
       else h += "<button class='buy-btn' data-hero='" + hero.id + "'" + (save.coins < hero.cost ? " disabled" : "") +
@@ -288,12 +276,6 @@
     });
     h += "</div>";
     panel.innerHTML = h;
-    panel.querySelectorAll("canvas[data-hero]").forEach((c) => {
-      const hero = D.HEROES.find((x) => x.id === c.getAttribute("data-hero"));
-      const ctx = c.getContext("2d");
-      ctx.translate(80, 138);
-      Draw.drawUnit(ctx, { era: hero.look.era, type: hero.look.type, team: "player", skin: save.skin, scale: 1, facing: 1, t: 1 });
-    });
     panel.querySelectorAll("button[data-hero]").forEach((b) => {
       b.addEventListener("click", () => buyHero(b.getAttribute("data-hero")));
     });
@@ -314,8 +296,8 @@
     D.SKINS.forEach((sk) => {
       const owned = save.ownedSkins.indexOf(sk.id) >= 0;
       const on = save.skin === sk.id;
-      h += '<div class="shop-card"><canvas width="160" height="180" data-skin="' + sk.id +
-        '"></canvas><span class="skin-dot" style="background:' + colors[sk.id] + '"></span><h4>' + sk.name +
+      h += '<div class="shop-card"><img class="unit-photo skin-' + sk.id + '" alt="" src="' + portraitUrl({era:save.era, type:0}) +
+        '"><span class="skin-dot" style="background:' + colors[sk.id] + '"></span><h4>' + sk.name +
         "</h4><div class='desc'>" + sk.desc + "</div>";
       if (on) h += "<div class='owned'>Надето ✓</div>";
       else if (owned) h += "<button class='buy-btn' data-wear='" + sk.id + "'>Надеть</button>";
@@ -325,12 +307,6 @@
     });
     h += "</div>";
     panel.innerHTML = h;
-    panel.querySelectorAll("canvas[data-skin]").forEach((c) => {
-      const id = c.getAttribute("data-skin");
-      const ctx = c.getContext("2d");
-      ctx.translate(80, 138);
-      Draw.drawUnit(ctx, { era: save.era, type: 0, team: "player", skin: id, scale: 1, facing: 1, t: 0 });
-    });
     panel.querySelectorAll("[data-buyskin]").forEach((b) => b.addEventListener("click", () => buySkin(b.getAttribute("data-buyskin"))));
     panel.querySelectorAll("[data-wear]").forEach((b) => b.addEventListener("click", () => wearSkin(b.getAttribute("data-wear"))));
   }
@@ -449,11 +425,7 @@
       const b = document.createElement("button");
       b.className = "unit-btn" + (unlocked[i] ? "" : " locked");
       b.disabled = !unlocked[i];
-      b.innerHTML = '<canvas width="140" height="128"></canvas><div class="fcost">🥩 ' + u.food + "</div>";
-      const c = b.querySelector("canvas");
-      const g = c.getContext("2d");
-      g.translate(70, 102);
-      Draw.drawUnit(g, { era: save.era, type: i, team: "player", skin: save.skin, scale: 0.78, facing: 1, t: i });
+      b.innerHTML = '<img alt="" src="' + portraitUrl({era:save.era, type:i}) + '"><div class="fcost">🥩 ' + u.food + "</div>";
       b.addEventListener("click", () => {
         if (battle && battle.trySpawnPlayer(i)) updateDock();
       });
@@ -606,5 +578,8 @@
     endBattle, toast, saveRef: () => save
   };
 
+  Draw.preloadImages("./").then(() => {
+    if (current === "map") renderMap();
+  });
   showScreen("map");
 })();

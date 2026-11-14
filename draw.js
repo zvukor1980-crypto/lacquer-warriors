@@ -698,10 +698,82 @@
     rr(ctx, -8 * s, -6 * s, 16 * s, 10 * s, 4 * s); ctx.fill();
   }
 
+
+  const ERA_IDS = ["stone", "farm", "sparta", "ren", "modern", "space"];
+  const imgs = {};
+  const SKIN_RING = { israel: "#3d7ad6", gold: "#e8c44a", teal: "#2aa8a0", scarlet: "#e03a4a", opal: "#c9a0e8" };
+
+  function portraitSrc(team, era, type, hero) {
+    if (hero) return "img/heroes/" + hero + ".webp";
+    era = Math.max(0, Math.min(5, era | 0));
+    const id = ERA_IDS[era];
+    if ((team || "player") === "enemy") return "img/legion/" + id + ".webp";
+    return "img/israel/" + id + "-" + (type | 0) + ".webp";
+  }
+
+  function preloadImages(base) {
+    base = base || "./";
+    const list = [];
+    ERA_IDS.forEach((id) => {
+      for (let t = 0; t < 3; t++) list.push("img/israel/" + id + "-" + t + ".webp");
+      list.push("img/legion/" + id + ".webp");
+    });
+    ["daliya", "noa", "yael", "miri"].forEach((h) => list.push("img/heroes/" + h + ".webp"));
+    list.push("img/bg/battle.webp", "img/bg/menu.webp", "img/bg/map.webp");
+    return Promise.all(list.map((src) => new Promise((res) => {
+      const im = new Image();
+      im.onload = () => { imgs[src] = im; res(im); };
+      im.onerror = () => res(null);
+      im.src = base + src;
+    })));
+  }
+
+  function getImg(src) { return imgs[src] || null; }
+
+  function drawUnitToken(ctx, opt, img) {
+    const s = opt.scale || 1;
+    const r = ((opt.type === 2) ? 31 : 26) * s;
+    const team = opt.team || "player";
+    ctx.save();
+    if (opt.facing === -1) ctx.scale(-1, 1);
+    ctx.fillStyle = "rgba(0,0,0,.28)";
+    ctx.beginPath();
+    ctx.ellipse(0, 7 * s, r * 0.9, r * 0.22, 0, 0, Math.PI * 2);
+    ctx.fill();
+    const cy = -r * 0.2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(0, cy, r, 0, Math.PI * 2);
+    ctx.clip();
+    const iw = img.width, ih = img.height;
+    const side = Math.min(iw, Math.round(ih * 0.7));
+    const sx = (iw - side) / 2;
+    const sy = Math.round(ih * 0.05);
+    ctx.drawImage(img, sx, sy, side, side, -r, cy - r, r * 2, r * 2);
+    ctx.restore();
+    const ring = team === "enemy" ? "#5a2a78" : (SKIN_RING[opt.skin] || "#3d7ad6");
+    ctx.strokeStyle = ring;
+    ctx.lineWidth = 3 * s;
+    ctx.beginPath(); ctx.arc(0, cy, r, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = team === "enemy" ? "#e0c8ff" : "#fff";
+    ctx.lineWidth = 1.15 * s;
+    ctx.beginPath(); ctx.arc(0, cy, r - 2.2 * s, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    if (opt.hpRatio != null && opt.hpRatio < 1) {
+      const w = r * 1.7, h = 4 * s;
+      const barY = cy - r - 8 * s;
+      rr(ctx, -w / 2, barY, w, h, 2); ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.fill();
+      ctx.fillStyle = opt.hpRatio > 0.4 ? "#6bc96a" : "#e85d4c";
+      rr(ctx, -w / 2, barY, w * Math.max(0, opt.hpRatio), h, 2); ctx.fill();
+    }
+  }
+
   function drawUnit(ctx, opt) {
     const era = opt.era | 0, type = opt.type | 0;
     const team = opt.team || "player";
     const s = opt.scale || 1;
+    const photo = getImg(portraitSrc(team, era, type));
+    if (photo) { drawUnitToken(ctx, opt, photo); return; }
     const p = opt.look || lookFor(era, type, team, opt.skin);
     const t = opt.t || 0;
     const bob = Math.sin(t * 6 + (opt.phase || 0)) * 1.1 * s;
@@ -922,6 +994,19 @@
   }
 
   function drawBackground(ctx, W, H, laneY) {
+    const photo = getImg("img/bg/battle.webp");
+    if (photo) {
+      const sc = Math.max(W / photo.width, H / photo.height);
+      const dw = photo.width * sc, dh = photo.height * sc;
+      ctx.drawImage(photo, (W - dw) / 2, (H - dh) / 2, dw, dh);
+      // soft bottom fade so dock meets the grass
+      const vg = ctx.createLinearGradient(0, H * 0.75, 0, H);
+      vg.addColorStop(0, "rgba(0,0,0,0)");
+      vg.addColorStop(1, "rgba(20,30,10,.18)");
+      ctx.fillStyle = vg;
+      ctx.fillRect(0, 0, W, H);
+      return;
+    }
     const g = ctx.createLinearGradient(0, 0, 0, laneY - 40);
     g.addColorStop(0, "#8fd6ff");
     g.addColorStop(1, "#d8f0ff");
@@ -1055,6 +1140,7 @@
 
   global.LW_DRAW = {
     lookFor, drawUnit, drawBaseWithHp, drawBackground, drawProjectile, drawFx,
-    drawIsraelFlag, drawLegionEmblem, plate, gloss
+    drawIsraelFlag, drawLegionEmblem, plate, gloss,
+    portraitSrc, preloadImages, getImg, ERA_IDS
   };
 })(window);

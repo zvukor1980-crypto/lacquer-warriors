@@ -1,4 +1,4 @@
-const CACHE = "lacquer-warriors-v3";
+const CACHE = "lacquer-warriors-v4";
 const ASSETS = [
   "./",
   "./index.html",
@@ -11,8 +11,40 @@ const ASSETS = [
   "./icon-192.png",
   "./icon-512.png",
   "./fonts/Fredoka-Regular.ttf",
-  "./fonts/Fredoka-SemiBold.ttf"
+  "./fonts/Fredoka-SemiBold.ttf",
+  "./img/bg/battle.webp",
+  "./img/bg/map.webp",
+  "./img/bg/menu.webp",
+  "./img/heroes/daliya.webp",
+  "./img/heroes/miri.webp",
+  "./img/heroes/noa.webp",
+  "./img/heroes/yael.webp",
+  "./img/israel/farm-0.webp",
+  "./img/israel/farm-1.webp",
+  "./img/israel/farm-2.webp",
+  "./img/israel/modern-0.webp",
+  "./img/israel/modern-1.webp",
+  "./img/israel/modern-2.webp",
+  "./img/israel/ren-0.webp",
+  "./img/israel/ren-1.webp",
+  "./img/israel/ren-2.webp",
+  "./img/israel/space-0.webp",
+  "./img/israel/space-1.webp",
+  "./img/israel/space-2.webp",
+  "./img/israel/sparta-0.webp",
+  "./img/israel/sparta-1.webp",
+  "./img/israel/sparta-2.webp",
+  "./img/israel/stone-0.webp",
+  "./img/israel/stone-1.webp",
+  "./img/israel/stone-2.webp",
+  "./img/legion/farm.webp",
+  "./img/legion/modern.webp",
+  "./img/legion/ren.webp",
+  "./img/legion/space.webp",
+  "./img/legion/sparta.webp",
+  "./img/legion/stone.webp"
 ];
+
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

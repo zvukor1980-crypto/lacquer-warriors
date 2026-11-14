@@ -102,7 +102,11 @@ html, body {
 .icon-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(92,58,42,.18); }
 
 /* Map */
-#screen-map { background: linear-gradient(#9fe0ff 0%, #eaf7ff 40%, #fff3d6 100%); }
+#screen-map {
+  background-image: linear-gradient(180deg, rgba(255,248,238,.42) 0%, rgba(255,243,214,.78) 72%, rgba(255,243,214,.9) 100%), url("img/bg/map.webp");
+  background-size: cover;
+  background-position: center top;
+}
 .title-wrap { text-align: center; padding: 4px 12px 0; flex-shrink: 0; }
 .game-title {
   font-weight: 600;
@@ -169,7 +173,7 @@ html, body {
   box-shadow: 0 0 0 6px rgba(255, 210, 74, .45), var(--shadow);
 }
 .era-node.locked .era-portrait { filter: saturate(0.4) brightness(0.95); }
-.era-portrait canvas { width: 100%; height: 100%; display: block; }
+.era-portrait canvas, .era-portrait img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 18%; }
 .era-label {
   background: #fffaf0;
   border: 3px solid #f0d9a8;
@@ -252,7 +256,11 @@ html, body {
 }
 
 /* Upgrades */
-#screen-upgrades { background: linear-gradient(#c8ecff, #fff6e8 30%); }
+#screen-upgrades, #screen-shop {
+  background-image: linear-gradient(180deg, rgba(200,236,255,.55) 0%, rgba(255,246,232,.88) 36%, rgba(255,246,232,.94) 100%), url("img/bg/menu.webp");
+  background-size: cover;
+  background-position: center top;
+}
 .tabs {
   display: flex;
   gap: 8px;
@@ -295,7 +303,8 @@ html, body {
   position: relative;
 }
 .unit-card.unlocked { border-color: #ffb3c8; background: #fff5f8; }
-.unit-card canvas { width: 72px; height: 78px; margin: 0 auto; display: block; }
+.unit-card canvas, .unit-card .unit-photo { width: 72px; height: 86px; margin: 0 auto; display: block; object-fit: cover; object-position: center 16%; border-radius: 10px; }
+.unit-card:not(.unlocked) .unit-photo { filter: saturate(0.35) brightness(0.9); }
 .unit-card h4 { margin: 0; font-size: 13px; }
 .unit-card .role { font-size: 11px; color: var(--brown-s); }
 .unit-card .cost-line { font-size: 12px; font-weight: 600; margin-top: 4px; }
@@ -356,7 +365,7 @@ html, body {
   margin: 8px 0 14px;
 }
 .evolve-era { text-align: center; }
-.evolve-era canvas { width: 90px; height: 100px; }
+.evolve-era canvas, .evolve-era img { width: 90px; height: 110px; object-fit: cover; object-position: center 16%; border-radius: 12px; display: block; margin: 0 auto; }
 .evolve-era h3 { margin: 0; font-size: 14px; }
 .hint { font-size: 13px; color: var(--brown-s); margin: 0 8px 14px; }
 .evolve-btn {
@@ -463,7 +472,7 @@ html, body {
 .unit-btn:nth-child(1) { background: #f3e9ff; border-color: #d7c0f0; }
 .unit-btn:nth-child(2) { background: #ffe4ef; border-color: #f5b8cc; }
 .unit-btn:nth-child(3) { background: #eaffd8; border-color: #c4e8a8; }
-.unit-btn canvas { width: 70px; height: 64px; pointer-events: none; }
+.unit-btn canvas, .unit-btn img { width: 70px; height: 70px; pointer-events: none; object-fit: cover; object-position: center 16%; border-radius: 10px; }
 .unit-btn .fcost {
   font-weight: 600; font-size: 13px;
   display: flex; align-items: center; gap: 3px;
@@ -588,7 +597,11 @@ html, body {
 .shop-card h4 { margin: 0 0 2px; font-size: 14px; }
 .shop-card .desc { font-size: 11px; color: var(--brown-s); min-height: 28px; }
 .shop-card .owned { font-size: 12px; font-weight: 600; color: #2d8a3e; margin-top: 6px; }
-.shop-card canvas { width: 80px; height: 90px; display: block; margin: 0 auto; }
+.shop-card canvas, .shop-card .unit-photo { width: 80px; height: 96px; display: block; margin: 0 auto; object-fit: cover; object-position: center 16%; border-radius: 12px; }
+.shop-card img.skin-gold { filter: sepia(.65) saturate(1.35) hue-rotate(8deg); }
+.shop-card img.skin-teal { filter: hue-rotate(130deg) saturate(1.15); }
+.shop-card img.skin-scarlet { filter: hue-rotate(-15deg) saturate(1.35); }
+.shop-card img.skin-opal { filter: hue-rotate(230deg) saturate(.85) brightness(1.12); }
 .shop-card.wide { grid-column: 1 / -1; display: flex; text-align: left; gap: 10px; align-items: center; }
 .shop-card.wide .desc { min-height: 0; }
 .skill-bar {

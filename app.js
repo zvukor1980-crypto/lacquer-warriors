@@ -81,8 +81,8 @@
       const c = node.querySelector("canvas");
       const ctx = c.getContext("2d");
       ctx.scale(2, 2);
-      ctx.translate(43, 62);
-      Draw.drawUnit(ctx, { era: i, type: 0, team: "player", skin: save.skin, scale: 1.05, facing: 1, t: i });
+      ctx.translate(43, 70);
+      Draw.drawUnit(ctx, { era: i, type: 0, team: "player", skin: save.skin, scale: 0.88, facing: 1, t: i });
       list.appendChild(node);
     });
   }
@@ -101,7 +101,7 @@
     const ctx = canvas.getContext("2d");
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.translate(canvas.width / 2, canvas.height * 0.68);
+    ctx.translate(canvas.width / 2, canvas.height * 0.74);
     if (locked) ctx.globalAlpha = 0.35;
     Draw.drawUnit(ctx, { era, type, team: team || "player", skin: save.skin, scale: 0.95, facing: 1, t: type });
   }
@@ -185,10 +185,10 @@
       '</div><p class="hint">Эволюция откроет новых воительниц. Производство еды, здоровье базы и открытые юниты эпохи сбросятся. <strong>Блеск брони, герои, облики и навыки</strong> сохранятся.</p>' +
       '<button class="evolve-btn" id="btn-evolve"' + (save.coins < cost ? " disabled" : "") + ">Эволюционировать · ⭐ " + fmt(cost) + "</button></div>";
     const a = $("ev-from").getContext("2d");
-    a.translate(90, 140);
+    a.translate(90, 148);
     Draw.drawUnit(a, { era: save.era, type: 0, team: "player", skin: save.skin, scale: 1.1, facing: 1, t: 0 });
     const b = $("ev-to").getContext("2d");
-    b.translate(90, 140);
+    b.translate(90, 148);
     Draw.drawUnit(b, { era: save.era + 1, type: 0, team: "player", skin: save.skin, scale: 1.1, facing: 1, t: 1 });
     $("btn-evolve").addEventListener("click", evolve);
   }
@@ -291,7 +291,7 @@
     panel.querySelectorAll("canvas[data-hero]").forEach((c) => {
       const hero = D.HEROES.find((x) => x.id === c.getAttribute("data-hero"));
       const ctx = c.getContext("2d");
-      ctx.translate(80, 130);
+      ctx.translate(80, 138);
       Draw.drawUnit(ctx, { era: hero.look.era, type: hero.look.type, team: "player", skin: save.skin, scale: 1, facing: 1, t: 1 });
     });
     panel.querySelectorAll("button[data-hero]").forEach((b) => {
@@ -328,7 +328,7 @@
     panel.querySelectorAll("canvas[data-skin]").forEach((c) => {
       const id = c.getAttribute("data-skin");
       const ctx = c.getContext("2d");
-      ctx.translate(80, 130);
+      ctx.translate(80, 138);
       Draw.drawUnit(ctx, { era: save.era, type: 0, team: "player", skin: id, scale: 1, facing: 1, t: 0 });
     });
     panel.querySelectorAll("[data-buyskin]").forEach((b) => b.addEventListener("click", () => buySkin(b.getAttribute("data-buyskin"))));
@@ -452,8 +452,8 @@
       b.innerHTML = '<canvas width="140" height="128"></canvas><div class="fcost">🥩 ' + u.food + "</div>";
       const c = b.querySelector("canvas");
       const g = c.getContext("2d");
-      g.translate(70, 90);
-      Draw.drawUnit(g, { era: save.era, type: i, team: "player", skin: save.skin, scale: 0.85, facing: 1, t: i });
+      g.translate(70, 102);
+      Draw.drawUnit(g, { era: save.era, type: i, team: "player", skin: save.skin, scale: 0.78, facing: 1, t: i });
       b.addEventListener("click", () => {
         if (battle && battle.trySpawnPlayer(i)) updateDock();
       });

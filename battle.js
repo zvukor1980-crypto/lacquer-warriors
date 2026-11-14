@@ -234,9 +234,9 @@
       const dmg = crit ? u.dmg * 1.6 : u.dmg;
       if (isRanged) {
         const colors = { stone: "#888", arrow: "#6a4a20", bullet: "#ffe27a", cannon: "#3a3028", laser: u.team === "player" ? "#5ba7ff" : "#e080ff" };
-        this.shoot(u.x + u.facing * 18, u.y - 26, foe, dmg, u.aoe, u.proj, colors[u.proj] || "#ffe27a", u.proj === "laser" ? colors[u.proj] : null, u.facing);
+        this.shoot(u.x + u.facing * 18, u.y - 34, foe, dmg, u.aoe, u.proj, colors[u.proj] || "#ffe27a", u.proj === "laser" ? colors[u.proj] : null, u.facing);
         this.projectiles[this.projectiles.length - 1].crit = crit;
-        this.fx.push({ kind: "flash", x: u.x + u.facing * 18, y: u.y - 20, t: 0, life: 0.16 });
+        this.fx.push({ kind: "flash", x: u.x + u.facing * 18, y: u.y - 34, t: 0, life: 0.16 });
       } else {
         this.fx.push({ kind: "slash", x: u.x + u.facing * 16, y: u.y - 8, t: 0, life: 0.18, facing: u.facing, color: u.team === "player" ? "#c8e8ff" : "#e0b0ff" });
         this.hit(foe, dmg, u.aoe, foe.x, crit);
@@ -249,7 +249,7 @@
       const crit = u.team === "player" && this.rollCrit();
       if (crit) dmg *= 1.6;
       if (u.proj && u.proj !== "none") {
-        this.fx.push({ kind: "flash", x: u.x + u.facing * 18, y: u.y - 20, t: 0, life: 0.16 });
+        this.fx.push({ kind: "flash", x: u.x + u.facing * 18, y: u.y - 34, t: 0, life: 0.16 });
       } else {
         this.fx.push({ kind: "slash", x: u.x + u.facing * 16, y: u.y - 8, t: 0, life: 0.18, facing: u.facing, color: "#fff" });
       }
@@ -388,7 +388,7 @@
         if (u.frozen > 0) ctx.filter = "saturate(0.6) brightness(1.15)";
         Draw.drawUnit(ctx, {
           era: u.era, type: u.type, team: u.team, look: u.look, skin: this.skin,
-          scale: u.type === 2 ? 1.25 : 1.15, facing: u.facing,
+          scale: u.type === 2 ? 1.18 : 1.08, facing: u.facing,
           t: this.time + u.phase, hpRatio: u.alive ? u.hp / u.maxHp : 0
         });
         ctx.filter = "none";

@@ -1,4 +1,4 @@
-const CACHE = "lacquer-warriors-v2";
+const CACHE = "lacquer-warriors-v3";
 const ASSETS = [
   "./",
   "./index.html",

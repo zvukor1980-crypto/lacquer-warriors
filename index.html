@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Воительницы">
+  <meta name="theme-color" content="#B9E7FF">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Лаковые воительницы</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div id="app">
+    <!-- MAP -->
+    <section id="screen-map" class="screen">
+      <div class="topbar">
+        <div class="coin-chip"><span class="coin-icon">★</span><span id="map-coins">0</span></div>
+        <button class="icon-btn" id="btn-settings" aria-label="Настройки">⚙</button>
+      </div>
+      <div class="title-wrap">
+        <div class="sun">☀️</div>
+        <h1 class="game-title">Лаковые<br>воительницы</h1>
+        <p class="game-sub">Выберите эпоху</p>
+      </div>
+      <div class="map-scroll" id="map-scroll">
+        <div class="path-line"></div>
+        <div id="era-list"></div>
+      </div>
+      <button class="play-btn" id="btn-play">▶ Играть</button>
+      <nav class="bottom-nav">
+        <button class="nav-item active" data-go="map"><span class="nav-ic">🗺️</span>Карта</button>
+        <button class="nav-item" data-go="upgrades"><span class="nav-ic">🛡️</span>Улучшения</button>
+      </nav>
+    </section>
+
+    <!-- UPGRADES -->
+    <section id="screen-upgrades" class="screen hidden">
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-up" aria-label="Назад">←</button>
+        <h2 style="margin:0;font-size:22px;">Улучшения</h2>
+        <div class="coin-chip"><span class="coin-icon">★</span><span id="up-coins">0</span></div>
+      </div>
+      <div class="tabs">
+        <button class="tab on" data-tab="upgrades" id="tab-upgrades">Улучшения</button>
+        <button class="tab" data-tab="evolve" id="tab-evolve">Эволюция</button>
+      </div>
+      <div class="panel" id="panel-upgrades"></div>
+      <div class="panel hidden" id="panel-evolve"></div>
+      <nav class="bottom-nav">
+        <button class="nav-item" data-go="map"><span class="nav-ic">🗺️</span>Карта</button>
+        <button class="nav-item active" data-go="upgrades"><span class="nav-ic">🛡️</span>Улучшения</button>
+      </nav>
+    </section>
+
+    <!-- BATTLE -->
+    <section id="screen-battle" class="screen hidden">
+      <div class="battle-top">
+        <div class="row1">
+          <div class="coin-chip"><span class="coin-icon">★</span><span id="btl-coins">0</span></div>
+          <h2 class="battle-title" id="btl-title">Бой 1</h2>
+          <div style="display:flex;gap:6px;">
+            <button class="icon-btn" id="btn-speed" aria-label="Скорость">×1</button>
+            <button class="icon-btn" id="btn-pause" aria-label="Пауза">⏸</button>
+          </div>
+        </div>
+        <div class="collected">За бой: <span class="coin-icon" style="width:16px;height:16px;font-size:10px;">★</span> <span id="btl-earned">0</span></div>
+      </div>
+      <div id="battle-canvas-wrap">
+        <canvas id="battle-canvas"></canvas>
+      </div>
+      <div class="battle-dock">
+        <div class="food-meter">
+          <div class="food-fill" id="food-fill"></div>
+          <div class="food-label"><span class="steak">🥩</span><span id="food-val">0</span></div>
+        </div>
+        <div class="unit-btns" id="unit-btns"></div>
+      </div>
+    </section>
+
+    <!-- Overlays -->
+    <div id="overlay-result" class="overlay hidden">
+      <div class="modal" id="result-modal">
+        <h2 id="result-title">Победа!</h2>
+        <p id="result-sub"></p>
+        <p>Собрано монет: <strong id="result-coins">0</strong></p>
+        <p>Всего: <strong id="result-total">0</strong></p>
+        <div class="modal-actions">
+          <button class="btn" id="btn-again">Ещё бой</button>
+          <button class="btn blue" id="btn-to-upgrades">Улучшения</button>
+          <button class="btn ghost" id="btn-to-map">На карту</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="overlay-pause" class="overlay hidden">
+      <div class="modal">
+        <h2>Пауза</h2>
+        <div class="modal-actions">
+          <button class="btn" id="btn-resume">Продолжить</button>
+          <button class="btn ghost" id="btn-surrender">Покинуть бой</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="overlay-settings" class="overlay hidden">
+      <div class="modal">
+        <h2>Настройки</h2>
+        <p>Полностью офлайн. Прогресс хранится на этом устройстве.</p>
+        <div class="modal-actions">
+          <button class="btn ghost" id="btn-reset">Сбросить прогресс</button>
+          <button class="btn" id="btn-close-set">Закрыть</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="draw.js"></script>
+  <script src="battle.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -3,18 +3,18 @@
 const $=id=>document.getElementById(id);
 const KEY="queen_empire_offline_v2";
 const AGES=[
-{title:"Дикие луны",era:"Эпоха 1 · Изумрудные земли",sky:["#293a53","#be7d9d","#395a53"],icon:"🌿",units:[["Амазонка","⚔️"],["Охотница","🏹"],["Всадница","🐆"]]},
-{title:"Золотые сады",era:"Эпоха 2 · Царство цветов",sky:["#59436a","#edacaa","#649b80"],icon:"🌸",units:[["Хранительница","🗡️"],["Фея-стрелок","🪄"],["Лесная королева","🦌"]]},
-{title:"Бронзовая корона",era:"Эпоха 3 · Древние легенды",sky:["#372f4d","#d99571","#706f6b"],icon:"🏛️",units:[["Легионерка","🛡️"],["Лучница","🏹"],["Царица львов","🦁"]]},
-{title:"Бархат и порох",era:"Эпоха 4 · Королевские дворцы",sky:["#492c50","#ca86a4","#685070"],icon:"🏰",units:[["Дуэлянтка","🗡️"],["Мушкетёрша","🎯"],["Герцогиня","💣"]]},
-{title:"Стальные города",era:"Эпоха 5 · Индустриальный мир",sky:["#293447","#ad7e99","#4c6772"],icon:"⚙️",units:[["Защитница","🔧"],["Снайперша","🎯"],["Меха-пилот","🤖"]]},
-{title:"Неоновая ночь",era:"Эпоха 6 · Город будущего",sky:["#141b48","#7347a1","#254360"],icon:"🌃",units:[["Кибер-ниндзя","⚡"],["Техноведьма","🔮"],["Робо-амазонка","🦾"]]},
-{title:"Звёздные троны",era:"Эпоха 7 · Галактическая империя",sky:["#171b47","#8f4b91","#394b73"],icon:"🌌",units:[["Астрорыцарь","🪐"],["Лазерная леди","✨"],["Королева комет","🚀"]]}
+{title:"Дикие луны",era:"Эпоха 1 · Изумрудные земли",sky:["#78bdce","#d9eef0","#63a989"],icon:"🌿",units:[["Амазонка","⚔️"],["Охотница","🏹"],["Всадница","🐆"]]},
+{title:"Золотые сады",era:"Эпоха 2 · Царство цветов",sky:["#88b3bd","#efdfc9","#8caf86"],icon:"🌸",units:[["Хранительница","🗡️"],["Фея-стрелок","🪄"],["Лесная королева","🦌"]]},
+{title:"Бронзовая корона",era:"Эпоха 3 · Древние легенды",sky:["#c0af99","#f2d8ae","#bd9e74"],icon:"🏛️",units:[["Легионерка","🛡️"],["Лучница","🏹"],["Царица львов","🦁"]]},
+{title:"Бархат и порох",era:"Эпоха 4 · Королевские дворцы",sky:["#8c9fa2","#decab4","#647b7c"],icon:"🏰",units:[["Дуэлянтка","🗡️"],["Мушкетёрша","🎯"],["Герцогиня","💣"]]},
+{title:"Стальные города",era:"Эпоха 5 · Индустриальный мир",sky:["#647c8d","#bdc6bf","#5f8792"],icon:"⚙️",units:[["Защитница","🔧"],["Снайперша","🎯"],["Меха-пилот","🤖"]]},
+{title:"Неоновая ночь",era:"Эпоха 6 · Город будущего",sky:["#28465f","#699db1","#3e7182"],icon:"🌃",units:[["Кибер-ниндзя","⚡"],["Техноведьма","🔮"],["Робо-амазонка","🦾"]]},
+{title:"Звёздные троны",era:"Эпоха 7 · Галактическая империя",sky:["#1b3554","#477d95","#294e74"],icon:"🌌",units:[["Астрорыцарь","🪐"],["Лазерная леди","✨"],["Королева комет","🚀"]]}
 ];
 const NAMES=["Астра","Мира","Селена","Ника","Виктория","Лея","Роксана","Эсмеральда","София","Ирис","Кассиопея","Рубина","Аврора","Тамира","Вега","Мелисса","Кира","Аделина"];
 const HAIRS=["#332136","#e9c38c","#832942","#28223e","#b36944","#14172e","#ecd2a5","#a44a5c","#6a412c","#222a45","#b88b63","#e8bc68","#793975","#2f1e27","#e9c5b1","#975041","#2e2039","#db9dbf"];
 const SKINS=["#f1ba99","#b88469","#f0c7a7","#bd7b5d","#d69a7f","#edb69b","#c78c71","#e6ab8b","#ac7058","#f0c9ae","#d9a282","#c98c72"];
-const COLORS=["#d44c86","#7050bf","#48a6a6","#bf7a38","#b34270","#4e7cc2","#ca8db5","#497c69","#c55254","#ae9b59","#7c6ac5","#3893a5","#c85e96","#c07844","#547ab7","#9981d0","#a63d77","#d58490"];
+const COLORS=["#0b5967","#c16a44","#417c68","#c18d48","#ac4d61","#2d6288","#56836a","#ad6456","#3e5981","#4e7164","#92624d","#385c70","#c07b4b","#5b7f77","#7f515d","#bf8c56","#316a74","#ad6859"];
 const MAGICS=[["Лёд","❄️","На 5 секунд замораживает врагов"],["Метеоры","☄️","Поражает всех врагов"],["Лечение","💗","Восстанавливает здоровье"],["Ярость","🔥","Увеличивает урон на 12 секунд"],["Тайфун","🌪️","Отбрасывает врагов назад"],["Двойники","👥","Призывает две копии героини"]];
 const SHOP=[
 ["food","🍎","Сады изобилия","+0,55 еды в секунду","coins",90],
@@ -47,37 +47,68 @@ const attackPower=side=>side==="p"?(1+S.attack*.17+S.relic*.11):(1+(S.stage-1)*.
 const healthPower=side=>side==="p"?(1+S.vital*.18+S.relic*.07):(1+(S.stage-1)*.13+S.era*.12+(S.timeline-1)*.15);
 const enemyHP=()=>Math.round((460+(S.stage-1)*130)*Math.pow(1.25,S.era)*Math.pow(1.55,S.timeline-1)*(G.mode==="arena"?1.55:1));
 const color=id=>COLORS[(id+S.skin*3)%COLORS.length];
-function heroSvg(id){
-const hair=HAIRS[id%HAIRS.length],skin=SKINS[id%SKINS.length],armor=color(id),pid="g"+id;
-const fringe=id%3===0?"M28 47Q30 16 66 19L88 47 75 37 42 39Z":id%3===1?"M29 45Q27 19 57 17Q87 13 89 48L77 29 58 35 40 28Z":"M30 48Q20 16 61 16Q89 19 90 46L76 36 48 43Z";
-return '<svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+NAMES[id]+'"><defs><linearGradient id="'+pid+'" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff" stop-opacity=".5"/><stop offset=".35" stop-color="'+armor+'"/><stop offset="1" stop-color="#20112c"/></linearGradient></defs><circle cx="62" cy="54" r="52" fill="#ffffff12"/><path d="M14 142Q12 92 44 95L77 95Q107 100 112 142Z" fill="url(#'+pid+')" stroke="#ffdaac83" stroke-width="2"/><path d="M27 115L45 100 60 120 75 100 96 115" stroke="#ffe6b8" stroke-width="3" fill="none"/><path d="M48 92L51 78 69 78 72 92Q58 105 48 92Z" fill="'+skin+'"/><path d="M24 83Q9 28 35 16Q61-3 85 17Q107 42 91 91L79 70 37 70Z" fill="'+hair+'"/><ellipse cx="60" cy="54" rx="30" ry="37" fill="'+skin+'"/><path d="'+fringe+'" fill="'+hair+'"/><path d="M40 56Q48 52 54 56M66 56Q73 52 80 56" stroke="#4c2d3a" stroke-width="2" stroke-linecap="round" fill="none"/><ellipse cx="48" cy="57" rx="2" ry="2.5" fill="#201722"/><ellipse cx="72" cy="57" rx="2" ry="2.5" fill="#201722"/><path d="M60 61L56 70 63 72" stroke="#ad796d" stroke-width="1.5" fill="none"/><path d="M52 80Q61 85 69 79" stroke="#9e3c5d" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="32" cy="69" r="3.5" fill="#ffe1a7"/><circle cx="88" cy="69" r="3.5" fill="#ffe1a7"/><path d="M38 23Q60 1 84 23" fill="none" stroke="#fbdab2" stroke-width="2"/><path d="M60 6L67 17 60 28 53 17Z" fill="#fff0ae"/><path d="M42 125L60 137 79 125" stroke="#fff2d37f" fill="none" stroke-width="2"/></svg>';
-}
+function heroSvg(id){return window.QueenArt.portrait(id);}
 function champ(){return '<div class="portrait">'+heroSvg(S.hero)+'</div><div class="champtext"><label>ВЕРХОВНАЯ КОМАНДИРША</label><strong>'+NAMES[S.hero]+'</strong><small>'+a().title+' · реликвии '+S.relic+'</small></div><button class="chip" data-a="tab" data-tab="heroes">Героини ›</button>';}
 function rect(x,y,w,h,r,fill,stroke){c.beginPath();c.roundRect(x,y,w,h,r);if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}}
-function backdrop(){const colors=a().sky,grad=c.createLinearGradient(0,0,0,H);grad.addColorStop(0,colors[0]);grad.addColorStop(.55,colors[1]);grad.addColorStop(1,colors[2]);c.fillStyle=grad;c.fillRect(0,0,W,H);
-for(let i=0;i<33;i++){let x=(i*91+21)%W,y=(i*61+15)%160;c.fillStyle="#ffffff"+(i%2?"35":"60");c.beginPath();c.arc(x,y,1+i%3*.4,0,7);c.fill();}
-c.fillStyle="#ffdfb149";c.beginPath();c.arc(300,65,35,0,7);c.fill();c.fillStyle="#fff0c781";c.beginPath();c.arc(300,65,20,0,7);c.fill();
-for(let l=0;l<3;l++){let yy=140+l*29;c.beginPath();c.moveTo(0,yy);for(let x=0;x<=W;x+=12)c.lineTo(x,yy-12*Math.sin((x+l*22)/35));c.lineTo(W,H);c.lineTo(0,H);c.fillStyle=["#32244982","#32243d5c","#283545a1"][l];c.fill();}
-if(S.era>=4){for(let i=0;i<10;i++){let x=i*51,h=44+(i*31)%54;c.fillStyle="#1e264788";c.fillRect(x,221-h,36,h);c.fillStyle="#ffaadd60";for(let row=0;row<3;row++)for(let col=0;col<3;col++)c.fillRect(x+6+col*10,230-h+row*11,4,5);}}
-if(S.era===6){c.strokeStyle="#d8e7ffa1";c.lineWidth=2;c.beginPath();c.ellipse(185,102,78,18,.15,0,7);c.stroke();}
-c.fillStyle="#947173";c.fillRect(0,225,W,75);c.fillStyle="#775467";c.fillRect(0,245,W,55);c.strokeStyle="#f7c29d5c";c.lineWidth=2;c.beginPath();c.moveTo(0,225);c.lineTo(W,225);c.stroke();
-for(let i=0;i<12;i++){c.strokeStyle="#ffe7bb27";c.beginPath();c.moveTo((i*57)%390,260+(i%4)*9);c.lineTo((i*57)%390+13,263+(i%4)*9);c.stroke();}
+function backdrop(){
+const shades=a().sky,sky=c.createLinearGradient(0,0,0,H);
+sky.addColorStop(0,shades[0]);sky.addColorStop(.54,shades[1]);sky.addColorStop(1,shades[2]);c.fillStyle=sky;c.fillRect(0,0,W,H);
+c.save();
+const futuristic=S.era>=4,galaxy=S.era===6;
+if(!futuristic){
+c.fillStyle="#fff8e7b4";c.beginPath();c.arc(292,69,26,0,7);c.fill();
+c.fillStyle="#fffef07d";c.beginPath();c.arc(292,69,42,0,7);c.fill();
+for(let i=0;i<4;i++){let x=(i*131+45)%390,y=33+(i%2)*37;c.fillStyle="#f5fcf380";c.beginPath();c.ellipse(x,y,38,8,-.1,0,7);c.ellipse(x+18,y-8,27,12,.2,0,7);c.fill();}
+}else{
+for(let i=0;i<36;i++){let x=(i*89+23)%390,y=(i*47+7)%179;c.fillStyle=i%4?"#ffffff79":"#fff2b9bd";c.beginPath();c.arc(x,y,1+i%3*.4,0,7);c.fill();}
+if(galaxy){c.strokeStyle="#b9e5ff8a";c.lineWidth=3;c.beginPath();c.ellipse(230,83,95,23,-.16,0,7);c.stroke();c.fillStyle="#92bfd0";c.beginPath();c.arc(230,83,27,0,7);c.fill();}
 }
-function castle(x,enemy){c.save();c.translate(x,0);if(enemy)c.scale(-1,1);c.fillStyle="#100f2888";c.beginPath();c.ellipse(0,232,38,8,0,0,7);c.fill();
-c.fillStyle=enemy?"#526993":"#914d70";c.beginPath();c.moveTo(-28,225);c.lineTo(-27,167);c.lineTo(-34,167);c.lineTo(-32,148);c.lineTo(-12,148);c.lineTo(-9,165);c.lineTo(9,165);c.lineTo(11,144);c.lineTo(30,144);c.lineTo(33,165);c.lineTo(27,167);c.lineTo(28,225);c.closePath();c.fill();c.strokeStyle="#ffdab88f";c.lineWidth=2;c.stroke();c.fillStyle="#201327";c.fillRect(-9,195,18,30);c.fillStyle="#ffe6ae";c.beginPath();c.arc(0,176,5,0,7);c.fill();c.fillRect(-25,182,8,4);c.fillRect(19,182,7,4);c.strokeStyle="#fff3d4";c.lineWidth=3;c.beginPath();c.moveTo(0,144);c.lineTo(0,123);c.stroke();c.fillStyle=enemy?"#b3daff":"#ffc1cf";c.beginPath();c.moveTo(1,123);c.lineTo(27,130);c.lineTo(1,139);c.fill();c.restore();}
-function soldier(t){let y=t.y+Math.sin(G.time*7+t.seed)*1.4;c.save();c.translate(t.x,y);if(t.side==="e")c.scale(-1,1);let z=t.k===2?1.25:1;if(t.elite)z*=1.17;c.scale(z,z);
-let armor=t.side==="e"?"#7181ad":color(t.hid),skin=t.side==="e"?"#d2b4aa":SKINS[t.hid%SKINS.length],hair=t.side==="e"?"#303953":HAIRS[t.hid%HAIRS.length];
-c.fillStyle="#0a071ba9";c.beginPath();c.ellipse(0,0,15,4,0,0,7);c.fill();
-c.strokeStyle="#21142d";c.lineWidth=5;c.lineCap="round";c.beginPath();c.moveTo(-7,-14);c.lineTo(-8,-1);c.moveTo(7,-14);c.lineTo(10,-1);c.stroke();c.strokeStyle=armor;c.lineWidth=4;c.stroke();
-c.fillStyle=armor;c.beginPath();c.moveTo(-12,-34);c.lineTo(11,-34);c.lineTo(13,-12);c.lineTo(-12,-12);c.closePath();c.fill();
-c.fillStyle="#ffffff53";c.beginPath();c.moveTo(-10,-31);c.lineTo(-4,-28);c.lineTo(1,-13);c.lineTo(-4,-13);c.closePath();c.fill();
-c.fillStyle=hair;c.beginPath();c.ellipse(-2,-41,12,16,-.3,0,7);c.fill();c.fillStyle=skin;c.beginPath();c.ellipse(0,-41,10,12,0,0,7);c.fill();c.fillStyle=hair;c.beginPath();c.ellipse(-1,-48,11,7,0,Math.PI,2*Math.PI);c.fill();if(t.hid%3===0){c.beginPath();c.ellipse(-10,-40,4,12,-.25,0,7);c.fill();}
-c.fillStyle="#2b1f35";c.beginPath();c.arc(4,-41,1.2,0,7);c.fill();
-c.strokeStyle=skin;c.lineWidth=4;c.beginPath();c.moveTo(10,-29);c.lineTo(17,-25);c.stroke();c.strokeStyle=t.k===1?"#ffe2a1":t.k===2?"#ffaabb":"#dad9ed";c.lineWidth=t.k===2?5:3;c.beginPath();c.moveTo(17,-25);c.lineTo(t.k===1?25:27,t.k===1?-29:-48);c.stroke();
-c.fillStyle=t.elite?"#ffe39c":"#ffc4da";c.beginPath();c.arc(0,-32,3,0,7);c.fill();if(t.elite){c.fillStyle="#fff0a5";c.font="12px sans-serif";c.fillText("✦",-5,-61);}c.restore();
-rect(t.x-14,y-(t.elite?84:68),28,4,2,"#201323");rect(t.x-14,y-(t.elite?84:68),28*Math.max(0,t.hp/t.max),4,2,t.side==="p"?"#ffb4d2":"#9fdaff");}
+function hill(y,color,amplitude,shift){c.beginPath();c.moveTo(0,y);for(let x=0;x<=420;x+=12)c.lineTo(x,y-amplitude*Math.sin((x+shift)/55)-amplitude*.32*Math.cos((x+shift)/24));c.lineTo(390,300);c.lineTo(0,300);c.closePath();c.fillStyle=color;c.fill();}
+hill(153,S.era===2?"#c1ae8d8f":"#517f869e",18,50);
+hill(185,S.era===2?"#a68b68d0":"#578788b6",13,130);
+hill(218,S.era===2?"#8a795bbd":"#356e68cc",9,70);
+if(S.era<2){
+for(let i=0;i<7;i++){
+let x=i*67+12,y=191+(i%2)*18;
+c.strokeStyle="#355954";c.lineWidth=6;c.beginPath();c.moveTo(x,y+22);c.lineTo(x+2,y-20);c.stroke();
+for(let j=0;j<3;j++){c.fillStyle=["#2d8068","#559877","#8db78b"][j];c.beginPath();c.ellipse(x-12+j*12,y-14+(j%2)*8,15,23,-.18,0,7);c.fill();}
+c.fillStyle="#d4bd93";c.beginPath();c.arc(x+1,y-16,3,0,7);c.fill();}
+}else if(S.era<4){
+for(let i=0;i<5;i++){let x=25+i*86,y=212;c.fillStyle="#e8d0a9";c.fillRect(x-3,y-43,10,46);c.fillStyle="#8b8174";c.fillRect(x-8,y-47,18,7);c.fillRect(x-9,y-4,20,5);c.strokeStyle="#d6b17a";c.beginPath();c.moveTo(x-15,y-50);c.lineTo(x+15,y-50);c.stroke();}
+}else{
+for(let i=0;i<10;i++){
+let x=i*47-9,h=47+(i*27)%70;
+c.fillStyle=S.era===4?"#345866":"#153c59";c.fillRect(x,219-h,36,h);
+c.fillStyle="#f7e2b884";
+for(let row=0;row<4;row++)for(let col=0;col<3;col++)c.fillRect(x+6+col*10,225-h+row*11,4,6);
+c.strokeStyle="#84d6d98a";c.beginPath();c.moveTo(x,219-h);c.lineTo(x+36,219-h);c.stroke();
+}}
+c.fillStyle=S.era===2?"#c9aa81":"#a6b8a4";c.fillRect(0,224,390,76);
+const road=c.createLinearGradient(0,229,0,300);
+road.addColorStop(0,S.era===2?"#dbbd93":"#c4ae91");road.addColorStop(1,S.era===2?"#ab886a":"#8f856e");
+c.fillStyle=road;c.beginPath();c.moveTo(0,236);c.quadraticCurveTo(195,223,390,236);c.lineTo(390,300);c.lineTo(0,300);c.closePath();c.fill();
+c.strokeStyle="#f8e6ba9c";c.lineWidth=2;c.beginPath();c.moveTo(0,238);c.quadraticCurveTo(195,226,390,238);c.stroke();
+for(let i=0;i<17;i++){let xx=(i*61+17)%390,yy=246+(i*19)%50;c.strokeStyle=i%2?"#6b66558a":"#d7bea18a";c.lineWidth=1.7;c.beginPath();c.moveTo(xx,yy);c.lineTo(xx+9,yy+1);c.stroke();}
+for(let i=0;i<13;i++){let xx=(i*43+7)%390,yy=217+(i*7)%16;c.fillStyle=i%2?"#f5e4ad":"#e7b1a4";c.beginPath();c.arc(xx,yy,1.8,0,7);c.fill();}
+if(S.era===5){c.fillStyle="#8be0e51c";for(let i=0;i<6;i++)c.fillRect(i*75,243,24,1);}
+c.restore();
+}
+function castle(x,enemy){
+c.save();c.translate(x,0);if(enemy)c.scale(-1,1);
+const stone=enemy?"#315867":"#f0ddbe",dark=enemy?"#153c4d":"#8f846f",accent=enemy?"#d58172":"#0b7477";
+c.fillStyle="#15343a6a";c.beginPath();c.ellipse(0,233,37,7,0,0,7);c.fill();
+const side=c.createLinearGradient(-33,0,34,0);side.addColorStop(0,dark);side.addColorStop(.25,stone);side.addColorStop(.78,stone);side.addColorStop(1,dark);
+c.fillStyle=side;c.beginPath();c.moveTo(-30,229);c.lineTo(-30,172);c.lineTo(-37,172);c.lineTo(-32,151);c.lineTo(-14,151);c.lineTo(-9,166);c.lineTo(11,166);c.lineTo(16,146);c.lineTo(32,146);c.lineTo(37,169);c.lineTo(28,169);c.lineTo(29,229);c.closePath();c.fill();c.lineWidth=1.7;c.strokeStyle=enemy?"#a6c5bd":"#ffe4b1";c.stroke();
+c.fillStyle=dark;c.fillRect(-10,194,20,35);c.fillStyle="#081d25";c.beginPath();c.arc(0,196,10,Math.PI,0);c.fill();
+for(let j=0;j<2;j++){let xx=j?17:-25;c.fillStyle=accent;c.fillRect(xx,182,8,13);c.strokeStyle="#f2d2a4";c.lineWidth=1.5;c.strokeRect(xx,182,8,13);}
+c.fillStyle=enemy?"#eab5a3":"#f8d7a1";c.beginPath();c.moveTo(-34,154);c.lineTo(-25,140);c.lineTo(-12,154);c.moveTo(11,150);c.lineTo(23,135);c.lineTo(35,150);c.fill();
+c.strokeStyle="#e9c891";c.lineWidth=2.5;c.beginPath();c.moveTo(4,162);c.lineTo(4,127);c.stroke();
+c.fillStyle=accent;c.beginPath();c.moveTo(5,128);c.quadraticCurveTo(26,121,31,131);c.lineTo(5,143);c.closePath();c.fill();
+c.fillStyle="#fff5d5";c.beginPath();c.arc(4,172,5,0,7);c.fill();c.restore();
+}
+function soldier(t){window.QueenArt.draw(c,t,S.era,G.time,S.skin);}
 function draw(){if(!c)return;c.clearRect(0,0,W,H);backdrop();castle(28,false);castle(361,true);
-if(!G.playing&&!G.done){rect(60,77,270,65,15,"#1a112dcc","#ffe4b069");c.textAlign="center";c.fillStyle="#ffebd6";c.font="bold 19px Georgia";c.fillText("Время королев",195,103);c.fillStyle="#e8bbd7";c.font="12px sans-serif";c.fillText("Начни поход и завоюй эпохи",195,125);c.textAlign="left";}
+if(!G.playing&&!G.done){rect(60,77,270,65,15,"#0b303cdd","#f9dfae");c.textAlign="center";c.fillStyle="#ffebd6";c.font="bold 19px Georgia";c.fillText("Время королев",195,103);c.fillStyle="#dbe9df";c.font="12px sans-serif";c.fillText("Начни поход и завоюй эпохи",195,125);c.textAlign="left";}
 G.troops.slice().sort((x,y)=>x.y-y.y).forEach(soldier);
 G.particles.forEach(p=>{c.globalAlpha=Math.max(0,Math.min(1,p.life*2));c.fillStyle=p.color;c.beginPath();c.arc(p.x,p.y,p.radius,0,7);c.fill();});c.globalAlpha=1;if(G.frozen>0){c.fillStyle="#cdeaff18";c.fillRect(0,0,W,H);}
 }
@@ -119,7 +150,7 @@ $("eraText").textContent=a().era+" · Линия "+S.timeline;$("eraName").textC
 $("topchip").innerHTML='<span>⚔️ Битва '+Math.min(5,S.stage)+' / 5</span><span>⏱ '+Math.floor(G.time)+' с</span><span>👑 '+G.dead+' врагов</span>';
 $("hpbar").innerHTML='<b>🏰</b><div class="track"><i style="width:'+Math.max(0,G.base/G.baseMax*100)+'%"></i></div><div class="track enemy"><i style="width:'+Math.max(0,G.enemy/G.enemyMax*100)+'%"></i></div><b>🏯</b>';
 $("foodValue").textContent=Math.floor(G.food);$("foodRate").textContent="+"+foodRate().toFixed(1)+"/с";$("foodFill").style.width=(G.food/130*100)+"%";
-$("units").innerHTML=a().units.map((t,k)=>'<button class="unit" data-a="'+(S.units[k]?"unit":"unlock")+'" data-k="'+k+'"><span class="emoji">'+t[1]+'</span><strong>'+t[0]+'</strong><span class="cost">'+(S.units[k]?"🍎 "+cost(k):"🔒 Открыть")+'</span></button>').join("");
+$("units").innerHTML=a().units.map((t,k)=>'<button class="unit" data-a="'+(S.units[k]?"unit":"unlock")+'" data-k="'+k+'"><span class="art">'+window.QueenArt.figureSvg((S.era*3+k*5+4)%18,k,S.era,false,S.skin)+'</span><strong>'+t[0]+'</strong><span class="cost">'+(S.units[k]?"🍎 "+cost(k):"🔒 Открыть")+'</span></button>').join("");
 $("spells").innerHTML=S.loadout.slice(0,3).map(k=>'<button class="spell" '+(G.used[k]||!G.playing?"disabled":"")+' data-a="magic" data-k="'+k+'"><span>'+MAGICS[k][1]+'</span><small>'+MAGICS[k][0]+'</small></button>').join("")+'<button class="spell" '+(G.heroUsed||!G.playing?"disabled":"")+' data-a="hero"><span>👸</span><small>'+NAMES[S.hero]+'</small></button>';
 $("fightaction").innerHTML=(!G.playing)?'<button class="go" data-a="start">⚔️ НАЧАТЬ БИТВУ</button>':G.playing?'<div style="display:flex;gap:8px;margin:10px 12px"><button class="chip" style="flex:1" data-a="speed">⏩ Скорость ×'+G.speed+'</button><button class="chip" style="flex:1" data-a="pause">'+(G.paused?"▶ Продолжить":"Ⅱ Пауза")+'</button></div>':"";
 $("hint").textContent=G.playing?"Выпускай воительниц и разрушай вражескую крепость":S.stage===6?"Эпоха пройдена — переходи в «Армию» для эволюции":"Побеждай, улучшай армию и открывай семь эпох";}

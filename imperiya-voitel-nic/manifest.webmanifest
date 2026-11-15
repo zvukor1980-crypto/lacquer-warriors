@@ -6,8 +6,8 @@
   "display": "standalone",
   "orientation": "portrait",
   "lang": "ru",
-  "background_color": "#160d26",
-  "theme_color": "#160d26",
+  "background_color": "#0b2c37",
+  "theme_color": "#0b2c37",
   "description": "Стратегия семи эпох — полностью офлайн",
   "icons": [
     {

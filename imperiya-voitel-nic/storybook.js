@@ -3,8 +3,8 @@
 "use strict";
 const skins=["#F5C5AA","#C98C72","#F3CEB4","#B87966","#E6AC91","#C38C73","#F2C8AD","#DAA38A","#A76D5C","#E8B59E","#CF987F","#E6B797","#BD8268","#F6D1B9","#A97869","#DFAC93","#C68E76","#F0C4A2"];
 const hairs=["#493249","#F2B866","#8B4E40","#433A65","#AF6A50","#302A45","#D9AE70","#7B445B","#584538","#3C5A68","#B77C57","#E2B279","#A85680","#64435C","#CDA56B","#AC6E6D","#4D4967","#DDA08C"];
-const outfits=["#F189A7","#85B5DE","#D79ACF","#F0AE68","#6EC8AF","#AF93E0","#FC909A","#8AA8D7","#C58ABA","#E3AE77","#8AC5BB","#CE8B99","#B7A1EA","#8CC8DF","#EC91BC","#A1C896","#C38FE0","#E6AC91"];
-const accents=["#FFDF83","#A3F7EA","#F7D2FF","#FFF1AA","#BFF6DE","#EBD3FF"];
+const outfits=["#E74777","#2578D5","#AA49B9","#F0782C","#169F8F","#8751CE","#F05755","#3577B8","#C34698","#D58A2A","#167F87","#C54C75","#8254D6","#1689B2","#DF448D","#51953A","#9E48D5","#E07145"];
+const accents=["#FFE375","#90ECDD","#FFC2F2","#FFD86B","#A7FFCB","#D5AEFF"];
 const hairStyles=[
 "M38 91Q26 52 44 24Q60 1 103 9Q158 5 169 47L166 190Q147 180 139 160L54 166Q37 197 25 187Z",
 "M35 85Q25 10 100 8Q155 3 165 85L150 158 48 158Z",
@@ -24,8 +24,8 @@ const shortFringes=[
 function norm(n){return ((Number(n)||0)%18+18)%18;}
 function get(id,change=0,enemy=false){id=norm(id);return {id,skin:skins[id],hair:hairs[id],dress:enemy?["#9C99CA","#B78FC3","#8AA9C8"][id%3]:outfits[(id+3*change)%18],gold:accents[id%6],style:id%6};}
 function svgDefs(p,g){
-return '<defs><linearGradient id="'+p+'Sky" x1=".1" y1="0" x2=".9" y2="1"><stop stop-color="'+g.gold+'"/><stop offset=".55" stop-color="#fff8fb"/><stop offset="1" stop-color="'+g.dress+'"/></linearGradient>'+
-'<linearGradient id="'+p+'Dress" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff9f6"/><stop offset=".17" stop-color="'+g.dress+'"/><stop offset=".65" stop-color="'+g.dress+'"/><stop offset="1" stop-color="#6A6A8C"/></linearGradient>'+
+return '<defs><linearGradient id="'+p+'Sky" x1=".1" y1="0" x2=".9" y2="1"><stop stop-color="'+g.gold+'"/><stop offset=".55" stop-color="#C8EBFF"/><stop offset="1" stop-color="'+g.dress+'"/></linearGradient>'+
+'<linearGradient id="'+p+'Dress" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF8EB"/><stop offset=".17" stop-color="'+g.dress+'"/><stop offset=".65" stop-color="'+g.dress+'"/><stop offset="1" stop-color="#6A6A8C"/></linearGradient>'+
 '<linearGradient id="'+p+'Face" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF0D9"/><stop offset=".55" stop-color="'+g.skin+'"/><stop offset="1" stop-color="#B47768"/></linearGradient>'+
 '<linearGradient id="'+p+'Hair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF1B3" stop-opacity=".75"/><stop offset=".22" stop-color="'+g.hair+'"/><stop offset=".85" stop-color="'+g.hair+'"/><stop offset="1" stop-color="#211E3E"/></linearGradient>'+
 '<linearGradient id="'+p+'Gem" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF"/><stop offset=".45" stop-color="'+g.gold+'"/><stop offset="1" stop-color="'+g.dress+'"/></linearGradient></defs>';
@@ -126,13 +126,13 @@ let w=boss?63:40,yh=y-(boss?184:97*scale);
 c.fillStyle="#ffffffd9";c.fillRect(t.x-w/2,yh,w,6);c.fillStyle=boss?"#f39ab8":t.side==="p"?"#7bd3b3":"#e8a5c9";c.fillRect(t.x-w/2,yh,w*Math.max(0,Math.min(1,t.hp/t.max)),6);
 }
 const THEMES=[
-["#B2EEED","#FCE5F7","#E5C8F3","#B6E6C9","#78CDAF","#A8E8BB","#D3B5F3"],
-["#FAD5E0","#F5DEF5","#DCC6ED","#A6D9C2","#73C6B4","#AEE5CD","#F9CFA8"],
-["#C9DFFA","#FFE8D1","#DFC8FF","#D1DCB2","#85CBAF","#F2D7AC","#EAD2E4"],
-["#EDD9F9","#FFE1E8","#C5E5F4","#A3D7C6","#83BEB6","#D3E6BC","#F9C0D5"],
-["#D2E5FA","#EBDEF8","#CFDDF4","#AECFD9","#84B9C8","#A7CFB9","#FFE2C9"],
-["#AAE0F4","#C2CCFA","#C7AAEE","#92C9D2","#669BC5","#9BC9B8","#EDB8FF"],
-["#B6CCFF","#D7BDF8","#EDC4F9","#95BBD8","#7A9FC3","#8BC2D1","#FADEAB"]
+["#278FCB","#64BDE7","#A8A2E3","#488EBA","#246E9D","#43A882","#4BBA94"],
+["#EF87AA","#F4B58B","#C69AE4","#A55DAA","#755CB1","#5CBAA2","#ECA577"],
+["#3F95CB","#87C7E8","#B6A2DE","#78AF92","#447A9D","#C1A477","#EAC487"],
+["#6758B8","#B173CC","#D794B9","#5C8FB8","#31598A","#6BA9A0","#F293AC"],
+["#1F77B7","#5AAFE0","#83C1D6","#3D89AB","#245F8D","#4AA3A5","#F3B577"],
+["#304DAB","#6976D3","#9664C3","#506BAF","#36477D","#578BA6","#E17DA2"],
+["#1C378C","#4659BD","#8357BE","#405DAB","#2E397B","#577DAB","#E6A566"]
 ];
 function circle(c,x,y,r,fill){c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fillStyle=fill;c.fill();}
 function starCanvas(c,x,y,r,color,turn=0){c.save();c.translate(x,y);c.rotate(turn);c.beginPath();for(let j=0;j<8;j++){let a=j*Math.PI/4,rr=j%2?r*.24:r;c.lineTo(Math.sin(a)*rr,Math.cos(a)*rr);}c.closePath();c.fillStyle=color;c.fill();c.restore();}
@@ -178,16 +178,16 @@ if(mode==="dungeon"){const mist=c.createLinearGradient(0,0,390,0);mist.addColorS
 }
 function castle(c,x,enemy,era,time){
 c.save();c.translate(x,0);if(enemy)c.scale(-1,1);
-c.fillStyle="#7D64882a";c.beginPath();c.ellipse(0,236,43,9,0,0,7);c.fill();
-const main=enemy?"#E9C6E9":"#FFF2E8",roof=enemy?"#AF90CC":"#F5A9BC",edge=enemy?"#A784BB":"#D6AFCF";
+c.fillStyle="#1028545c";c.beginPath();c.ellipse(0,236,43,9,0,0,7);c.fill();
+const main=enemy?"#CEA0E8":"#FFE6AA",roof=enemy?"#874BC9":"#EF648A",edge=enemy?"#554384":"#865479";
 roundRect(c,-32,169,64,67,9,main,edge);roundRect(c,-22,142,24,94,6,main,edge);roundRect(c,12,153,25,83,6,main,edge);
 for(const tower of [[-20,140,15],[24,150,15]]){c.fillStyle=roof;c.strokeStyle="#fff";c.lineWidth=2;c.beginPath();c.moveTo(tower[0]-17,tower[1]+4);c.lineTo(tower[0],tower[1]-25);c.lineTo(tower[0]+17,tower[1]+4);c.closePath();c.fill();c.stroke();}
 c.fillStyle=roof;c.beginPath();c.moveTo(-12,169);c.lineTo(0,141);c.lineTo(12,169);c.fill();
 c.strokeStyle=edge;c.lineWidth=2;c.beginPath();c.moveTo(-24,201);c.lineTo(26,201);c.stroke();
 roundRect(c,-11,205,23,31,12,enemy?"#9474B1":"#CA98B6","#fff");
-for(let i=0;i<4;i++){c.fillStyle="#FFF6BA";roundRect(c,-25+(i%2)*40,176+Math.floor(i/2)*25,7,13,4,c.fillStyle);}
-c.strokeStyle="#D6B4B0";c.lineWidth=3;c.beginPath();c.moveTo(3,167);c.lineTo(3,132);c.stroke();
-const sway=Math.sin(time*1.5+Number(enemy))*3;c.fillStyle=enemy?"#C99FDE":"#FFB4B1";c.beginPath();c.moveTo(5,132);c.quadraticCurveTo(27+sway,124,27+sway,139);c.lineTo(5,147);c.fill();starCanvas(c,14,135,5,"#fff");
+for(let i=0;i<4;i++){c.fillStyle="#FFF5A4";roundRect(c,-25+(i%2)*40,176+Math.floor(i/2)*25,7,13,4,c.fillStyle);}
+c.strokeStyle="#6F538B";c.lineWidth=3;c.beginPath();c.moveTo(3,167);c.lineTo(3,132);c.stroke();
+const sway=Math.sin(time*1.5+Number(enemy))*3;c.fillStyle=enemy?"#B36BDA":"#F95E85";c.beginPath();c.moveTo(5,132);c.quadraticCurveTo(27+sway,124,27+sway,139);c.lineTo(5,147);c.fill();starCanvas(c,14,135,5,"#fff");
 c.restore();
 }
 window.QueenArt={portrait,figureSvg,draw:drawUnit};

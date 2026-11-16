@@ -135,10 +135,10 @@ c.fillStyle=accent;c.beginPath();c.moveTo(5,128);c.quadraticCurveTo(26,121,31,13
 c.fillStyle="#fff5d5";c.beginPath();c.arc(4,172,5,0,7);c.fill();c.restore();
 }
 function soldier(t){window.QueenArt.draw(c,t,S.era,G.time,S.skin);}
-function draw(){if(!c)return;c.clearRect(0,0,W,H);backdrop();castle(28,false);castle(361,true);
+function draw(){if(!c)return;c.clearRect(0,0,W,H);c.save();if(G.shake>0)c.translate((Math.random()-.5)*G.shake*8,(Math.random()-.5)*G.shake*4);backdrop();castle(28,false);castle(361,true);
 if(!G.playing&&!G.done){rect(60,77,270,65,15,"#0b303cdd","#f9dfae");c.textAlign="center";c.fillStyle="#ffebd6";c.font="bold 19px Georgia";c.fillText("Время королев",195,103);c.fillStyle="#dbe9df";c.font="12px sans-serif";c.fillText("Начни поход и завоюй эпохи",195,125);c.textAlign="left";}
 G.troops.slice().sort((x,y)=>x.y-y.y).forEach(soldier);
-G.particles.forEach(p=>{c.globalAlpha=Math.max(0,Math.min(1,p.life*2));c.fillStyle=p.color;c.beginPath();c.arc(p.x,p.y,p.radius,0,7);c.fill();});c.globalAlpha=1;if(G.frozen>0){c.fillStyle="#cdeaff18";c.fillRect(0,0,W,H);}
+G.particles.forEach(p=>{c.globalAlpha=Math.max(0,Math.min(1,p.life*2));c.fillStyle=p.color;c.beginPath();c.arc(p.x,p.y,p.radius,0,7);c.fill();});c.globalAlpha=1;if(G.frozen>0){c.fillStyle="#cdeaff18";c.fillRect(0,0,W,H);}c.restore();
 }
 function sparkle(x,y,color,n){for(let i=0;i<n;i++)G.particles.push({x,y,vx:(Math.random()-.5)*100,vy:(Math.random()-.8)*85,life:.3+Math.random()*.5,color,radius:1+Math.random()*2.5});if(G.particles.length>250)G.particles.splice(0,80);}
 function waves(){
@@ -185,24 +185,26 @@ render();
 }
 function tick(dt){
 G.particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=150*dt;p.life-=dt;});G.particles=G.particles.filter(p=>p.life>0);
-if(!G.playing||G.done||G.paused)return;G.time+=dt;G.food=Math.min(130,G.food+foodRate()*dt);G.frozen=Math.max(0,G.frozen-dt);G.raging=Math.max(0,G.raging-dt);
-if(G.next<G.queue.length&&G.time>=G.queue[G.next].at){createTroop("e",G.queue[G.next].k,null);G.next++;}
+if(!G.playing||G.done||G.paused)return;G.time+=dt;G.food=Math.min(130,G.food+foodRate()*dt);G.frozen=Math.max(0,G.frozen-dt);G.raging=Math.max(0,G.raging-dt);G.shake=Math.max(0,G.shake-dt);G.battleMessageTime=Math.max(0,G.battleMessageTime-dt);
+if(G.next<G.queue.length&&G.time>=G.queue[G.next].at){const w=G.queue[G.next];createTroop("e",w.k,null,!!w.boss);G.next++;}
 if(S.auto){G.autoWait+=dt;if(G.autoWait>=8&&G.food>=cost(0)){G.autoWait=0;G.food-=cost(0);createTroop("p",0,null);}}
+const boss=G.troops.find(t=>t.boss&&t.hp>0);
+if(boss&&G.frozen<=0){G.bossPulse-=dt;if(G.bossPulse<=0){G.bossPulse=13;G.shake=.5;for(const ally of G.troops){if(ally.side==="p"){ally.hp-=boss.damage*.42;sparkle(ally.x,ally.y-55,"#edb777",9);}}G.base-=boss.damage*.35;G.battleMessage="Особая атака босса!";G.battleMessageTime=2.4;}}
 for(const t of G.troops){if(t.hp<=0)continue;t.cd-=dt;let nearest=null,dist=1e6;for(const e of G.troops){if(e.hp>0&&e.side!==t.side){let d=Math.abs(e.x-t.x);if(d<dist){nearest=e;dist=d;}}}
 let direction=t.side==="p"?1:-1,baseDistance=t.side==="p"?361-t.x:t.x-28,target=nearest&&dist<baseDistance+4?nearest:null;
 if(!(target?dist<t.range:baseDistance<t.range)){if(t.side==="e"&&G.frozen>0)continue;t.x+=t.speed*dt*direction;t.x=Math.max(28,Math.min(361,t.x));continue;}
 if(t.cd<=0&&(t.side==="p"||G.frozen<=0)){t.cd=t.rate;let dmg=t.damage*(t.side==="p"&&G.raging>0?1.6:1)*(Math.random()<.08?1.6:1);if(target){target.hp-=dmg;sparkle(target.x,target.y-30,t.side==="p"?"#ffc0d0":"#a6d0ff",t.k===1?6:3);}
 else if(t.side==="p"){G.enemy-=dmg*.8;G.damage+=dmg*.8;sparkle(359,190,"#ffe6ba",3);}
 else{G.base-=dmg*.8;sparkle(29,190,"#bcd8ff",3);}}}
-for(let i=G.troops.length-1;i>=0;i--){let dead=G.troops[i];if(dead.hp<=0){sparkle(dead.x,dead.y-28,dead.side==="e"?"#ffc3b1":"#eb9bd9",10);if(dead.side==="e"){S.coins+=Math.round((9+dead.k*12)*(1+S.income*.16));S.kills++;G.dead++;G.food=Math.min(130,G.food+3);}G.troops.splice(i,1);}}
-if(G.enemy<=0)return complete(true);if(G.base<=0)return complete(false);if(G.time>=230)return complete(G.enemy<G.enemyMax*.3);
+for(let i=G.troops.length-1;i>=0;i--){let dead=G.troops[i];if(dead.hp<=0){sparkle(dead.x,dead.y-28,dead.side==="e"?"#ffc3b1":"#eb9bd9",dead.boss?28:10);if(dead.boss){G.bossBeaten=true;G.battleMessage="Вражеская предводительница повержена!";G.battleMessageTime=3;}if(dead.side==="e"){S.coins+=Math.round((9+dead.k*12)*(1+S.income*.16)*(dead.boss?8:1));S.kills++;G.dead++;G.food=Math.min(130,G.food+(dead.boss?20:3));}G.troops.splice(i,1);}}
+if(G.enemy<=0&&(!G.bossSpawned||G.bossBeaten))return complete(true);if(G.enemy<=0)G.enemy=1;if(G.base<=0)return complete(false);if(G.time>=275)return complete(G.enemy<G.enemyMax*.3);
 saveTimer+=dt;if(saveTimer>=10){saveTimer=0;save();}}
 function unit(k){if(!G.playing)return toast("Сначала начни битву");if(!S.units[k])return toast("Открой отряд в развитии");if(G.food<cost(k))return toast("Недостаточно еды");G.food-=cost(k);createTroop("p",k,null);renderBattle();}
 function summonHero(){if(!G.playing)return toast("Сначала начни битву");if(G.heroUsed)return toast("Героиня уже призвана");G.heroUsed=true;createTroop("p",S.units[2]?2:S.units[1]?1:0,S.hero);toast(NAMES[S.hero]+" вступила в бой!");renderBattle();}
-function cast(k){if(!G.playing)return toast("Сначала начни битву");if(G.used[k])return toast("Эти чары уже использованы");G.used[k]=true;
+function cast(k){if(!G.playing)return toast("Сначала начни битву");if(G.used[k])return toast("Эти чары уже использованы");if(!S.loadout.includes(k))return toast("Выбери заклинание в магазине");G.used[k]=true;
 if(k===0){G.frozen=5;toast("Враги заморожены!");}
-if(k===1){for(const t of G.troops)if(t.side==="e"){t.hp-=76*attackPower("p");sparkle(t.x,t.y-30,"#fce9e8",10);}G.enemy-=40*attackPower("p");toast("Метеорный дождь!");}
-if(k===2){G.base=Math.min(G.baseMax,G.base+140);for(const t of G.troops)if(t.side==="p")t.hp=Math.min(t.max,t.hp+t.max*.5);toast("Армия исцелена!");}
+if(k===1){for(const t of G.troops)if(t.side==="e"){t.hp-=76*attackPower("p")*(1+cardBonus("meteors"));sparkle(t.x,t.y-30,"#fce9e8",10);}G.enemy-=40*attackPower("p");toast("Метеорный дождь!");}
+if(k===2){G.base=Math.min(G.baseMax,G.base+140*(1+cardBonus("healing")));for(const t of G.troops)if(t.side==="p")t.hp=Math.min(t.max,t.hp+t.max*(.5+cardBonus("healing")));toast("Армия исцелена!");}
 if(k===3){G.raging=12;toast("Боевая ярость!");}
 if(k===4){for(const t of G.troops)if(t.side==="e"){t.x=Math.min(359,t.x+48);t.hp-=20;}toast("Врагов отбросило!");}
 if(k===5){let u=G.troops.find(t=>t.side==="p");createTroop("p",u?u.k:0,S.hero);createTroop("p",u?u.k:0,S.hero);toast("Двойники призваны!");}renderBattle();}

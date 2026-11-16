@@ -157,7 +157,7 @@ S.era=Math.max(0,Math.min(6,Number(S.era)||0));S.stage=Math.max(1,Math.min(6,Num
 if(!Array.isArray(S.units))S.units=[1,0,0];if(!Array.isArray(S.heroes))S.heroes=[0];if(!Array.isArray(S.magic))S.magic=[0,1,2];if(!Array.isArray(S.loadout))S.loadout=[0,1,2];if(!Array.isArray(S.cards))S.cards=[1,1,1,0,0,0,0,0,0,0,0,0];if(!Array.isArray(S.deck))S.deck=[0,1,2];S.cards=S.cards.slice(0,CARDS.length).map(x=>Math.max(0,Math.min(5,Number(x)||0)));while(S.cards.length<CARDS.length)S.cards.push(0);S.deck=S.deck.slice(0,3).filter(i=>Number.isInteger(i)&&i>=0&&i<CARDS.length&&S.cards[i]>0);while(S.deck.length<3){let next=S.cards.findIndex((x,i)=>x>0&&!S.deck.includes(i));if(next<0)break;S.deck.push(next);}S.dungeonFloor=Math.max(1,Math.min(1000,Number(S.dungeonFloor)||1));S.musicVolume=[.35,.52,.68,.85,1].reduce((a,b)=>Math.abs(b-(Number(S.musicVolume)||.68))<Math.abs(a-(Number(S.musicVolume)||.68))?b:a,.68);S.fxVolume=Math.max(.2,Math.min(1,Number(S.fxVolume)||.72));S.music=S.music!==false;S.fx=S.fx!==false;S.purchases=Math.max(0,Number(S.purchases)||0);S.streak=Math.max(0,Number(S.streak)||0);S.bestStreak=Math.max(0,Number(S.bestStreak)||0);
 const G={tab:"battle",mode:"story",playing:false,done:false,paused:false,speed:1,time:0,food:12,base:450,baseMax:450,enemy:450,enemyMax:450,troops:[],particles:[],queue:[],next:0,used:{},heroUsed:false,frozen:0,raging:0,dead:0,damage:0,autoWait:0,autoEnabled:false,deckSlot:0,bossSpawned:false,bossBeaten:false,bossPulse:12,battleMessage:"",battleMessageTime:0,shake:0,shopFilter:"popular"};
 const canvas=$("canvas"),c=canvas.getContext("2d");if(window.CrownAudio)window.CrownAudio.settings(S);
-let last=0,uiTimer=0,saveTimer=0,toastTimer=0;const W=390,H=300;
+let last=0,uiTimer=0,saveTimer=0,toastTimer=0;const W=390,H=300;let ambientTime=0;
 const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+"м":n>=1000?(n/1000).toFixed(1)+"к":String(Math.floor(n));
 let audioContext=null;
 function sfx(kind){if(window.CrownAudio)window.CrownAudio.sfx(kind);}
@@ -189,13 +189,14 @@ const color=id=>COLORS[(id+S.skin*3)%COLORS.length];
 function heroSvg(id){return window.QueenArt.portrait(id);}
 function champ(){return '<div class="portrait">'+heroSvg(S.hero)+'</div><div class="champtext"><label>ВЕРХОВНАЯ КОМАНДИРША</label><strong>'+NAMES[S.hero]+'</strong><small>'+a().title+' · реликвии '+S.relic+'</small></div><button class="chip" data-a="tab" data-tab="heroes">Сменить ›</button>';}
 function rect(x,y,w,h,r,fill,stroke){c.beginPath();c.roundRect(x,y,w,h,r);if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}}
-function backdrop(){window.FairytaleScene.background(c,S.era,G.time,G.mode);}
-function castle(x,enemy){window.FairytaleScene.castle(c,x,enemy,S.era,G.time);}
-function soldier(t){window.QueenArt.draw(c,t,S.era,G.time,S.skin);}
+function backdrop(){window.FairytaleScene.background(c,S.era,G.time+ambientTime*.25,G.mode);if(window.BattleFX)window.BattleFX.scenery(c,S.era,ambientTime);}
+function castle(x,enemy){window.FairytaleScene.castle(c,x,enemy,S.era,G.time+ambientTime*.35);}
+function soldier(t){window.QueenArt.draw(c,t,S.era,G.time+ambientTime*.3,S.skin);}
 function draw(){if(!c)return;c.clearRect(0,0,W,H);c.save();if(G.shake>0)c.translate((Math.random()-.5)*G.shake*8,(Math.random()-.5)*G.shake*4);backdrop();castle(28,false);castle(361,true);
-if(!G.playing&&!G.done){rect(52,76,286,69,21,"#fff9f6e8","#ffffff");c.textAlign="center";c.fillStyle="#9566a4";c.font="bold 21px Georgia";c.fillText("Сказка семи королевств",195,104);c.fillStyle="#977eaa";c.font="12px sans-serif";c.fillText("Выбирай воительниц — и в путь!",195,130);c.textAlign="left";}
-G.troops.slice().sort((x,y)=>x.y-y.y).forEach(soldier);
+if(!G.playing&&!G.done){rect(47,76,296,71,15,"#0C163DE8","#FFD270");c.textAlign="center";c.fillStyle="#FFDD82";c.font="bold 22px Georgia";c.fillText("СЕМЬ КОРОЛЕВСТВ",195,105);c.fillStyle="#E4ECFF";c.font="bold 11px system-ui";c.fillText("Собери армию. Победи всех!",195,131);c.textAlign="left";}
+G.troops.slice().sort((x,y)=>x.y-y.y).forEach(soldier);if(window.BattleFX)window.BattleFX.foreground(c,S.era,ambientTime);
 G.particles.forEach((p,i)=>{const opacity=Math.max(0,Math.min(1,p.life*2));c.globalAlpha=opacity;c.save();c.translate(p.x,p.y);c.rotate(G.time*3+i*.3);c.fillStyle=p.color;c.beginPath();const rad=p.radius*(i%3===0?1.8:1);if(i%3===0){for(let j=0;j<8;j++){let angle=j*Math.PI/4,r=j%2?rad*.26:rad;c.lineTo(Math.sin(angle)*r,Math.cos(angle)*r);}c.closePath();}else c.arc(0,0,rad,0,Math.PI*2);c.fill();c.restore();});c.globalAlpha=1;
+if(window.BattleFX)window.BattleFX.paint(c,ambientTime);
 if(G.frozen>0){c.fillStyle="#E2F6FF3F";c.fillRect(0,0,W,H);}
 if(G.raging>0){c.fillStyle="#FFE1B415";c.fillRect(0,0,W,H);}
 c.restore();
@@ -220,13 +221,13 @@ const extra=side==="p"?(1+(k===0?cardBonus("melee"):k===1?cardBonus("ranged"):ca
 const bossScale=boss?(G.mode==="dungeon"?4.5+Math.min(5,S.dungeonFloor*.22):3.8):1;
 const hp=stat.hp*healthPower(side)*(hero==null?1:2.5)*bossScale;
 const t={side,k,hid,x:side==="p"?49:342,y:235+Math.random()*14,hp,max:hp,damage:stat.damage*attackPower(side)*(hero==null?1+cardBonus("hero"):2*(1+cardBonus("hero")))*extra*(boss?2.8:1),speed:stat.speed*(side==="p"?1+cardBonus("speed"):1)*(boss?.79:1),range:stat.range,rate:stat.rate*(boss?1.1:1),cd:Math.random()*.5,elite:hero!=null||boss,boss,seed:Math.random()*10};
-G.troops.push(t);if(side==="p"){S.deployed++;saveTimer=1;sparkle(t.x,t.y-50,"#fff9c6",7);}if(boss){if(window.CrownAudio)window.CrownAudio.setScene("boss");G.bossSpawned=true;G.bossPulse=13;G.battleMessage="На поле вышла предводительница врага!";G.battleMessageTime=3;sfx("boss");}
+G.troops.push(t);if(window.BattleFX)window.BattleFX.summon(t.x,t.y,side,boss);if(side==="p"){S.deployed++;saveTimer=1;sparkle(t.x,t.y-50,"#fff9c6",7);}if(boss){if(window.CrownAudio)window.CrownAudio.setScene("boss");G.bossSpawned=true;G.bossPulse=13;G.battleMessage="На поле вышла предводительница врага!";G.battleMessageTime=3;sfx("boss");}
 return t;
 }
-function begin(){if(window.CrownAudio)window.CrownAudio.setScene("battle");G.playing=true;G.done=false;G.paused=false;G.time=0;G.food=12;G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;G.troops=[];G.particles=[];G.queue=waves();G.next=0;G.used={};G.heroUsed=false;G.frozen=0;G.raging=0;G.dead=0;G.damage=0;G.autoWait=0;G.autoEnabled=!!S.auto;G.bossSpawned=false;G.bossBeaten=false;G.bossPulse=14;G.battleMessage="";G.battleMessageTime=0;G.shake=0;closeModal();render();sfx("start");}
+function begin(){if(window.BattleFX)window.BattleFX.reset();if(window.CrownAudio)window.CrownAudio.setScene("battle");G.playing=true;G.done=false;G.paused=false;G.time=0;G.food=12;G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;G.troops=[];G.particles=[];G.queue=waves();G.next=0;G.used={};G.heroUsed=false;G.frozen=0;G.raging=0;G.dead=0;G.damage=0;G.autoWait=0;G.autoEnabled=!!S.auto;G.bossSpawned=false;G.bossBeaten=false;G.bossPulse=14;G.battleMessage="";G.battleMessageTime=0;G.shake=0;closeModal();render();sfx("start");}
 function complete(won){
 if(G.done)return;
-G.playing=false;G.done=true;if(window.CrownAudio)window.CrownAudio.setScene(won?"victory":"defeat");else sfx(won?"win":"lose");
+G.playing=false;G.done=true;if(window.BattleFX)window.BattleFX.reward(won);if(window.CrownAudio)window.CrownAudio.setScene(won?"victory":"defeat");else sfx(won?"win":"lose");
 let reward=Math.round((won?195:65)*(1+(S.stage-1)*.2+S.era*.36)*(1+S.income*.18+cardBonus("coins"))*(G.mode==="arena"?1.3:G.mode==="dungeon"?1.45:1)*(won?1+.04*Math.min(5,(S.streak||0)+1):1));
 let gems=won?(G.mode==="arena"?18:G.mode==="dungeon"?25:8):0;
 S.coins+=reward;S.gems+=gems;
@@ -244,6 +245,7 @@ $("modal").innerHTML='<div class="modalbox"><div class="big">'+(won?"🏆":"🛡
 render();
 }
 function tick(dt){
+if(window.BattleFX)window.BattleFX.update(dt);
 G.particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=150*dt;p.life-=dt;});G.particles=G.particles.filter(p=>p.life>0);
 if(!G.playing||G.done||G.paused)return;G.time+=dt;G.food=Math.min(130,G.food+foodRate()*dt);G.frozen=Math.max(0,G.frozen-dt);G.raging=Math.max(0,G.raging-dt);G.shake=Math.max(0,G.shake-dt);G.battleMessageTime=Math.max(0,G.battleMessageTime-dt);
 if(G.next<G.queue.length&&G.time>=G.queue[G.next].at){const w=G.queue[G.next];createTroop("e",w.k,null,!!w.boss);G.next++;}
@@ -253,9 +255,12 @@ if(boss&&G.frozen<=0){G.bossPulse-=dt;if(G.bossPulse<=0){G.bossPulse=13;G.shake=
 for(const t of G.troops){if(t.hp<=0)continue;t.cd-=dt;let nearest=null,dist=1e6;for(const e of G.troops){if(e.hp>0&&e.side!==t.side){let d=Math.abs(e.x-t.x);if(d<dist){nearest=e;dist=d;}}}
 let direction=t.side==="p"?1:-1,baseDistance=t.side==="p"?361-t.x:t.x-28,target=nearest&&dist<baseDistance+4?nearest:null;
 if(!(target?dist<t.range:baseDistance<t.range)){if(t.side==="e"&&G.frozen>0)continue;t.x+=t.speed*dt*direction;t.x=Math.max(28,Math.min(361,t.x));continue;}
-if(t.cd<=0&&(t.side==="p"||G.frozen<=0)){t.cd=t.rate;if(t.side==="p"&&Math.random()<.18)sfx("hit");let dmg=t.damage*(t.side==="p"&&G.raging>0?1.6:1)*(Math.random()<.08?1.6:1);if(target){target.hp-=dmg;sparkle(target.x,target.y-30,t.side==="p"?"#ffc0d0":"#a6d0ff",t.k===1?6:3);}
-else if(t.side==="p"){G.enemy-=dmg*.8;G.damage+=dmg*.8;sparkle(359,190,"#ffe6ba",3);}
-else{G.base-=dmg*.8;sparkle(29,190,"#bcd8ff",3);}}}
+if(t.cd<=0&&(t.side==="p"||G.frozen<=0)){t.cd=t.rate;if(t.side==="p"&&Math.random()<.18)sfx("hit");const critical=Math.random()<.085;let dmg=t.damage*(t.side==="p"&&G.raging>0?1.6:1)*(critical?1.6:1);if(target){target.hp-=dmg;
+if(window.BattleFX)window.BattleFX.attack(t,target,dmg,t.k===1?"arrow":t.k===2?"magic":"slash",t.side==="e",critical);
+if(t.side==="p")sfx(critical?"critical":t.k===1?"arrow":t.k===2?"heavy":"blade");
+sparkle(target.x,target.y-30,t.side==="p"?"#FFE18A":"#D483FF",t.k===1?5:3);}
+else if(t.side==="p"){G.enemy-=dmg*.8;G.damage+=dmg*.8;if(window.BattleFX)window.BattleFX.baseHit(359,190,true);sfx("fortress");sparkle(359,190,"#FFCB72",3);}
+else{G.base-=dmg*.8;if(window.BattleFX)window.BattleFX.baseHit(29,190,false);sparkle(29,190,"#A4D7FF",3);}}}
 for(let i=G.troops.length-1;i>=0;i--){let dead=G.troops[i];if(dead.hp<=0){sparkle(dead.x,dead.y-28,dead.side==="e"?"#ffc3b1":"#eb9bd9",dead.boss?28:10);if(dead.boss){G.bossBeaten=true;G.battleMessage="Вражеская предводительница повержена!";G.battleMessageTime=3;}if(dead.side==="e"){S.coins+=Math.round((9+dead.k*12)*(1+S.income*.16)*(dead.boss?8:1));S.kills++;G.dead++;G.food=Math.min(130,G.food+(dead.boss?20:3));}G.troops.splice(i,1);}}
 if(G.enemy<=0&&(!G.bossSpawned||G.bossBeaten))return complete(true);if(G.enemy<=0)G.enemy=1;if(G.base<=0)return complete(false);if(G.time>=275)return complete(G.enemy<G.enemyMax*.3&&(!G.bossSpawned||G.bossBeaten));
 saveTimer+=dt;if(saveTimer>=10){saveTimer=0;save();}}
@@ -267,7 +272,7 @@ if(k===1){for(const t of G.troops)if(t.side==="e"){t.hp-=76*attackPower("p")*(1+
 if(k===2){G.base=Math.min(G.baseMax,G.base+140*(1+cardBonus("healing")));for(const t of G.troops)if(t.side==="p")t.hp=Math.min(t.max,t.hp+t.max*(.5+cardBonus("healing")));toast("Армия исцелена!");}
 if(k===3){G.raging=12;toast("Боевая ярость!");}
 if(k===4){for(const t of G.troops)if(t.side==="e"){t.x=Math.min(359,t.x+48);t.hp-=20;}toast("Врагов отбросило!");}
-if(k===5){let u=G.troops.find(t=>t.side==="p");createTroop("p",u?u.k:0,S.hero);createTroop("p",u?u.k:0,S.hero);toast("Двойники призваны!");}renderBattle();}
+if(k===5){let u=G.troops.find(t=>t.side==="p");createTroop("p",u?u.k:0,S.hero);createTroop("p",u?u.k:0,S.hero);toast("Двойники призваны!");}if(window.BattleFX)window.BattleFX.magic(k,G.troops);renderBattle();}
 function renderNav(){const reward=readyMissionIndex()>=0;const tabs=[["battle","⚔️","Бой"],["army","⬆️","Улучшить"],["heroes","👑","Герои"],["shop","🛍️","Магазин"],["other","🎯","Цели"]];$("nav").innerHTML=tabs.map(t=>'<button data-a="tab" data-tab="'+t[0]+'" class="'+(G.tab===t[0]||(t[0]==="other"&&(G.tab==="cards"||G.tab==="dungeon"))?"active":"")+'"><span>'+t[1]+(t[0]==="other"&&reward?'<i class="nav-reward"></i>':'')+'</span>'+t[2]+'</button>').join("");}
 function renderBattle(){
 $("eraText").textContent=a().era+" · Линия "+S.timeline;$("eraName").textContent=a().title;$("modeBtn").textContent="Режим: "+(G.mode==="story"?"Поход":G.mode==="arena"?"Арена":"Башня")+" ▾";
@@ -383,7 +388,7 @@ document.addEventListener("click",e=>{let el=e.target.closest("[data-a]");if(!el
 if(["tab","mode","setmode","deckslot","pause","speed","shopfilter","help","close","export","import"].includes(action))sfx("click");
 switch(action){case"tab":setTab(el.dataset.tab);break;case"mentor":followAdvice();break;case"claimquest":claimMission(k);break;case"shopfilter":G.shopFilter=el.dataset.filter;render();break;case"deckslot":G.deckSlot=k;render();break;case"equip":equipCard(k);break;case"dungeon":if(G.playing){toast("Закончи текущую битву");break;}G.mode="dungeon";G.done=false;setTab("battle");toast("Башня королев · этаж "+S.dungeonFloor);break;case"unit":unit(k);break;case"unlock":unlock(k);break;case"hero":summonHero();break;case"magic":cast(k);break;case"buy":purchase(el.dataset.id);break;case"select":choose(k);break;case"evolve":evolve();break;case"claim":daily();break;case"start":case"newbattle":begin();break;case"close":closeModal();break;case"mode":showModePicker();break;case"setmode":chooseMode(el.dataset.mode);break;case"pause":G.paused=!G.paused;if(window.CrownAudio)window.CrownAudio.setScene(G.paused?"pause":"battle");renderBattle();renderAudioDock();break;case"auto":G.autoEnabled=!G.autoEnabled;renderBattle();toast(G.autoEnabled?"Автопризыв включён":"Автопризыв выключен");break;case"speed":G.speed=G.speed===1?2:1;renderBattle();break;case"help":showHelp();break;case"sound":S.sound=S.sound===false;syncAudio();save();render();sfx("click");break;case"soundmusic":S.music=S.music===false;S.sound=true;syncAudio();if(window.CrownAudio)window.CrownAudio.unlock();save();render();sfx("click");break;case"soundfx":S.fx=S.fx===false;S.sound=true;syncAudio();save();render();sfx("click");break;case"soundvolume":{const levels=[.35,.52,.68,.85,1];let i=levels.findIndex(v=>Math.abs(v-S.musicVolume)<.02);S.musicVolume=levels[(i+1)%levels.length];syncAudio();save();render();sfx("click");break;}case"export":backup();break;case"import":restore();break;}
 });
-function frame(now){let dt=Math.min(.045,(now-last)/1000||.016);last=now;if(!G.paused){for(let i=0;i<G.speed;i++)tick(dt);}draw();uiTimer+=dt;if(uiTimer>.28){uiTimer=0;if(G.tab==="battle")updateHud();advisorCard();if(window.CrownAudio)window.CrownAudio.sceneTick({playing:G.playing,paused:G.paused,boss:G.troops.some(t=>t.boss&&t.hp>0),done:G.done});renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);}requestAnimationFrame(frame);}
+function frame(now){let dt=Math.min(.045,(now-last)/1000||.016);last=now;ambientTime+=dt;if(!G.paused){for(let i=0;i<G.speed;i++)tick(dt);}if(G.tab==="battle"&&!document.hidden)draw();uiTimer+=dt;if(uiTimer>.28){uiTimer=0;if(G.tab==="battle")updateHud();advisorCard();if(window.CrownAudio)window.CrownAudio.sceneTick({playing:G.playing,paused:G.paused,boss:G.troops.some(t=>t.boss&&t.hp>0),done:G.done});renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);}requestAnimationFrame(frame);}
 function resize(){let d=Math.min(devicePixelRatio||1,2);canvas.width=W*d;canvas.height=H*d;c.setTransform(d,0,0,d,0,0);draw();}
 window.addEventListener("pagehide",save);document.addEventListener("visibilitychange",()=>{if(document.hidden)save();});window.addEventListener("resize",resize);
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));

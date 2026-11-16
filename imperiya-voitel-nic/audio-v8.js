@@ -23,7 +23,7 @@ function safe(n,lo,hi){return Math.max(lo,Math.min(hi,Number(n)||lo));}
 let ctx=null,master=null,musicGain=null,fxGain=null,compressor=null,send=null,echo=null,echoReturn=null;
 let noise=null,periodic=null,interval=null,active=false,enabled=true,musicOn=true,fxOn=true;
 let musicVol=.68,fxVol=.7,scene="menu",wantedScene="menu",next=0,step=0,run=0,prevBoss=false;
-let unlocked=false,hasBegun=false,waitingGesture=true;
+let unlocked=false,hasBegun=false,waitingGesture=true;let eraIndex=0;const lastFx=new Map();const ERA_OFFSETS=[0,2,-3,5,-5,7,-2];
 const status={get ready(){return !!ctx&&unlocked},get playing(){return active&&musicOn&&enabled&&!!ctx&&ctx.state==="running"},get scene(){return scene},get music(){return musicOn&&enabled},get effects(){return fxOn&&enabled}};
 function equalGain(node,v,at=.055){if(!node||!ctx)return;const p=node.gain||node;p.cancelScheduledValues(ctx.currentTime);p.setTargetAtTime(Math.max(0,v),ctx.currentTime,at);}
 function impulse(c,duration=1.35,decay=2.8){
@@ -160,7 +160,7 @@ function lead(m,t,dur=.27,vol=.12){
 }
 function currentHarmony(){
  const bar=Math.floor(step/16),idx=bar%4,prog=TOURS[run%TOURS.length];
- const root=prog.root+prog.prog[idx];
+ const root=prog.root+prog.prog[idx]+ERA_OFFSETS[eraIndex];
  return {root,prog,bar,idx};
 }
 function schedule(){
@@ -185,9 +185,9 @@ function schedule(){
     pluck(root+12+NOTES[(pos/2+bar)%NOTES.length]+oct,t,STEP*.8,isBattle?.084:.065);}
    if(isBattle){
     const melodic=prog.lead[(pos+idx*3)%prog.lead.length];
-    if([0,3,6,8,11,14].includes(pos))lead(prog.root+24+melodic,t,STEP*([0,8].includes(pos)?2.7:1.55),boss?.135:.107);
+    if([0,3,6,8,11,14].includes(pos))lead(prog.root+ERA_OFFSETS[eraIndex]+24+melodic,t,STEP*([0,8].includes(pos)?2.7:1.55),boss?.135:.107);
     if(boss&&[2,7,10,15].includes(pos))lead(root+24+(pos%3?7:12),t,STEP*.8,.085);
-    if(pos===15&&bar%4===3){tom(t,0,.36);tom(t+STEP*.48,1,.3);cymbal(t+STEP*.85,.4,.2);}
+    if(pos===15&&bar%4===3){tom(t,0,.36);tom(t+STEP*.48,1,.3);cymbal(t+STEP*.85,.4,.2);}if(pos===8&&bar%4===2)chord(root+7,t,STEP*6,.029,2100);
    }else{
     if([0,4,8,12].includes(pos))pluck(prog.root+24+prog.lead[pos%16],t,STEP*3,.085);
     if(pos===15&&bar%4===3)cymbal(t,.6,.18);
@@ -206,25 +206,39 @@ function fxVoice(freq,now,dur,opts={}){
  f.type="lowpass";f.frequency.value=opts.cutoff||5800;
  g.gain.setValueAtTime(MIN,now);g.gain.exponentialRampToValueAtTime(opts.volume||.12,now+.012);
  g.gain.exponentialRampToValueAtTime(MIN,now+dur);
- o.connect(f);f.connect(g);g.connect(fxGain);
+ o.connect(f);f.connect(g);if(ctx.createStereoPanner&&Number.isFinite(opts.pan)){const panNode=ctx.createStereoPanner();panNode.pan.value=Math.max(-.8,Math.min(.8,opts.pan));g.connect(panNode);panNode.connect(fxGain);}else g.connect(fxGain);
  if(opts.reverb&&send){const wet=ctx.createGain();wet.gain.value=opts.reverb;g.connect(wet);wet.connect(send);}
  o.start(now);o.stop(now+dur+.012);
 }
-function fxNoise(t,dur,vol,filter=2000){
+function fxNoise(t,dur,vol,filter=2000,pan=0){
  const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
  s.buffer=noise;f.type="highpass";f.frequency.value=filter;
  g.gain.setValueAtTime(Math.max(MIN,vol),t);g.gain.exponentialRampToValueAtTime(MIN,t+dur);
- s.connect(f);f.connect(g);g.connect(fxGain);s.start(t,Math.random()*.35);s.stop(t+dur+.005);
+ s.connect(f);f.connect(g);if(ctx.createStereoPanner){const p=ctx.createStereoPanner();p.pan.value=Math.max(-.8,Math.min(.8,pan));g.connect(p);p.connect(fxGain);}else g.connect(fxGain);s.start(t,Math.random()*.35);s.stop(t+dur+.005);
 }
-function sfx(name){
+function sfx(name,pan=0){
  if(!enabled||!fxOn||document.hidden)return;
  if(!ctx||ctx.state!=="running"){unlock();if(!ctx||ctx.state!=="running")return;}
  const t=ctx.currentTime+.012;
+ // Polyphonic foley budget protects iPhone speakers and avoids a wall of noise.
+ const cooldown={blade:.085,arrow:.095,heavy:.15,critical:.14,fortress:.24,hit:.085,unit:.08,click:.05,meteor:.12};
+ const last=lastFx.get(name)||-100;
+ if(cooldown[name]&&t-last<cooldown[name])return;
+ lastFx.set(name,t);
+ // Heavy effects momentarily duck music and restore it automatically.
+ if(musicOn&&musicGain&&["boss","meteor","critical","fortress","start"].includes(name)){
+  const g=musicGain.gain;g.cancelScheduledValues(t);g.setTargetAtTime(musicVol*.7,t,.018);g.setTargetAtTime(musicVol,t+.20,.16);
+ }
  try{switch(name){
- case"click":fxVoice(620,t,.075,{end:770,volume:.055,type:"sine"});break;
+ case"click":fxVoice(620,t,.075,{end:770,volume:.05,type:"sine",pan});break;
  case"start":for(let i=0;i<4;i++)fxVoice(220*Math.pow(2,i/5),t+i*.085,.24,{end:600*Math.pow(2,i/5),volume:.12,type:"sawtooth",reverb:.5});break;
  case"unit":fxVoice(175,t,.17,{end:100,volume:.16,cutoff:1600});fxNoise(t,.08,.08,2400);break;
- case"hit":fxNoise(t,.085,.15,650);fxVoice(120,t,.08,{end:65,volume:.1,cutoff:900});break;
+ case"hit":fxNoise(t,.075,.09,850,pan);fxVoice(120,t,.08,{end:65,volume:.07,cutoff:900,pan});break;
+ case"blade":fxNoise(t,.085,.077,2000,pan);fxVoice(440,t,.12,{end:160,volume:.07,type:"triangle",cutoff:1200,pan});break;
+ case"arrow":fxNoise(t,.12,.045,3000,pan);fxVoice(700,t,.13,{end:280,volume:.044,type:"sine",cutoff:3200,pan});break;
+ case"heavy":fxVoice(125,t,.2,{end:49,volume:.21,type:"triangle",cutoff:1050,pan});fxNoise(t+.035,.14,.115,600,pan);break;
+ case"critical":fxVoice(800,t,.19,{end:250,volume:.13,type:"sawtooth",cutoff:2700,pan});fxNoise(t+.035,.21,.15,1900,pan);break;
+ case"fortress":fxVoice(88,t,.35,{end:42,volume:.22,type:"sine",cutoff:750,pan});fxNoise(t+.03,.21,.12,380,pan);break;
  case"hero":for(let i=0;i<4;i++)fxVoice(392*Math.pow(2,[0,3,7,12][i]/12),t+i*.095,.47,{volume:.13,type:"sawtooth",reverb:.4});break;
  case"magic":fxVoice(300,t,.48,{end:1450,volume:.15,type:"sawtooth",reverb:.6});fxNoise(t+.08,.23,.07,2000);break;
  case"buy":fxVoice(660,t,.13,{end:990,volume:.13,type:"sine"});fxVoice(990,t+.12,.24,{end:1320,volume:.13,type:"sine",reverb:.5});break;
@@ -250,7 +264,8 @@ function settings(obj={}){
 }
 function sceneTick(v){
  if(!v)return;
- const expected=v.playing?(v.paused?"pause":v.boss?"boss":"battle"):(v.done?"menu":"menu");
+ eraIndex=Math.max(0,Math.min(6,Number(v.era)||0));
+ const expected=v.playing?(v.paused?"pause":v.boss?"boss":"battle"):(v.done?(scene==="victory"||scene==="defeat"?scene:"menu"):"menu");
  if(expected!==scene)setScene(expected);
 }
 function onVisibility(){

@@ -98,7 +98,7 @@ const healthPower=side=>side==="p"?(1+S.vital*.18+S.relic*.07+cardBonus("health"
 const enemyHP=()=>Math.round((460+(S.stage-1)*130)*Math.pow(1.25,S.era)*Math.pow(1.55,S.timeline-1)*(G.mode==="arena"?1.55:G.mode==="dungeon"?(1.5+Math.min(5,S.dungeonFloor*.13)):1));
 const color=id=>COLORS[(id+S.skin*3)%COLORS.length];
 function heroSvg(id){return window.QueenArt.portrait(id);}
-function champ(){return '<div class="portrait">'+heroSvg(S.hero)+'</div><div class="champtext"><label>ВЕРХОВНАЯ КОМАНДИРША</label><strong>'+NAMES[S.hero]+'</strong><small>'+a().title+' · реликвии '+S.relic+'</small></div><button class="chip" data-a="tab" data-tab="heroes">Героини ›</button>';}
+function champ(){return '<div class="portrait">'+heroSvg(S.hero)+'</div><div class="champtext"><label>ВЕРХОВНАЯ КОМАНДИРША</label><strong>'+NAMES[S.hero]+'</strong><small>'+a().title+' · реликвии '+S.relic+'</small></div><button class="chip" data-a="tab" data-tab="heroes">Сменить ›</button>';}
 function rect(x,y,w,h,r,fill,stroke){c.beginPath();c.roundRect(x,y,w,h,r);if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}}
 function backdrop(){window.FairytaleScene.background(c,S.era,G.time,G.mode);}
 function castle(x,enemy){window.FairytaleScene.castle(c,x,enemy,S.era,G.time);}
@@ -170,25 +170,25 @@ else{G.base-=dmg*.8;sparkle(29,190,"#bcd8ff",3);}}}
 for(let i=G.troops.length-1;i>=0;i--){let dead=G.troops[i];if(dead.hp<=0){sparkle(dead.x,dead.y-28,dead.side==="e"?"#ffc3b1":"#eb9bd9",dead.boss?28:10);if(dead.boss){G.bossBeaten=true;G.battleMessage="Вражеская предводительница повержена!";G.battleMessageTime=3;}if(dead.side==="e"){S.coins+=Math.round((9+dead.k*12)*(1+S.income*.16)*(dead.boss?8:1));S.kills++;G.dead++;G.food=Math.min(130,G.food+(dead.boss?20:3));}G.troops.splice(i,1);}}
 if(G.enemy<=0&&(!G.bossSpawned||G.bossBeaten))return complete(true);if(G.enemy<=0)G.enemy=1;if(G.base<=0)return complete(false);if(G.time>=275)return complete(G.enemy<G.enemyMax*.3);
 saveTimer+=dt;if(saveTimer>=10){saveTimer=0;save();}}
-function unit(k){if(!G.playing)return toast("Сначала начни битву");if(!S.units[k])return toast("Открой отряд в развитии");if(G.food<cost(k))return toast("Недостаточно еды");G.food-=cost(k);createTroop("p",k,null);renderBattle();sfx("unit");}
-function summonHero(){if(!G.playing)return toast("Сначала начни битву");if(G.heroUsed)return toast("Героиня уже призвана");G.heroUsed=true;createTroop("p",S.units[2]?2:S.units[1]?1:0,S.hero);toast(NAMES[S.hero]+" вступила в бой!");renderBattle();sfx("hero");}
-function cast(k){if(!G.playing)return toast("Сначала начни битву");if(G.used[k])return toast("Эти чары уже использованы");if(!S.loadout.includes(k))return toast("Выбери заклинание в магазине");G.used[k]=true;sfx("magic");
+function unit(k){if(!G.playing)return toast("Сначала начни битву");if(G.paused)return toast("Бой на паузе");if(!S.units[k])return toast("Открой отряд в развитии");if(G.food<cost(k))return toast("Недостаточно еды");G.food-=cost(k);createTroop("p",k,null);renderBattle();sfx("unit");}
+function summonHero(){if(!G.playing)return toast("Сначала начни битву");if(G.paused)return toast("Бой на паузе");if(G.heroUsed)return toast("Героиня уже призвана");G.heroUsed=true;createTroop("p",S.units[2]?2:S.units[1]?1:0,S.hero);toast(NAMES[S.hero]+" вступила в бой!");renderBattle();sfx("hero");}
+function cast(k){if(!G.playing)return toast("Сначала начни битву");if(G.paused)return toast("Бой на паузе");if(G.used[k])return toast("Эти чары уже использованы");if(!S.loadout.includes(k))return toast("Выбери заклинание в магазине");G.used[k]=true;sfx("magic");
 if(k===0){G.frozen=5;toast("Враги заморожены!");}
 if(k===1){for(const t of G.troops)if(t.side==="e"){t.hp-=76*attackPower("p")*(1+cardBonus("meteors"));sparkle(t.x,t.y-30,"#fce9e8",10);}G.enemy-=40*attackPower("p");toast("Метеорный дождь!");}
 if(k===2){G.base=Math.min(G.baseMax,G.base+140*(1+cardBonus("healing")));for(const t of G.troops)if(t.side==="p")t.hp=Math.min(t.max,t.hp+t.max*(.5+cardBonus("healing")));toast("Армия исцелена!");}
 if(k===3){G.raging=12;toast("Боевая ярость!");}
 if(k===4){for(const t of G.troops)if(t.side==="e"){t.x=Math.min(359,t.x+48);t.hp-=20;}toast("Врагов отбросило!");}
 if(k===5){let u=G.troops.find(t=>t.side==="p");createTroop("p",u?u.k:0,S.hero);createTroop("p",u?u.k:0,S.hero);toast("Двойники призваны!");}renderBattle();}
-function renderNav(){const tabs=[["battle","⚔️","Битва"],["army","🏰","Армия"],["heroes","👸","Героини"],["shop","🛍️","Магазин"],["other","🌟","Ещё"]];$("nav").innerHTML=tabs.map(t=>'<button data-a="tab" data-tab="'+t[0]+'" class="'+(G.tab===t[0]||(t[0]==="other"&&(G.tab==="cards"||G.tab==="dungeon"))?"active":"")+'"><span>'+t[1]+'</span>'+t[2]+'</button>').join("");}
+function renderNav(){const tabs=[["battle","⚔️","Бой"],["army","🏰","Армия"],["heroes","👑","Герои"],["shop","🛍️","Лавка"],["other","✨","Ещё"]];$("nav").innerHTML=tabs.map(t=>'<button data-a="tab" data-tab="'+t[0]+'" class="'+(G.tab===t[0]||(t[0]==="other"&&(G.tab==="cards"||G.tab==="dungeon"))?"active":"")+'"><span>'+t[1]+'</span>'+t[2]+'</button>').join("");}
 function renderBattle(){
-$("eraText").textContent=a().era+" · Линия "+S.timeline;$("eraName").textContent=a().title;$("modeBtn").textContent=G.mode==="story"?"Поход ⟳":G.mode==="arena"?"Арена ⟳":"Башня ⟳";
+$("eraText").textContent=a().era+" · Линия "+S.timeline;$("eraName").textContent=a().title;$("modeBtn").textContent="Режим: "+(G.mode==="story"?"Поход":G.mode==="arena"?"Арена":"Башня")+" ▾";
 $("topchip").innerHTML='<span>'+(G.mode==="dungeon"?"🏯 Этаж "+S.dungeonFloor:"⚔️ Битва "+Math.min(5,S.stage)+" / 5")+'</span><span>⏱ '+Math.floor(G.time)+' с</span><span>⚔️ '+G.dead+'</span>';
 $("hpbar").innerHTML='<b>🏰</b><div class="track"><i style="width:'+Math.max(0,G.base/G.baseMax*100)+'%"></i></div><div class="track enemy"><i style="width:'+Math.max(0,G.enemy/G.enemyMax*100)+'%"></i></div><b>🏯</b>';
 $("foodValue").textContent=Math.floor(G.food);$("foodRate").textContent="+"+foodRate().toFixed(1)+"/с";$("foodFill").style.width=(G.food/130*100)+"%";
-$("units").innerHTML=a().units.map((t,k)=>'<button class="unit" data-a="'+(S.units[k]?"unit":"unlock")+'" data-k="'+k+'"><span class="art">'+window.QueenArt.figureSvg((S.era*3+k*5+4)%18,k,S.era,false,S.skin)+'</span><strong>'+t[0]+'</strong><span class="cost">'+(S.units[k]?"🍎 "+cost(k):"🔒 Открыть")+'</span></button>').join("");
+$("units").innerHTML=a().units.map((t,k)=>'<button class="unit '+(!S.units[k]?"locked":G.playing&&G.food>=cost(k)?"ready":"")+'" aria-label="'+t[0]+'" data-a="'+(S.units[k]?"unit":"unlock")+'" data-k="'+k+'"><span class="art">'+window.QueenArt.figureSvg((S.era*3+k*5+4)%18,k,S.era,false,S.skin)+'</span><strong>'+t[0]+'</strong><span class="cost">'+(S.units[k]?"🍎 "+cost(k):"🔒 Открыть")+'</span></button>').join("");
 $("spells").innerHTML=S.loadout.slice(0,3).map(k=>'<button class="spell" '+(G.used[k]||!G.playing?"disabled":"")+' data-a="magic" data-k="'+k+'"><span>'+MAGICS[k][1]+'</span><small>'+MAGICS[k][0]+'</small></button>').join("")+'<button class="spell" '+(G.heroUsed||!G.playing?"disabled":"")+' data-a="hero"><span>👸</span><small>'+NAMES[S.hero]+'</small></button>';
-$("fightaction").innerHTML=(!G.playing)?'<button class="go" data-a="start">⚔️ НАЧАТЬ БИТВУ</button>':G.playing?'<div style="display:flex;gap:8px;margin:10px 12px"><button class="chip" style="flex:1" data-a="speed">⏩ Скорость ×'+G.speed+'</button><button class="chip" style="flex:1" data-a="pause">'+(G.paused?"▶ Продолжить":"Ⅱ Пауза")+'</button>'+(S.auto?'<button class="chip" style="flex:1" data-a="auto">Авто: '+(G.autoEnabled?"Вкл":"Выкл")+'</button>':"")+'</div>':"";
-$("hint").textContent=G.playing?"Призывай воительниц, используй чары и побеждай":G.mode==="dungeon"?"Башня королев: победа приносит новую карту":S.stage===6?"Эпоха пройдена — переходи в «Армию»":"Побеждай, улучшай армию и открывай эпохи";}
+$("fightaction").innerHTML=(!G.playing)?'<button class="go" data-a="start">⚔️ В БОЙ</button>':G.playing?'<div class="battletools"><button class="chip" data-a="speed">⏩ ×'+G.speed+'</button><button class="chip" data-a="pause">'+(G.paused?"▶ Продолжить":"Ⅱ Пауза")+'</button>'+(S.auto?'<button class="chip" data-a="auto">Авто: '+(G.autoEnabled?"Вкл":"Выкл")+'</button>':"")+'</div>':"";
+$("hint").textContent=G.playing?"Нажимай на доступные отряды — они вступят в бой":G.mode==="dungeon"?"Башня: победи босса и получи новую карту":S.stage===6?"Пять побед! Новая эпоха ждёт в разделе «Армия»":"Сначала нажми «В БОЙ», затем выпускай воительниц";}
 
 function updateBossBar(){
 const boss=G.troops.find(t=>t.boss&&t.hp>0),bar=$("bossbar"),notice=$("battleAlert");
@@ -199,7 +199,7 @@ notice.hidden=!(G.battleMessageTime>0);if(!notice.hidden)notice.textContent=G.ba
 function updateHud(){
 $("topchip").innerHTML='<span>'+(G.mode==="dungeon"?"🏯 Этаж "+S.dungeonFloor:"⚔️ Битва "+Math.min(5,S.stage)+" / 5")+'</span><span>⏱ '+Math.floor(G.time)+' с</span><span>⚔️ '+G.dead+'</span>';
 $("hpbar").innerHTML='<b>🏰</b><div class="track"><i style="width:'+Math.max(0,G.base/G.baseMax*100)+'%"></i></div><div class="track enemy"><i style="width:'+Math.max(0,G.enemy/G.enemyMax*100)+'%"></i></div><b>🏯</b>';
-$("foodValue").textContent=Math.floor(G.food);$("foodRate").textContent="+"+foodRate().toFixed(1)+"/с";$("foodFill").style.width=(G.food/130*100)+"%";updateBossBar();
+$("foodValue").textContent=Math.floor(G.food);$("foodRate").textContent="+"+foodRate().toFixed(1)+"/с";$("foodFill").style.width=(G.food/130*100)+"%";updateBossBar();if(document.querySelectorAll){document.querySelectorAll("#units .unit").forEach((el,k)=>{if(el.classList&&el.classList.toggle)el.classList.toggle("ready",!!S.units[k]&&G.playing&&!G.paused&&G.food>=cost(k));});}
 }
 function listHead(title,desc){return '<div class="herohead"><h2>'+title+'</h2><p>'+desc+'</p></div>';}
 function levelPrice(id){let item=SHOP.find(t=>t[0]===id);if(!item)return 0;let p=item[5];if(["food","base","attack","vital","income"].includes(id))p=Math.round(p*Math.pow(1.48,S[id]));if(id==="skin")p+=S.skin*40;if(id==="relic")p+=S.relic*50;return p;}
@@ -229,6 +229,23 @@ v+='<div class="grid2"><button class="smallgo" data-a="export">📁 Экспор
 function render(){ $("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);$("champ").innerHTML=champ();let battle=G.tab==="battle";$("battlePage").hidden=!battle;$("otherPage").hidden=battle;if(battle)renderBattle();else $("otherPage").innerHTML=G.tab==="army"?army():G.tab==="heroes"?heroes():G.tab==="shop"?shop():G.tab==="cards"?cardPage():G.tab==="dungeon"?dungeonPage():other();renderNav();}
 function setTab(tab){G.tab=tab;closeModal();render();window.scrollTo(0,0);}
 function closeModal(){$("modal").hidden=true;$("modal").innerHTML="";}
+function showModePicker(){
+if(G.playing)return toast("Сначала заверши текущий бой");
+const rows=[
+["story","⚔️","Поход","Основные сражения и продвижение по эпохам"],
+["arena","🏆","Арена","Сложнее враги, больше награды"],
+["dungeon","🏯","Башня","Боссы, этажи и особые карты"]
+];
+$("modal").hidden=false;
+$("modal").innerHTML='<div class="modalbox"><h2>Выбери режим</h2><p>Нажми на нужный вариант. Список всех режимов — перед тобой.</p><div class="modechoices">'+rows.map(v=>'<button class="modechoice '+(G.mode===v[0]?"selected":"")+'" data-a="setmode" data-mode="'+v[0]+'"><span>'+v[1]+'</span><div><strong>'+v[2]+(G.mode===v[0]?" ✓":"")+'</strong><small>'+v[3]+'</small></div></button>').join("")+'</div><button class="chip" data-a="close" style="width:100%">Закрыть</button></div>';
+}
+function chooseMode(mode){
+if(!["story","arena","dungeon"].includes(mode))return;
+if(G.playing)return toast("Сначала заверши текущий бой");
+G.mode=mode;G.done=false;closeModal();setTab("battle");
+toast(mode==="story"?"Выбран поход":mode==="arena"?"Выбрана арена":"Выбрана башня");
+}
+
 function showHelp(){$("modal").hidden=false;$("modal").innerHTML='<div class="modalbox"><div class="big">👑</div><h2>Как играть</h2><p style="text-align:left">1. Начни бой — еда накапливается автоматически.<br>2. Нажимай на карточки отрядов, чтобы выпустить воительниц.<br>3. Используй заклинания и призывай командиршу.<br>4. Разрушь вражескую базу. За победу и побеждённых врагов получай монеты и кристаллы.<br>5. Покупай улучшения, открывай новых героинь и отряды.<br>6. Победи в пяти боях для перехода в следующую эпоху.<br><br>Арена сложнее похода, но даёт больше наград.</p><button class="go" style="width:100%" data-a="close">Играть</button></div>';}
 function unlock(k){if(S.units[k])return toast("Отряд уже открыт");if(k===0)return;if(k===2&&!S.units[1])return toast("Сначала открой второй отряд");let p=k===1?175:420;if(S.coins<p){setTab("army");return toast("Нужно "+p+" монет");}S.coins-=p;S.units[k]=1;save();render();sfx("buy");toast("Открыт новый отряд!");}
 function purchase(id){let item=SHOP.find(t=>t[0]===id);if(!item)return;
@@ -247,7 +264,7 @@ function daily(){let today=new Date().toLocaleDateString("sv-SE");if(S.claimed==
 function backup(){const blob=new Blob([JSON.stringify({app:"queen-empire-offline",version:1,state:S},null,2)],{type:"application/json"}),link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="voitel-nicy-save.json";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(link.href),2000);}
 function restore(){let input=$("savefile");input.value="";input.onchange=()=>{let file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{let v=JSON.parse(reader.result);if(v.app!=="queen-empire-offline"||!v.state)throw Error("bad");S=Object.assign(defaults(),v.state);if(!Array.isArray(S.heroes)||!Array.isArray(S.units))throw Error("bad");save();G.playing=false;G.done=false;G.troops=[];G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;setTab("battle");toast("Сохранение восстановлено");}catch(e){toast("Не удалось прочитать сохранение");}};reader.readAsText(file);};input.click();}
 document.addEventListener("click",e=>{let el=e.target.closest("[data-a]");if(!el)return;let action=el.dataset.a,k=Number(el.dataset.k)||0;
-switch(action){case"tab":setTab(el.dataset.tab);break;case"deckslot":G.deckSlot=k;render();break;case"equip":equipCard(k);break;case"dungeon":if(G.playing){toast("Закончи текущую битву");break;}G.mode="dungeon";G.done=false;setTab("battle");toast("Башня королев · этаж "+S.dungeonFloor);break;case"unit":unit(k);break;case"unlock":unlock(k);break;case"hero":summonHero();break;case"magic":cast(k);break;case"buy":purchase(el.dataset.id);break;case"select":choose(k);break;case"evolve":evolve();break;case"claim":daily();break;case"start":case"newbattle":begin();break;case"close":closeModal();break;case"mode":if(G.playing){toast("Сначала закончи битву");break;}G.mode=G.mode==="story"?"arena":G.mode==="arena"?"dungeon":"story";G.done=false;render();toast(G.mode==="story"?"Режим «Поход»":G.mode==="arena"?"Режим «Арена»":"Режим «Башня»");break;case"pause":G.paused=!G.paused;renderBattle();break;case"auto":G.autoEnabled=!G.autoEnabled;renderBattle();toast(G.autoEnabled?"Автопризыв включён":"Автопризыв выключен");break;case"speed":G.speed=G.speed===1?2:1;renderBattle();break;case"help":showHelp();break;case"sound":S.sound=S.sound===false;save();render();sfx("buy");break;case"export":backup();break;case"import":restore();break;}
+switch(action){case"tab":setTab(el.dataset.tab);break;case"deckslot":G.deckSlot=k;render();break;case"equip":equipCard(k);break;case"dungeon":if(G.playing){toast("Закончи текущую битву");break;}G.mode="dungeon";G.done=false;setTab("battle");toast("Башня королев · этаж "+S.dungeonFloor);break;case"unit":unit(k);break;case"unlock":unlock(k);break;case"hero":summonHero();break;case"magic":cast(k);break;case"buy":purchase(el.dataset.id);break;case"select":choose(k);break;case"evolve":evolve();break;case"claim":daily();break;case"start":case"newbattle":begin();break;case"close":closeModal();break;case"mode":showModePicker();break;case"setmode":chooseMode(el.dataset.mode);break;case"pause":G.paused=!G.paused;renderBattle();break;case"auto":G.autoEnabled=!G.autoEnabled;renderBattle();toast(G.autoEnabled?"Автопризыв включён":"Автопризыв выключен");break;case"speed":G.speed=G.speed===1?2:1;renderBattle();break;case"help":showHelp();break;case"sound":S.sound=S.sound===false;save();render();sfx("buy");break;case"export":backup();break;case"import":restore();break;}
 });
 function frame(now){let dt=Math.min(.045,(now-last)/1000||.016);last=now;if(!G.paused){for(let i=0;i<G.speed;i++)tick(dt);}draw();uiTimer+=dt;if(uiTimer>.28){uiTimer=0;if(G.tab==="battle")updateHud();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);}requestAnimationFrame(frame);}
 function resize(){let d=Math.min(devicePixelRatio||1,2);canvas.width=W*d;canvas.height=H*d;c.setTransform(d,0,0,d,0,0);draw();}

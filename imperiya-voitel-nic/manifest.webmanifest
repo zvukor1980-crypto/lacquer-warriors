@@ -1,14 +1,14 @@
 {
-  "name": "Империя воительниц: Приключения королев",
+  "name": "Империя воительниц: BLACK FIRE",
   "short_name": "Воительницы",
-  "start_url": "./?v=7",
+  "start_url": "./?v=8",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "lang": "ru",
-  "background_color": "#102A49",
-  "theme_color": "#102A49",
-  "description": "Удобная офлайн-стратегия с мультяшными героинями, советницей Лирой, ежедневными заданиями и магией",
+  "background_color": "#090E1E",
+  "theme_color": "#0D132D",
+  "description": "Сказочная мультяшная стратегия со своим музыкальным саундтреком, мощными эффектами, советницей Лирой и офлайн-боями",
   "icons": [
     {
       "src": "icon.svg",

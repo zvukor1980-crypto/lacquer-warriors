@@ -3,19 +3,19 @@
 const $=id=>document.getElementById(id);
 const KEY="queen_empire_offline_v2";
 const AGES=[
-{title:"Дикие луны",era:"Эпоха 1 · Изумрудные земли",sky:["#78bdce","#d9eef0","#63a989"],icon:"🌿",units:[["Амазонка","⚔️"],["Охотница","🏹"],["Всадница","🐆"]]},
+{title:"Лунные сады",era:"Эпоха 1 · Изумрудные земли",sky:["#78bdce","#d9eef0","#63a989"],icon:"🌿",units:[["Амазонка","⚔️"],["Охотница","🏹"],["Всадница","🐆"]]},
 {title:"Золотые сады",era:"Эпоха 2 · Царство цветов",sky:["#88b3bd","#efdfc9","#8caf86"],icon:"🌸",units:[["Хранительница","🗡️"],["Фея-стрелок","🪄"],["Лесная королева","🦌"]]},
 {title:"Бронзовая корона",era:"Эпоха 3 · Древние легенды",sky:["#c0af99","#f2d8ae","#bd9e74"],icon:"🏛️",units:[["Легионерка","🛡️"],["Лучница","🏹"],["Царица львов","🦁"]]},
 {title:"Бархат и порох",era:"Эпоха 4 · Королевские дворцы",sky:["#8c9fa2","#decab4","#647b7c"],icon:"🏰",units:[["Дуэлянтка","🗡️"],["Мушкетёрша","🎯"],["Герцогиня","💣"]]},
-{title:"Стальные города",era:"Эпоха 5 · Индустриальный мир",sky:["#647c8d","#bdc6bf","#5f8792"],icon:"⚙️",units:[["Защитница","🔧"],["Снайперша","🎯"],["Меха-пилот","🤖"]]},
-{title:"Неоновая ночь",era:"Эпоха 6 · Город будущего",sky:["#28465f","#699db1","#3e7182"],icon:"🌃",units:[["Кибер-ниндзя","⚡"],["Техноведьма","🔮"],["Робо-амазонка","🦾"]]},
-{title:"Звёздные троны",era:"Эпоха 7 · Галактическая империя",sky:["#1b3554","#477d95","#294e74"],icon:"🌌",units:[["Астрорыцарь","🪐"],["Лазерная леди","✨"],["Королева комет","🚀"]]}
+{title:"Город чудес",era:"Эпоха 5 · Индустриальный мир",sky:["#647c8d","#bdc6bf","#5f8792"],icon:"⚙️",units:[["Защитница","🔧"],["Снайперша","🎯"],["Меха-пилот","🤖"]]},
+{title:"Радужные огни",era:"Эпоха 6 · Город будущего",sky:["#28465f","#699db1","#3e7182"],icon:"🌃",units:[["Кибер-ниндзя","⚡"],["Техноведьма","🔮"],["Робо-амазонка","🦾"]]},
+{title:"Звёздные дворцы",era:"Эпоха 7 · Галактическая империя",sky:["#1b3554","#477d95","#294e74"],icon:"🌌",units:[["Астрорыцарь","🪐"],["Лазерная леди","✨"],["Королева комет","🚀"]]}
 ];
 const NAMES=["Астра","Мира","Селена","Ника","Виктория","Лея","Роксана","Эсмеральда","София","Ирис","Кассиопея","Рубина","Аврора","Тамира","Вега","Мелисса","Кира","Аделина"];
 const HAIRS=["#332136","#e9c38c","#832942","#28223e","#b36944","#14172e","#ecd2a5","#a44a5c","#6a412c","#222a45","#b88b63","#e8bc68","#793975","#2f1e27","#e9c5b1","#975041","#2e2039","#db9dbf"];
 const SKINS=["#f1ba99","#b88469","#f0c7a7","#bd7b5d","#d69a7f","#edb69b","#c78c71","#e6ab8b","#ac7058","#f0c9ae","#d9a282","#c98c72"];
 const COLORS=["#0b5967","#c16a44","#417c68","#c18d48","#ac4d61","#2d6288","#56836a","#ad6456","#3e5981","#4e7164","#92624d","#385c70","#c07b4b","#5b7f77","#7f515d","#bf8c56","#316a74","#ad6859"];
-const MAGICS=[["Лёд","❄️","На 5 секунд замораживает врагов"],["Метеоры","☄️","Поражает всех врагов"],["Лечение","💗","Восстанавливает здоровье"],["Ярость","🔥","Увеличивает урон на 12 секунд"],["Тайфун","🌪️","Отбрасывает врагов назад"],["Двойники","👥","Призывает две копии героини"]];
+const MAGICS=[["Ледяные чары","❄️","На 5 секунд замораживает врагов"],["Метеоры","☄️","Поражает всех врагов"],["Лечение","💗","Восстанавливает здоровье"],["Ярость","🔥","Увеличивает урон на 12 секунд"],["Тайфун","🌪️","Отбрасывает врагов назад"],["Двойники","👥","Призывает две копии героини"]];
 const SHOP=[
 ["food","🍎","Сады изобилия","+0,55 еды в секунду","coins",90],
 ["base","🏰","Крепостные стены","+110 здоровья базы","coins",105],
@@ -100,67 +100,16 @@ const color=id=>COLORS[(id+S.skin*3)%COLORS.length];
 function heroSvg(id){return window.QueenArt.portrait(id);}
 function champ(){return '<div class="portrait">'+heroSvg(S.hero)+'</div><div class="champtext"><label>ВЕРХОВНАЯ КОМАНДИРША</label><strong>'+NAMES[S.hero]+'</strong><small>'+a().title+' · реликвии '+S.relic+'</small></div><button class="chip" data-a="tab" data-tab="heroes">Героини ›</button>';}
 function rect(x,y,w,h,r,fill,stroke){c.beginPath();c.roundRect(x,y,w,h,r);if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}}
-function backdrop(){
-const shades=a().sky,sky=c.createLinearGradient(0,0,0,H);
-sky.addColorStop(0,shades[0]);sky.addColorStop(.54,shades[1]);sky.addColorStop(1,shades[2]);c.fillStyle=sky;c.fillRect(0,0,W,H);
-c.save();
-const futuristic=S.era>=4,galaxy=S.era===6;
-if(!futuristic){
-c.fillStyle="#fff8e7b4";c.beginPath();c.arc(292,69,26,0,7);c.fill();
-c.fillStyle="#fffef07d";c.beginPath();c.arc(292,69,42,0,7);c.fill();
-for(let i=0;i<4;i++){let x=(i*131+45)%390,y=33+(i%2)*37;c.fillStyle="#f5fcf380";c.beginPath();c.ellipse(x,y,38,8,-.1,0,7);c.ellipse(x+18,y-8,27,12,.2,0,7);c.fill();}
-}else{
-for(let i=0;i<36;i++){let x=(i*89+23)%390,y=(i*47+7)%179;c.fillStyle=i%4?"#ffffff79":"#fff2b9bd";c.beginPath();c.arc(x,y,1+i%3*.4,0,7);c.fill();}
-if(galaxy){c.strokeStyle="#b9e5ff8a";c.lineWidth=3;c.beginPath();c.ellipse(230,83,95,23,-.16,0,7);c.stroke();c.fillStyle="#92bfd0";c.beginPath();c.arc(230,83,27,0,7);c.fill();}
-}
-function hill(y,color,amplitude,shift){c.beginPath();c.moveTo(0,y);for(let x=0;x<=420;x+=12)c.lineTo(x,y-amplitude*Math.sin((x+shift)/55)-amplitude*.32*Math.cos((x+shift)/24));c.lineTo(390,300);c.lineTo(0,300);c.closePath();c.fillStyle=color;c.fill();}
-hill(153,S.era===2?"#c1ae8d8f":"#517f869e",18,50);
-hill(185,S.era===2?"#a68b68d0":"#578788b6",13,130);
-hill(218,S.era===2?"#8a795bbd":"#356e68cc",9,70);
-if(S.era<2){
-for(let i=0;i<7;i++){
-let x=i*67+12,y=191+(i%2)*18;
-c.strokeStyle="#355954";c.lineWidth=6;c.beginPath();c.moveTo(x,y+22);c.lineTo(x+2,y-20);c.stroke();
-for(let j=0;j<3;j++){c.fillStyle=["#2d8068","#559877","#8db78b"][j];c.beginPath();c.ellipse(x-12+j*12,y-14+(j%2)*8,15,23,-.18,0,7);c.fill();}
-c.fillStyle="#d4bd93";c.beginPath();c.arc(x+1,y-16,3,0,7);c.fill();}
-}else if(S.era<4){
-for(let i=0;i<5;i++){let x=25+i*86,y=212;c.fillStyle="#e8d0a9";c.fillRect(x-3,y-43,10,46);c.fillStyle="#8b8174";c.fillRect(x-8,y-47,18,7);c.fillRect(x-9,y-4,20,5);c.strokeStyle="#d6b17a";c.beginPath();c.moveTo(x-15,y-50);c.lineTo(x+15,y-50);c.stroke();}
-}else{
-for(let i=0;i<10;i++){
-let x=i*47-9,h=47+(i*27)%70;
-c.fillStyle=S.era===4?"#345866":"#153c59";c.fillRect(x,219-h,36,h);
-c.fillStyle="#f7e2b884";
-for(let row=0;row<4;row++)for(let col=0;col<3;col++)c.fillRect(x+6+col*10,225-h+row*11,4,6);
-c.strokeStyle="#84d6d98a";c.beginPath();c.moveTo(x,219-h);c.lineTo(x+36,219-h);c.stroke();
-}}
-c.fillStyle=S.era===2?"#c9aa81":"#a6b8a4";c.fillRect(0,224,390,76);
-const road=c.createLinearGradient(0,229,0,300);
-road.addColorStop(0,S.era===2?"#dbbd93":"#c4ae91");road.addColorStop(1,S.era===2?"#ab886a":"#8f856e");
-c.fillStyle=road;c.beginPath();c.moveTo(0,236);c.quadraticCurveTo(195,223,390,236);c.lineTo(390,300);c.lineTo(0,300);c.closePath();c.fill();
-c.strokeStyle="#f8e6ba9c";c.lineWidth=2;c.beginPath();c.moveTo(0,238);c.quadraticCurveTo(195,226,390,238);c.stroke();
-for(let i=0;i<17;i++){let xx=(i*61+17)%390,yy=246+(i*19)%50;c.strokeStyle=i%2?"#6b66558a":"#d7bea18a";c.lineWidth=1.7;c.beginPath();c.moveTo(xx,yy);c.lineTo(xx+9,yy+1);c.stroke();}
-for(let i=0;i<13;i++){let xx=(i*43+7)%390,yy=217+(i*7)%16;c.fillStyle=i%2?"#f5e4ad":"#e7b1a4";c.beginPath();c.arc(xx,yy,1.8,0,7);c.fill();}
-if(S.era===5){c.fillStyle="#8be0e51c";for(let i=0;i<6;i++)c.fillRect(i*75,243,24,1);}
-c.restore();
-}
-function castle(x,enemy){
-c.save();c.translate(x,0);if(enemy)c.scale(-1,1);
-const stone=enemy?"#315867":"#f0ddbe",dark=enemy?"#153c4d":"#8f846f",accent=enemy?"#d58172":"#0b7477";
-c.fillStyle="#15343a6a";c.beginPath();c.ellipse(0,233,37,7,0,0,7);c.fill();
-const side=c.createLinearGradient(-33,0,34,0);side.addColorStop(0,dark);side.addColorStop(.25,stone);side.addColorStop(.78,stone);side.addColorStop(1,dark);
-c.fillStyle=side;c.beginPath();c.moveTo(-30,229);c.lineTo(-30,172);c.lineTo(-37,172);c.lineTo(-32,151);c.lineTo(-14,151);c.lineTo(-9,166);c.lineTo(11,166);c.lineTo(16,146);c.lineTo(32,146);c.lineTo(37,169);c.lineTo(28,169);c.lineTo(29,229);c.closePath();c.fill();c.lineWidth=1.7;c.strokeStyle=enemy?"#a6c5bd":"#ffe4b1";c.stroke();
-c.fillStyle=dark;c.fillRect(-10,194,20,35);c.fillStyle="#081d25";c.beginPath();c.arc(0,196,10,Math.PI,0);c.fill();
-for(let j=0;j<2;j++){let xx=j?17:-25;c.fillStyle=accent;c.fillRect(xx,182,8,13);c.strokeStyle="#f2d2a4";c.lineWidth=1.5;c.strokeRect(xx,182,8,13);}
-c.fillStyle=enemy?"#eab5a3":"#f8d7a1";c.beginPath();c.moveTo(-34,154);c.lineTo(-25,140);c.lineTo(-12,154);c.moveTo(11,150);c.lineTo(23,135);c.lineTo(35,150);c.fill();
-c.strokeStyle="#e9c891";c.lineWidth=2.5;c.beginPath();c.moveTo(4,162);c.lineTo(4,127);c.stroke();
-c.fillStyle=accent;c.beginPath();c.moveTo(5,128);c.quadraticCurveTo(26,121,31,131);c.lineTo(5,143);c.closePath();c.fill();
-c.fillStyle="#fff5d5";c.beginPath();c.arc(4,172,5,0,7);c.fill();c.restore();
-}
+function backdrop(){window.FairytaleScene.background(c,S.era,G.time,G.mode);}
+function castle(x,enemy){window.FairytaleScene.castle(c,x,enemy,S.era,G.time);}
 function soldier(t){window.QueenArt.draw(c,t,S.era,G.time,S.skin);}
 function draw(){if(!c)return;c.clearRect(0,0,W,H);c.save();if(G.shake>0)c.translate((Math.random()-.5)*G.shake*8,(Math.random()-.5)*G.shake*4);backdrop();castle(28,false);castle(361,true);
-if(!G.playing&&!G.done){rect(60,77,270,65,15,"#0b303cdd","#f9dfae");c.textAlign="center";c.fillStyle="#ffebd6";c.font="bold 19px Georgia";c.fillText("Время королев",195,103);c.fillStyle="#dbe9df";c.font="12px sans-serif";c.fillText("Начни поход и завоюй эпохи",195,125);c.textAlign="left";}
+if(!G.playing&&!G.done){rect(52,76,286,69,21,"#fff9f6e8","#ffffff");c.textAlign="center";c.fillStyle="#9566a4";c.font="bold 21px Georgia";c.fillText("Сказка семи королевств",195,104);c.fillStyle="#977eaa";c.font="12px sans-serif";c.fillText("Выбирай воительниц — и в путь!",195,130);c.textAlign="left";}
 G.troops.slice().sort((x,y)=>x.y-y.y).forEach(soldier);
-G.particles.forEach(p=>{c.globalAlpha=Math.max(0,Math.min(1,p.life*2));c.fillStyle=p.color;c.beginPath();c.arc(p.x,p.y,p.radius,0,7);c.fill();});c.globalAlpha=1;if(G.frozen>0){c.fillStyle="#cdeaff18";c.fillRect(0,0,W,H);}c.restore();
+G.particles.forEach((p,i)=>{const opacity=Math.max(0,Math.min(1,p.life*2));c.globalAlpha=opacity;c.save();c.translate(p.x,p.y);c.rotate(G.time*3+i*.3);c.fillStyle=p.color;c.beginPath();const rad=p.radius*(i%3===0?1.8:1);if(i%3===0){for(let j=0;j<8;j++){let angle=j*Math.PI/4,r=j%2?rad*.26:rad;c.lineTo(Math.sin(angle)*r,Math.cos(angle)*r);}c.closePath();}else c.arc(0,0,rad,0,Math.PI*2);c.fill();c.restore();});c.globalAlpha=1;
+if(G.frozen>0){c.fillStyle="#E2F6FF3F";c.fillRect(0,0,W,H);}
+if(G.raging>0){c.fillStyle="#FFE1B415";c.fillRect(0,0,W,H);}
+c.restore();
 }
 function sparkle(x,y,color,n){for(let i=0;i<n;i++)G.particles.push({x,y,vx:(Math.random()-.5)*100,vy:(Math.random()-.8)*85,life:.3+Math.random()*.5,color,radius:1+Math.random()*2.5});if(G.particles.length>250)G.particles.splice(0,80);}
 function waves(){
@@ -182,7 +131,7 @@ const extra=side==="p"?(1+(k===0?cardBonus("melee"):k===1?cardBonus("ranged"):ca
 const bossScale=boss?(G.mode==="dungeon"?4.5+Math.min(5,S.dungeonFloor*.22):3.8):1;
 const hp=stat.hp*healthPower(side)*(hero==null?1:2.5)*bossScale;
 const t={side,k,hid,x:side==="p"?49:342,y:235+Math.random()*14,hp,max:hp,damage:stat.damage*attackPower(side)*(hero==null?1+cardBonus("hero"):2*(1+cardBonus("hero")))*extra*(boss?2.8:1),speed:stat.speed*(side==="p"?1+cardBonus("speed"):1)*(boss?.79:1),range:stat.range,rate:stat.rate*(boss?1.1:1),cd:Math.random()*.5,elite:hero!=null||boss,boss,seed:Math.random()*10};
-G.troops.push(t);if(side==="p"){S.deployed++;saveTimer=1;}if(boss){G.bossSpawned=true;G.bossPulse=13;G.battleMessage="На поле вышла предводительница врага!";G.battleMessageTime=3;sfx("boss");}
+G.troops.push(t);if(side==="p"){S.deployed++;saveTimer=1;sparkle(t.x,t.y-50,"#fff9c6",7);}if(boss){G.bossSpawned=true;G.bossPulse=13;G.battleMessage="На поле вышла предводительница врага!";G.battleMessageTime=3;sfx("boss");}
 return t;
 }
 function begin(){G.playing=true;G.done=false;G.paused=false;G.time=0;G.food=12;G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;G.troops=[];G.particles=[];G.queue=waves();G.next=0;G.used={};G.heroUsed=false;G.frozen=0;G.raging=0;G.dead=0;G.damage=0;G.autoWait=0;G.autoEnabled=!!S.auto;G.bossSpawned=false;G.bossBeaten=false;G.bossPulse=14;G.battleMessage="";G.battleMessageTime=0;G.shake=0;closeModal();render();sfx("start");}

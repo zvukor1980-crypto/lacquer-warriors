@@ -166,7 +166,7 @@ function renderAudioDock(){
  const dock=$("audioDock");if(!dock)return;
  const status=window.CrownAudio?window.CrownAudio.status:null;
  const playing=status&&status.playing&&S.music!==false;
- const scene=G.playing?(G.paused?"ПАУЗА":G.troops.some(t=>t.boss&&t.hp>0)?"БОСС · POWER":"БОЙ · POWER"):"КОРОЛЕВСКАЯ ТЕМА";
+ const scene=status&&!status.ready&&S.music!==false&&S.sound!==false?"КОСНИСЬ ДЛЯ МУЗЫКИ":G.playing?(G.paused?"ПАУЗА":G.troops.some(t=>t.boss&&t.hp>0)?"БОСС · POWER":"БОЙ · POWER"):"КОРОЛЕВСКАЯ ТЕМА";
  const state=[S.sound,S.music,S.fx,S.musicVolume,S.fxVolume,scene,playing].join(":");
  if(dock.dataset&&dock.dataset.key===state)return;
  if(dock.dataset)dock.dataset.key=state;

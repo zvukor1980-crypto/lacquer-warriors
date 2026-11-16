@@ -25,7 +25,7 @@ let noise=null,periodic=null,interval=null,active=false,enabled=true,musicOn=tru
 let musicVol=.68,fxVol=.7,scene="menu",wantedScene="menu",next=0,step=0,run=0,prevBoss=false;
 let unlocked=false,hasBegun=false,waitingGesture=true;
 const status={get ready(){return !!ctx&&unlocked},get playing(){return active&&musicOn&&enabled&&!!ctx&&ctx.state==="running"},get scene(){return scene},get music(){return musicOn&&enabled},get effects(){return fxOn&&enabled}};
-function equalGain(param,v,at=.055){if(!param||!ctx)return;param.cancelScheduledValues(ctx.currentTime);param.setTargetAtTime(Math.max(0,v),ctx.currentTime,at);}
+function equalGain(node,v,at=.055){if(!node||!ctx)return;const p=node.gain||node;p.cancelScheduledValues(ctx.currentTime);p.setTargetAtTime(Math.max(0,v),ctx.currentTime,at);}
 function impulse(c,duration=1.35,decay=2.8){
  const n=Math.ceil(c.sampleRate*duration),b=c.createBuffer(2,n,c.sampleRate);
  for(let ch=0;ch<2;ch++){let v=b.getChannelData(ch),seed=ch?424242:777777;

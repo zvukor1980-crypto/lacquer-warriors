@@ -243,3 +243,14 @@ nav button.active{
   .market-card button{flex-basis:75px}
 }
 @media(prefers-reduced-motion:reduce){.mentor,.unit,.market-card{transition:none!important}}
+
+
+nav button span{position:relative}
+.nav-reward{position:absolute;right:-7px;top:-5px;width:9px;height:9px;border-radius:50%;background:#FFD476;border:2px solid #183D5B;box-shadow:0 0 8px #FFE6A6}
+.intro-steps{display:grid;gap:10px;margin:17px 0;text-align:left}
+.intro-steps>div{display:flex;gap:11px;align-items:center;padding:10px;border-radius:10px;border:1px solid #528E9D;background:#1B5073}
+.intro-steps b{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:#FFDA83;color:#193E57;font-size:17px;font-weight:1000}
+.intro-steps span{flex:1;min-width:0}
+.intro-steps strong{display:block;font-size:13px;color:#fff}
+.intro-steps small{display:block;margin-top:4px;font-size:11px;line-height:1.4;color:#D4E9F3}
+.winning-streak{margin:8px 0;color:#FFE6A3;font-size:12px;font-weight:900}

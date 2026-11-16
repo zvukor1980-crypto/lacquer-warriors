@@ -58,11 +58,104 @@ out+='<div class="dungeon-intro"><div class="dungeon-visual"><span>🏯</span><d
 out+='<div class="grid2"><div class="tile"><div class="icon">🎴</div><strong>Карты усиления</strong><p>Одна случайная карта за каждую победу в башне</p></div><div class="tile"><div class="icon">💎</div><strong>+25 кристаллов</strong><p>Награда за этаж; сложность постепенно растёт</p></div></div><button class="go" data-a="dungeon" style="margin:15px 0;width:100%">⚔️ ВОЙТИ В БАШНЮ</button><button class="chip" data-a="tab" data-tab="cards" style="width:100%">Посмотреть колоду карт</button>';
 return out;}
 
-function defaults(){return {coins:180,gems:85,era:0,stage:1,timeline:1,food:0,base:0,attack:0,vital:0,income:0,auto:false,skin:0,relic:0,magic:[0,1,2],loadout:[0,1,2],units:[1,0,0],hero:0,heroes:[0],wins:0,losses:0,kills:0,deployed:0,claimed:"",first:true,sound:true,cards:[1,1,1,0,0,0,0,0,0,0,0,0],deck:[0,1,2],dungeonFloor:1,dungeonWins:0,bossWins:0};}
+
+/* The advisor is deliberately deterministic and fully offline: it reads the saved economy,
+   progression and live battle conditions; no account, internet or subscription required. */
+const MISSIONS=[
+{id:"victories",icon:"🏆",name:"Королевский поход",desc:"Выиграй 2 сражения",stat:"wins",target:2,coins:170,gems:8},
+{id:"troops",icon:"⚔️",name:"Собери армию",desc:"Призови 10 воительниц",stat:"deployed",target:10,coins:140,gems:5},
+{id:"upgrades",icon:"✨",name:"Стань сильнее",desc:"Сделай 2 покупки или открой отряда",stat:"purchases",target:2,coins:200,gems:10}
+];
+function todayKey(){const d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return y+"-"+m+"-"+day;}
+function ensureMissions(){
+ const day=todayKey();
+ if(!S.quests||S.quests.date!==day||!S.quests.base||!Array.isArray(S.quests.claimed)){
+   S.quests={date:day,base:{wins:S.wins,deployed:S.deployed,purchases:S.purchases},claimed:[false,false,false]};
+   save();
+ }
+}
+function missionProgress(i){ensureMissions();const t=MISSIONS[i];return Math.min(t.target,Math.max(0,(Number(S[t.stat])||0)-(Number(S.quests.base[t.stat])||0)));}
+function missionReady(i){ensureMissions();return !S.quests.claimed[i]&&missionProgress(i)>=MISSIONS[i].target;}
+function readyMissionIndex(){ensureMissions();return MISSIONS.findIndex((_,i)=>missionReady(i));}
+function claimMission(i){
+ ensureMissions();
+ if(!Number.isInteger(i)||i<0||i>=MISSIONS.length)return;
+ if(S.quests.claimed[i])return toast("Эта награда уже получена");
+ if(!missionReady(i))return toast("Сначала выполни задание");
+ const mission=MISSIONS[i];S.quests.claimed[i]=true;S.coins+=mission.coins;S.gems+=mission.gems;
+ save();sfx("win");render();toast("Награда: +"+mission.coins+" монет и +"+mission.gems+" кристаллов");
+}
+function questBoard(){
+ ensureMissions();
+ const achieved=MISSIONS.filter((_,i)=>missionProgress(i)>=MISSIONS[i].target).length;
+ let html='<section class="missions-board"><div class="missions-heading"><div><small>КОРОЛЕВСКИЕ ПОРУЧЕНИЯ</small><h3>Задания дня</h3></div><b>'+achieved+' / 3</b></div>';
+ MISSIONS.forEach((t,i)=>{
+  const n=missionProgress(i),done=S.quests.claimed[i];
+  html+='<div class="mission"><span class="mission-icon">'+t.icon+'</span><div class="mission-main"><strong>'+t.name+'</strong><small>'+t.desc+' · '+n+'/'+t.target+'</small><div class="mission-meter"><i style="width:'+(n/t.target*100)+'%"></i></div></div><button data-a="claimquest" data-k="'+i+'" '+(done||n<t.target?'disabled':'')+'>'+(done?'✓ Готово':n>=t.target?'Получить':'🪙 '+t.coins)+'</button></div>';
+ });
+ return html+'</section>';
+}
+function nextAdvice(){
+ ensureMissions();
+ if(G.playing){
+  if(G.paused)return {tag:"БОЙ ОСТАНОВЛЕН",title:"Вернёмся к победе?",desc:"Бой стоит на паузе — продолжи, когда будешь готов.",action:"pause",label:"▶ Продолжить"};
+  if(G.base<G.baseMax*.55&&!G.used[2]&&S.loadout.includes(2))return {tag:"СОВЕТ ПО БОЮ",title:"Защити крепость",desc:"Прочность базы падает. Сейчас выгоднее применить лечение.",action:"magic",k:2,label:"💗 Лечение"};
+  if(!G.heroUsed)return {tag:"СОВЕТ ПО БОЮ",title:"Вызови командиршу",desc:NAMES[S.hero]+" — сильный бесплатный боец, доступный один раз за бой.",action:"hero",label:"👑 Призвать"};
+  if(S.units[1]&&G.food>=cost(1))return {tag:"СОВЕТ ПО БОЮ",title:"Поддержи армию лучницей",desc:"Стрелки атакуют издалека и прикрывают переднюю линию.",action:"unit",k:1,label:"🏹 Выпустить"};
+  if(G.food>=cost(0))return {tag:"СОВЕТ ПО БОЮ",title:"Время для подкрепления",desc:"Еды достаточно для нового бойца ближнего боя.",action:"unit",k:0,label:"⚔️ Выпустить"};
+  return {tag:"СОВЕТ ПО БОЮ",title:"Копи еду",desc:"Еда пополняется автоматически. Когда хватит, карточка воительницы подсветится.",action:"none",label:"Всё понятно"};
+ }
+ const ready=readyMissionIndex();
+ if(ready>=0)return {tag:"ЕСТЬ НАГРАДА",title:"Поручение выполнено!",desc:"Забери награду за «"+MISSIONS[ready].name+"»: монеты и кристаллы.",action:"claimquest",k:ready,label:"🎁 Забрать"};
+ if(S.claimed!==todayKey())return {tag:"ПОДАРОК ДНЯ",title:"Начни с бесплатного подарка",desc:"100 монет и 20 кристаллов — без рекламы и настоящих платежей.",action:"claim",label:"🎁 Получить"};
+ if(S.stage>=6){
+  const p=evolutionPrice();
+  return S.coins>=p?
+   {tag:"СЛЕДУЮЩАЯ ЭПОХА",title:"Открывай новый мир",desc:"Пять побед уже есть. За "+fmt(p)+" монет перейдёшь к следующей эпохе.",action:"evolve",label:"🌟 Эволюция"}:
+   {tag:"НАСТУПАЕТ НОВАЯ ЭПОХА",title:"Накопи на эволюцию",desc:"До следующей эпохи нужно ещё "+fmt(p-S.coins)+" монет. Победи в новом походе.",action:"setmode",mode:"story",label:"⚔️ Поход"};
+ }
+ if(S.food<1&&S.coins>=levelPrice("food"))return {tag:"СОВЕТ ПО УЛУЧШЕНИЯМ",title:"Сначала ускорь получение еды",desc:"«Сады изобилия» позволят быстрее выпускать войска. Купи за "+fmt(levelPrice("food"))+" монет.",action:"buy",id:"food",label:"🍎 Улучшить"};
+ if(!S.units[1]&&S.coins>=175)return {tag:"ПОРА ОТКРЫТЬ ОТРЯД",title:"Открой стрелков",desc:"Дальнобойная поддержка поможет справляться с тяжёлыми противницами. Цена 175 монет.",action:"unlock",k:1,label:"🏹 Открыть"};
+ if(S.attack<1&&S.coins>=levelPrice("attack"))return {tag:"СОВЕТ ПО УЛУЧШЕНИЯМ",title:"Усиль всех воительниц",desc:"«Алый клинок» даёт +17% к урону каждой воительницы.",action:"buy",id:"attack",label:"⚔️ Улучшить"};
+ if(!S.units[2]&&S.units[1]&&S.coins>=420)return {tag:"ПОРА ОТКРЫТЬ ОТРЯД",title:"Добавь тяжёлую защитницу",desc:"Третий отряд выдерживает больше урона и помогает наступлению.",action:"unlock",k:2,label:"🛡️ Открыть"};
+ const next=["food","attack","vital","base","income"].sort((x,y)=>Number(S[x])-Number(S[y])||levelPrice(x)-levelPrice(y))[0];
+ if(S.coins>=levelPrice(next)){
+  const item=SHOP.find(x=>x[0]===next);
+  return {tag:"ЛУЧШАЯ ПОКУПКА СЕЙЧАС",title:item[2],desc:item[3]+". Цена "+fmt(levelPrice(next))+" монет.",action:"buy",id:next,label:"Улучшить"};
+ }
+ if(S.heroes.length===1&&S.gems>=36&&S.wins>=2)return {tag:"КОЛЛЕКЦИЯ ГЕРОИНЬ",title:"Пригласи вторую героиню",desc:"У тебя достаточно кристаллов для новой командирши. Познакомься с Мирой.",action:"select",k:1,label:"👑 Пригласить"};
+ return {tag:"СЛЕДУЮЩИЙ ШАГ",title:"Отправляйся в новый поход",desc:"Получишь монеты за каждую победу и даже за поражение. Затем вернись за усилениями.",action:"startstory",label:"⚔️ В бой"};
+}
+function advisorCard(){
+ const d=nextAdvice();
+ const key=[d.tag,d.title,d.desc,d.label,d.action,d.k,d.id,d.mode].join("|");
+ if(G.mentorKey===key&&$("mentor").innerHTML)return;
+ G.mentorKey=key;
+ $("mentor").innerHTML='<div class="mentor-avatar">'+window.QueenArt.portrait(9)+'</div><div class="mentor-copy"><small>ЛИРА · '+d.tag+'</small><strong>'+d.title+'</strong><p>'+d.desc+'</p></div><button class="mentor-action" data-a="mentor" '+(d.action==="none"?'disabled':'')+'>'+d.label+'</button>';
+}
+function followAdvice(){
+ const d=nextAdvice();
+ switch(d.action){
+ case "claimquest":return claimMission(d.k);
+ case "claim":return daily();
+ case "buy":return purchase(d.id);
+ case "unlock":return unlock(d.k);
+ case "evolve":return evolve();
+ case "unit":return unit(d.k);
+ case "hero":return summonHero();
+ case "magic":return cast(d.k);
+ case "pause":G.paused=!G.paused;render();return;
+ case "select":return choose(d.k);
+ case "startstory":if(G.playing)return;G.mode="story";setTab("battle");begin();return;
+ case "setmode":G.mode=d.mode;setTab("battle");return;
+ }
+}
+
+function defaults(){return {coins:180,gems:85,era:0,stage:1,timeline:1,food:0,base:0,attack:0,vital:0,income:0,auto:false,skin:0,relic:0,magic:[0,1,2],loadout:[0,1,2],units:[1,0,0],hero:0,heroes:[0],wins:0,losses:0,kills:0,deployed:0,claimed:"",first:true,sound:true,cards:[1,1,1,0,0,0,0,0,0,0,0,0],deck:[0,1,2],dungeonFloor:1,dungeonWins:0,bossWins:0,purchases:0,quests:null,streak:0,bestStreak:0};}
 let S=defaults();try{const data=JSON.parse(localStorage.getItem(KEY)||"null");if(data&&typeof data==="object")S=Object.assign(defaults(),data);}catch(e){}
 S.era=Math.max(0,Math.min(6,Number(S.era)||0));S.stage=Math.max(1,Math.min(6,Number(S.stage)||1));
-if(!Array.isArray(S.units))S.units=[1,0,0];if(!Array.isArray(S.heroes))S.heroes=[0];if(!Array.isArray(S.magic))S.magic=[0,1,2];if(!Array.isArray(S.loadout))S.loadout=[0,1,2];if(!Array.isArray(S.cards))S.cards=[1,1,1,0,0,0,0,0,0,0,0,0];if(!Array.isArray(S.deck))S.deck=[0,1,2];S.cards=S.cards.slice(0,CARDS.length).map(x=>Math.max(0,Math.min(5,Number(x)||0)));while(S.cards.length<CARDS.length)S.cards.push(0);S.deck=S.deck.slice(0,3).filter(i=>Number.isInteger(i)&&i>=0&&i<CARDS.length&&S.cards[i]>0);while(S.deck.length<3){let next=S.cards.findIndex((x,i)=>x>0&&!S.deck.includes(i));if(next<0)break;S.deck.push(next);}S.dungeonFloor=Math.max(1,Math.min(1000,Number(S.dungeonFloor)||1));
-const G={tab:"battle",mode:"story",playing:false,done:false,paused:false,speed:1,time:0,food:12,base:450,baseMax:450,enemy:450,enemyMax:450,troops:[],particles:[],queue:[],next:0,used:{},heroUsed:false,frozen:0,raging:0,dead:0,damage:0,autoWait:0,autoEnabled:false,deckSlot:0,bossSpawned:false,bossBeaten:false,bossPulse:12,battleMessage:"",battleMessageTime:0,shake:0};
+if(!Array.isArray(S.units))S.units=[1,0,0];if(!Array.isArray(S.heroes))S.heroes=[0];if(!Array.isArray(S.magic))S.magic=[0,1,2];if(!Array.isArray(S.loadout))S.loadout=[0,1,2];if(!Array.isArray(S.cards))S.cards=[1,1,1,0,0,0,0,0,0,0,0,0];if(!Array.isArray(S.deck))S.deck=[0,1,2];S.cards=S.cards.slice(0,CARDS.length).map(x=>Math.max(0,Math.min(5,Number(x)||0)));while(S.cards.length<CARDS.length)S.cards.push(0);S.deck=S.deck.slice(0,3).filter(i=>Number.isInteger(i)&&i>=0&&i<CARDS.length&&S.cards[i]>0);while(S.deck.length<3){let next=S.cards.findIndex((x,i)=>x>0&&!S.deck.includes(i));if(next<0)break;S.deck.push(next);}S.dungeonFloor=Math.max(1,Math.min(1000,Number(S.dungeonFloor)||1));S.purchases=Math.max(0,Number(S.purchases)||0);S.streak=Math.max(0,Number(S.streak)||0);S.bestStreak=Math.max(0,Number(S.bestStreak)||0);
+const G={tab:"battle",mode:"story",playing:false,done:false,paused:false,speed:1,time:0,food:12,base:450,baseMax:450,enemy:450,enemyMax:450,troops:[],particles:[],queue:[],next:0,used:{},heroUsed:false,frozen:0,raging:0,dead:0,damage:0,autoWait:0,autoEnabled:false,deckSlot:0,bossSpawned:false,bossBeaten:false,bossPulse:12,battleMessage:"",battleMessageTime:0,shake:0,shopFilter:"popular"};
 const canvas=$("canvas"),c=canvas.getContext("2d");
 let last=0,uiTimer=0,saveTimer=0,toastTimer=0;const W=390,H=300;
 const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+"м":n>=1000?(n/1000).toFixed(1)+"к":String(Math.floor(n));
@@ -226,7 +319,7 @@ v+='<div class="sectionname"><b>ПОДАРОК ДНЯ</b></div><div class="row">
 v+='<div class="sectionname"><b>СЕМЬ ЭПОХ</b></div>';AGES.forEach((age,i)=>{v+='<div class="row" style="'+(i===S.era?"border-color:#ffe2a4;":"")+'"><span class="icon">'+age.icon+'</span><div class="desc"><strong>'+age.title+'</strong><p>'+age.units.map(t=>t[0]).join(" · ")+'</p></div>'+(i===S.era?'<b style="font-size:9px;color:#ffd697">СЕЙЧАС</b>':"")+'</div>';});
 v+='<hr class="divider">'+listHead("Сохранение и настройки","Данные хранятся только на этом iPhone. Сохраняй резервную копию перед очисткой данных Safari.");
 v+='<div class="grid2"><button class="smallgo" data-a="export">📁 Экспорт</button><button class="smallgo" data-a="import">📥 Импорт</button><button class="smallgo" data-a="help">❔ Правила</button><button class="smallgo" data-a="mode">🎮 Режим боя</button><button class="smallgo" data-a="sound">'+(S.sound===false?"🔇 Звук выключен":"🔊 Звук включён")+'</button></div><p class="micro">Самостоятельная игра в жанре наступательной стратегии. Оригинальные персонажи и оформление, без копирования графики We Are Warriors.</p>';return v;}
-function render(){ $("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);$("champ").innerHTML=champ();let battle=G.tab==="battle";$("battlePage").hidden=!battle;$("otherPage").hidden=battle;if(battle)renderBattle();else $("otherPage").innerHTML=G.tab==="army"?army():G.tab==="heroes"?heroes():G.tab==="shop"?shop():G.tab==="cards"?cardPage():G.tab==="dungeon"?dungeonPage():other();renderNav();}
+function render(){ ensureMissions();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);$("champ").innerHTML=champ();let battle=G.tab==="battle";$("battlePage").hidden=!battle;$("otherPage").hidden=battle;if(battle)renderBattle();else $("otherPage").innerHTML=G.tab==="army"?army():G.tab==="heroes"?heroes():G.tab==="shop"?shop():G.tab==="cards"?cardPage():G.tab==="dungeon"?dungeonPage():other();renderNav();advisorCard();}
 function setTab(tab){G.tab=tab;closeModal();render();window.scrollTo(0,0);}
 function closeModal(){$("modal").hidden=true;$("modal").innerHTML="";}
 function showModePicker(){
@@ -266,7 +359,7 @@ function restore(){let input=$("savefile");input.value="";input.onchange=()=>{le
 document.addEventListener("click",e=>{let el=e.target.closest("[data-a]");if(!el)return;let action=el.dataset.a,k=Number(el.dataset.k)||0;
 switch(action){case"tab":setTab(el.dataset.tab);break;case"deckslot":G.deckSlot=k;render();break;case"equip":equipCard(k);break;case"dungeon":if(G.playing){toast("Закончи текущую битву");break;}G.mode="dungeon";G.done=false;setTab("battle");toast("Башня королев · этаж "+S.dungeonFloor);break;case"unit":unit(k);break;case"unlock":unlock(k);break;case"hero":summonHero();break;case"magic":cast(k);break;case"buy":purchase(el.dataset.id);break;case"select":choose(k);break;case"evolve":evolve();break;case"claim":daily();break;case"start":case"newbattle":begin();break;case"close":closeModal();break;case"mode":showModePicker();break;case"setmode":chooseMode(el.dataset.mode);break;case"pause":G.paused=!G.paused;renderBattle();break;case"auto":G.autoEnabled=!G.autoEnabled;renderBattle();toast(G.autoEnabled?"Автопризыв включён":"Автопризыв выключен");break;case"speed":G.speed=G.speed===1?2:1;renderBattle();break;case"help":showHelp();break;case"sound":S.sound=S.sound===false;save();render();sfx("buy");break;case"export":backup();break;case"import":restore();break;}
 });
-function frame(now){let dt=Math.min(.045,(now-last)/1000||.016);last=now;if(!G.paused){for(let i=0;i<G.speed;i++)tick(dt);}draw();uiTimer+=dt;if(uiTimer>.28){uiTimer=0;if(G.tab==="battle")updateHud();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);}requestAnimationFrame(frame);}
+function frame(now){let dt=Math.min(.045,(now-last)/1000||.016);last=now;if(!G.paused){for(let i=0;i<G.speed;i++)tick(dt);}draw();uiTimer+=dt;if(uiTimer>.28){uiTimer=0;if(G.tab==="battle")updateHud();advisorCard();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);}requestAnimationFrame(frame);}
 function resize(){let d=Math.min(devicePixelRatio||1,2);canvas.width=W*d;canvas.height=H*d;c.setTransform(d,0,0,d,0,0);draw();}
 window.addEventListener("pagehide",save);document.addEventListener("visibilitychange",()=>{if(document.hidden)save();});window.addEventListener("resize",resize);
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));

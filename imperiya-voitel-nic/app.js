@@ -252,10 +252,10 @@ if(G.next<G.queue.length&&G.time>=G.queue[G.next].at){const w=G.queue[G.next];cr
 if(G.autoEnabled){G.autoWait+=dt;if(G.autoWait>=8&&G.food>=cost(0)){G.autoWait=0;G.food-=cost(0);createTroop("p",0,null);}}
 const boss=G.troops.find(t=>t.boss&&t.hp>0);
 if(boss&&G.frozen<=0){G.bossPulse-=dt;if(G.bossPulse<=0){G.bossPulse=13;G.shake=.5;sfx("meteor");for(const ally of G.troops){if(ally.side==="p"){ally.hp-=boss.damage*.42;sparkle(ally.x,ally.y-55,"#edb777",9);}}G.base-=boss.damage*.35;G.battleMessage="Особая атака босса!";G.battleMessageTime=2.4;}}
-for(const t of G.troops){if(t.hp<=0)continue;t.cd-=dt;let nearest=null,dist=1e6;for(const e of G.troops){if(e.hp>0&&e.side!==t.side){let d=Math.abs(e.x-t.x);if(d<dist){nearest=e;dist=d;}}}
+for(const t of G.troops){if(t.hp<=0)continue;t.cd-=dt;t.attackPulse=Math.max(0,(t.attackPulse||0)-dt);t.hitPulse=Math.max(0,(t.hitPulse||0)-dt);t.moving=false;let nearest=null,dist=1e6;for(const e of G.troops){if(e.hp>0&&e.side!==t.side){let d=Math.abs(e.x-t.x);if(d<dist){nearest=e;dist=d;}}}
 let direction=t.side==="p"?1:-1,baseDistance=t.side==="p"?361-t.x:t.x-28,target=nearest&&dist<baseDistance+4?nearest:null;
-if(!(target?dist<t.range:baseDistance<t.range)){if(t.side==="e"&&G.frozen>0)continue;t.x+=t.speed*dt*direction;t.x=Math.max(28,Math.min(361,t.x));continue;}
-if(t.cd<=0&&(t.side==="p"||G.frozen<=0)){t.cd=t.rate;if(t.side==="p"&&Math.random()<.18)sfx("hit");const critical=Math.random()<.085;let dmg=t.damage*(t.side==="p"&&G.raging>0?1.6:1)*(critical?1.6:1);if(target){target.hp-=dmg;
+if(!(target?dist<t.range:baseDistance<t.range)){if(t.side==="e"&&G.frozen>0)continue;t.x+=t.speed*dt*direction;t.moving=true;t.x=Math.max(28,Math.min(361,t.x));continue;}
+if(t.cd<=0&&(t.side==="p"||G.frozen<=0)){t.cd=t.rate;t.attackPulse=.19;if(t.side==="p"&&Math.random()<.18)sfx("hit");const critical=Math.random()<.085;let dmg=t.damage*(t.side==="p"&&G.raging>0?1.6:1)*(critical?1.6:1);if(target){target.hp-=dmg;target.hitPulse=.22;
 if(window.BattleFX)window.BattleFX.attack(t,target,dmg,t.k===1?"arrow":t.k===2?"magic":"slash",t.side==="e",critical);
 if(t.side==="p")sfx(critical?"critical":t.k===1?"arrow":t.k===2?"heavy":"blade");
 sparkle(target.x,target.y-30,t.side==="p"?"#FFE18A":"#D483FF",t.k===1?5:3);}

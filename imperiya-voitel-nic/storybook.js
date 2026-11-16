@@ -110,20 +110,83 @@ const cache=new Map();
 function sprite(id,k,era,enemy,shift){const key=[id,k,era,enemy?1:0,shift||0].join(":");if(cache.has(key))return cache.get(key);let img=new Image();img.decoding="async";img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(figureSvg(id,k,era,enemy,shift));cache.set(key,img);if(cache.size>120)cache.delete(cache.keys().next().value);return img;}
 function drawUnit(c,t,era,time,shift){
 const img=sprite(t.hid,t.k,era,t.side==="e",shift),boss=!!t.boss;
-const scale=boss?1.53:(t.elite?1.22:1)*(t.k===2?1.04:1),bob=Math.sin(time*5.5+t.seed)*2.5;
-const y=t.y+bob;
-c.save();c.translate(t.x,y);if(t.side==="e")c.scale(-1,1);
-c.fillStyle="#7667913e";c.beginPath();c.ellipse(0,2,22*scale,5,0,0,Math.PI*2);c.fill();
-if(t.elite||boss){let a=.12+.1*(.5+.5*Math.sin(time*4));c.fillStyle=boss?"rgba(255,183,148,"+a+")":"rgba(255,247,187,"+a+")";c.beginPath();c.ellipse(0,-55*scale,33*scale,49*scale,0,0,Math.PI*2);c.fill();}
-if(boss){
-c.fillStyle="#B777C4";c.strokeStyle="#FFF4CE";c.lineWidth=2.5;c.beginPath();c.moveTo(-15,-91);c.quadraticCurveTo(-56,-47,-42,-1);c.lineTo(38,-1);c.quadraticCurveTo(50,-50,12,-92);c.closePath();c.fill();c.stroke();
+const scale=boss?1.54:(t.elite?1.23:1)*(t.k===2?1.06:1);
+const walking=!!t.moving,phase=time*12+t.seed,step=walking?Math.sin(phase):Math.sin(time*3+t.seed)*.13;
+const bob=walking?Math.abs(step)*3.2:Math.sin(time*3.5+t.seed)*1.1;
+const attack=Math.max(0,Math.min(1,(t.attackPulse||0)/.19)),hit=Math.max(0,Math.min(1,(t.hitPulse||0)/.22));
+const y=t.y+bob,x=t.x;
+c.save();c.translate(x,y);
+if(t.side==="e")c.scale(-1,1);
+c.fillStyle="rgba(10,14,45,.35)";
+c.beginPath();c.ellipse(0,2,26*scale,5.5,0,0,Math.PI*2);c.fill();
+if(walking&&Math.abs(step)>.66&&time%(.5)<.23){
+ c.fillStyle="#E6D1E877";c.beginPath();c.ellipse(-step*11,0,4+Math.abs(step)*3,2.4,0,0,Math.PI*2);c.fill();
 }
-if(img.complete&&img.naturalWidth){let w=68*scale,h=91*scale;c.save();c.translate(0,-1);c.rotate(Math.sin(time*5+t.seed)*.023);c.drawImage(img,-w/2,-h,w,h);c.restore();}
-else {c.fillStyle="#F1AECA";c.beginPath();c.ellipse(0,-34,16*scale,24*scale,0,0,Math.PI*2);c.fill();c.fillStyle="#F5D1BC";c.beginPath();c.arc(0,-69*scale,15*scale,0,Math.PI*2);c.fill();}
-if(boss){c.fillStyle="#FFF3B8";c.strokeStyle="#A76D9E";c.lineWidth=2.5;c.beginPath();c.moveTo(-17,-110*scale);c.lineTo(-15,-124*scale);c.lineTo(-4,-115*scale);c.lineTo(2,-131*scale);c.lineTo(10,-115*scale);c.lineTo(18,-126*scale);c.lineTo(20,-110*scale);c.closePath();c.fill();c.stroke();c.fillStyle="#fff";c.beginPath();c.arc(2,-122*scale,3,0,7);c.fill();}
+if(t.elite||boss){
+ const a=(boss?.18:.09)+(Math.sin(time*4+t.seed)+1)*.04;
+ c.fillStyle=boss?"rgba(255,117,210,"+a+")":"rgba(255,227,103,"+a+")";
+ c.beginPath();c.ellipse(0,-51*scale,34*scale,48*scale,0,0,Math.PI*2);c.fill();
+ c.strokeStyle=boss?"#FF97D8":"#FFE4B0";c.lineWidth=boss?3:1.5;c.globalAlpha=.5+Math.sin(time*4)*.2;
+ c.beginPath();c.ellipse(0,-48*scale,31*scale,44*scale,0,0,Math.PI*2);c.stroke();c.globalAlpha=1;
+}
+if(boss){
+ const cloak=c.createLinearGradient(-38,-94,42,3);
+ cloak.addColorStop(0,"#FF72BF");cloak.addColorStop(.5,"#B940C3");cloak.addColorStop(1,"#44286D");
+ c.fillStyle=cloak;c.strokeStyle="#FFD787";c.lineWidth=2.4;
+ c.beginPath();c.moveTo(-11,-91);c.bezierCurveTo(-46,-66,-48+step*5,-19,-42,0);
+ c.lineTo(42,0);c.bezierCurveTo(55,-49,43,-81,13,-91);c.closePath();c.fill();c.stroke();
+ for(let i=0;i<5;i++){let ax=Math.cos(time*1.7+i)*34,ay=-77+Math.sin(time*2+i*2)*33;
+  c.fillStyle=i%2?"#FFE486":"#FF9CE7";c.beginPath();c.arc(ax,ay,1.7+i%2,0,Math.PI*2);c.fill();
+ }
+}
+if(img.complete&&img.naturalWidth){
+ const w=70*scale,h=94*scale;
+ c.save();c.translate(0,-1);
+ c.rotate(walking?step*.048:Math.sin(time*2.8+t.seed)*.012);
+ if(attack>0)c.rotate(-.13*Math.sin(attack*Math.PI)*(t.side==="e"?-1:1));
+ c.drawImage(img,-w/2,-h,w,h);
+ // Brief impact highlight draws the silhouette instead of flashing whole screen.
+ if(hit>0){c.globalAlpha=hit*.62;c.filter="brightness(2.4) saturate(.7)";c.drawImage(img,-w/2,-h,w,h);c.filter="none";c.globalAlpha=1;}
+ c.restore();
+}else{
+ c.fillStyle=t.side==="p"?"#FFCA75":"#C77DFF";
+ c.beginPath();c.ellipse(0,-35,17*scale,27*scale,0,0,Math.PI*2);c.fill();
+ c.fillStyle="#FBE0C4";c.beginPath();c.arc(0,-69*scale,15*scale,0,Math.PI*2);c.fill();
+}
+// Animated weapon sweep. The area and speed vary by troop class.
+if(attack>0){
+ c.save();c.translate(t.k===1?24:18,-48*scale);
+ const sweep=1-attack;
+ c.globalAlpha=attack*.9;
+ if(t.k===0){
+  c.strokeStyle="#FFF7CC";c.lineWidth=5;c.lineCap="round";
+  c.beginPath();c.arc(0,0,29*scale,-1.4+sweep*2.1,.2+sweep*2.1);c.stroke();
+  c.strokeStyle="#72EFFF";c.lineWidth=2;c.beginPath();c.arc(0,0,35*scale,-1.5+sweep*2.1,.3+sweep*2.1);c.stroke();
+ }else if(t.k===2){
+  c.fillStyle="#FFE06C";c.beginPath();c.arc(0,0,9+14*(1-attack),0,Math.PI*2);c.fill();
+  c.strokeStyle="#FFF6D5";c.lineWidth=2;c.beginPath();c.arc(0,0,17+21*(1-attack),0,Math.PI*2);c.stroke();
+ }else{
+  c.fillStyle="#C3FFFF";c.beginPath();c.moveTo(2,0);c.lineTo(38*scale,-2);c.lineTo(3,4);c.closePath();c.fill();
+ }
+ c.restore();
+}
+if(boss){
+ c.save();c.translate(0,-111*scale);
+ c.fillStyle="#FFDE82";c.strokeStyle="#6E378B";c.lineWidth=2.6;
+ c.beginPath();c.moveTo(-17,1);c.lineTo(-14,-15);c.lineTo(-5,-7);c.lineTo(1,-23);
+ c.lineTo(10,-7);c.lineTo(18,-19);c.lineTo(21,1);c.closePath();c.fill();c.stroke();
+ for(const dx of [-12,1,16]){c.fillStyle=dx===1?"#62FEF1":"#FC6AA5";c.beginPath();c.arc(dx,-8,3,0,Math.PI*2);c.fill();}
+ c.restore();
+}
 c.restore();
-let w=boss?63:40,yh=y-(boss?184:97*scale);
-c.fillStyle="#ffffffd9";c.fillRect(t.x-w/2,yh,w,6);c.fillStyle=boss?"#f39ab8":t.side==="p"?"#7bd3b3":"#e8a5c9";c.fillRect(t.x-w/2,yh,w*Math.max(0,Math.min(1,t.hp/t.max)),6);
+// Clear, dark-framed HP bars with stronger differentiation between armies.
+const w=boss?64:43,yh=y-(boss?187:100*scale),amount=Math.max(0,Math.min(1,t.hp/t.max));
+c.fillStyle="#10152CDE";c.fillRect(x-w/2-2,yh-1,w+4,9);
+c.fillStyle="#FFF7DC";c.fillRect(x-w/2-1,yh,w+2,7);
+c.fillStyle="#10152C";c.fillRect(x-w/2,yh+1,w,5);
+c.fillStyle=boss?"#FF45A8":t.side==="p"?"#15DBAD":"#FC6E94";
+c.fillRect(x-w/2,yh+1,w*amount,5);
+if(amount<.28){c.fillStyle="#FFDE65";c.fillRect(x-w/2,yh+1,w*amount,2);}
 }
 const THEMES=[
 ["#0F338A","#2065BF","#673BA8","#155EAC","#2474A0","#19A86D","#E6B879"],

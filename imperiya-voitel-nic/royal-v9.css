@@ -1,0 +1,184 @@
+/* CROWN QUEST 9 : studio polish — sharp royal dark, expressive colors and thumb-friendly controls */
+:root{
+ color-scheme:dark;
+ --bg:#081325;--ink:#FFF8E9;--muted:#D5DFED;
+ --gold:#FFD05D;--mint:#19E8C0;--line:#5071A0;
+}
+html,body{background:#040A18!important;color:#FFF7E8!important}
+#app{
+ background:
+ radial-gradient(ellipse 115% 24% at 48% -5%,rgba(40,91,159,.42) 0%,rgba(21,41,83,.05) 80%),
+ linear-gradient(170deg,#09152A,#101D39 42%,#080F26 100%);
+ color:#FFF8E9;
+}
+header{
+ min-height:74px;height:auto;
+ background:linear-gradient(115deg,#11284C 0%,#1A3863 56%,#0C2347 100%);
+ border-bottom:2px solid #D8A44B;
+ box-shadow:inset 0 1px #FFFFFF20,0 5px 16px #0009;
+}
+.eyebrow{font-weight:1000;color:#62F0D1;font-size:9px;letter-spacing:1.2px}
+h1{font-size:clamp(21px,5.9vw,27px);line-height:1.02;color:#FFF9E9}
+h1 span{color:#FFD26D}
+.wallet div{background:#0F2545;min-width:73px;border-color:#7490B3}
+.wallet b{color:#FFE39A}
+.champ{
+ min-height:65px;padding:6px 9px;margin:8px 10px 6px;border-radius:12px;
+ background:linear-gradient(110deg,#223A65,#1C3158 60%,#1C4363);
+ border:1px solid #658CAC;border-left:3px solid #FFCC6C;
+}
+.portrait{height:57px;width:55px;background:#D17BC6;border-color:#FFCF73}
+.champtext strong{font-size:19px}
+.champtext label{color:#8FE9E4;font-size:9px}
+.champtext small{color:#DCEAF4}
+.champ .chip{min-height:39px;padding:6px 8px;background:#23547D;border-color:#6897B7}
+#audioDock{
+ margin:6px 10px 6px;min-height:44px;padding:5px 7px;
+ background:linear-gradient(110deg,#172447,#1A345A);
+ border:1px solid #577DAD;border-left:3px solid #1CE7BC;border-radius:10px;
+ box-shadow:0 3px 10px #0006;
+}
+.audio-bars{height:22px}
+.audio-label b{font-size:10px;color:#FFD78E}
+.audio-label small{color:#CADBFA;font-size:9px}
+.audio-toggle{min-height:38px;border-radius:7px;min-width:46px;font-size:10px}
+.audio-toggle.on{background:#1B695D;border-color:#14E9BE;color:#E5FFF9}
+.audio-toggle.volume{background:#2C3A70;color:#FFDE94}
+.mentor{
+ margin:0 10px 8px;min-height:67px;padding:6px 7px;border-radius:11px;
+ grid-template-columns:43px minmax(0,1fr) 92px;
+ background:linear-gradient(110deg,#1C355D,#153252 70%,#202F51);
+ border:1px solid #5F84AB;border-left:3px solid #FFD16C;
+ box-shadow:0 3px 12px #030C247F;
+}
+.mentor-avatar{width:43px;height:50px}
+.mentor-copy small{font-size:8px;color:#6DF3D8}
+.mentor-copy strong{font-size:12px;color:#FFDF9C}
+.mentor-copy p{font-size:10px;line-height:1.3;color:#E5EFF9}
+.mentor-action{min-height:42px;font-size:10px;background:linear-gradient(120deg,#FFDA75,#FFB548);box-shadow:0 2px 0 #A46B29}
+.battleframe{
+ margin:0 9px;
+ border:2px solid #E6BD77;border-radius:12px;
+ background:#1458C8;
+ box-shadow:0 0 0 1px #68405C,0 6px 20px #000A;
+}
+canvas{background:#1458C8}
+.topchip span{
+ background:rgba(12,24,54,.92);border:1px solid #F1CC8C;
+ color:#fff;font-size:10px;font-weight:1000;
+}
+.hpbar .track{border-color:#FFDD91;background:#111F45}
+.hpbar .track i{background:linear-gradient(90deg,#00B8DB,#08DCA3)}
+.hpbar .track.enemy i{background:linear-gradient(90deg,#F83965,#FFB351)}
+#fightaction{margin-top:9px}
+#fightaction .go{min-height:51px;margin:8px 10px 6px;width:calc(100% - 20px);font-size:15px}
+#fightaction .battletools{margin:6px 10px 8px}
+.sectionname{margin:10px 11px 7px}
+.sectionname h2{font-size:19px;color:#FFD68B}
+.sectionname b{font-size:11px;color:#FFE19A}
+.sectionname small{color:#D0D7EF}
+.foodbar{min-height:41px;padding:8px 10px;background:#172A4B;border-color:#54729C;border-radius:10px}
+.unitgrid{margin:0 10px;gap:7px}
+.unit{
+ background:linear-gradient(155deg,#29375C,#172A4B);
+ border:1.5px solid #7789B1;box-shadow:0 3px 0 #09182E;
+ border-radius:12px;min-height:140px;
+}
+.unit:before{height:92px;border-radius:9px;background:linear-gradient(145deg,#FCBA59,#D64B8C 75%,#8934B0)}
+.unit:nth-child(2):before{background:linear-gradient(145deg,#2FCAE1,#4282E4 65%,#4E44B9)}
+.unit:nth-child(3):before{background:linear-gradient(145deg,#B57DEC,#EF6F9E 62%,#FCA256)}
+.unit .art{height:91px}
+.unit .art svg{height:100px}
+.unit .cost{background:linear-gradient(125deg,#FFE695,#F5B84B);font-size:11px}
+.unit.ready{border-color:#39F5CB;box-shadow:0 0 0 1px #40E7B9,0 4px 0 #08152A,0 0 12px #07DBA558}
+.spell{min-height:57px;border:1px solid #667DB0;background:#273965;border-radius:11px}
+.spell span{font-size:23px}
+.spell small{font-size:10px}
+.battle-shortcuts{margin:8px 10px 0}
+.battle-shortcuts button{background:#193B60;border-color:#557EAA;color:#E9F9FF}
+.hint{min-height:15px;margin:10px 11px 12px;font-size:11px;color:#CED7E9}
+#battlePage{padding-bottom:70px}
+.battle-quick{
+ position:fixed;z-index:11;
+ left:50%;transform:translateX(-50%);
+ bottom:calc(64px + env(safe-area-inset-bottom));
+ width:100%;max-width:480px;
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+ gap:5px;
+ padding:7px 9px 8px;
+ background:linear-gradient(180deg,#122D51F5,#0E1D3DFB);
+ border-top:2px solid #DDB46C;
+ box-shadow:0 -4px 17px #050C22B3;
+ -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+}
+.battle-quick[hidden]{display:none!important}
+.quick-button{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+ min-width:0;min-height:51px;
+ border:1px solid #6078A6;border-radius:10px;
+ background:linear-gradient(140deg,#294774,#24365B);
+ color:#FFFAF0;
+ font-size:10px;
+ box-shadow:inset 0 1px #ffffff23,0 2px 0 #071025;
+}
+.quick-button span{font-size:21px;line-height:1.1}
+.quick-button small{font-size:10px;font-weight:900;color:#F8EDC9;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.quick-button.troop:nth-child(1){background:linear-gradient(140deg,#803A5A,#4D2855)}
+.quick-button.troop:nth-child(2){background:linear-gradient(140deg,#266D8C,#1B3C76)}
+.quick-button.troop:nth-child(3){background:linear-gradient(140deg,#774D97,#463064)}
+.quick-button.ready{border-color:#45EFC0;box-shadow:0 0 0 1px #1DDDAB,0 2px 0 #0A1A28}
+.quick-button.ready small{color:#D4FFE6}
+.quick-button.locked{opacity:.58;filter:grayscale(.35)}
+.quick-button.hero{background:linear-gradient(130deg,#6E426C,#443161)}
+.quick-button.magic,.quick-button.spellkey{background:linear-gradient(125deg,#4961A3,#283C81);border-color:#92A3ED}
+.quick-button.back{background:#2A5874;border-color:#4DCDB3}
+.quick-button:disabled{opacity:.48;filter:saturate(.5)}
+.quick-button:active:not(:disabled){transform:scale(.95)}
+nav{
+ background:#0C1935F7;
+ border-top:1.5px solid #8C7AA1;
+ box-shadow:0 -6px 17px #0007;
+}
+nav button{min-height:64px;gap:3px;color:#CFDBE8}
+nav button span{font-size:22px}
+nav button.active{background:linear-gradient(160deg,#293B6B,#27445E);color:#FFE2A0;box-shadow:inset 0 3px #FFCD68}
+.herohead{background:linear-gradient(125deg,#26365E,#1F335A);border-color:#6C82B0;border-left-color:#FFBF68}
+.herohead h2{color:#FFDC91}
+.tile,.row,.herocard{
+ background:linear-gradient(135deg,#223458,#172A49);
+ border-color:#5E79A7;box-shadow:0 4px 12px #0007;
+}
+.tile strong,.row strong,.herocard strong{color:#FFFDF5}
+.tile p,.row p,.herocard small{color:#D3E0F5}
+.herocard.on{border-color:#FFD583}
+.featurebuttons button{background:linear-gradient(125deg,#263960,#1D3156);border-color:#6586B7}
+.missions-board{background:linear-gradient(135deg,#1B3359,#182A4C);border-color:#5C87B1}
+.market-card{background:linear-gradient(125deg,#26385A,#1A2947);border-color:#6383AE}
+.market-card.affordable{border-color:#44DDB2}
+.daily-reward{background:linear-gradient(120deg,#64394F,#31385F);border-color:#D9AF75}
+.stat-grid>div{background:#1D3456;border-color:#5D7BAB}
+.settings-grid button{background:#24466F;border-color:#7295BB}
+.modalbox{background:linear-gradient(135deg,#253D67,#18294C);border-color:#839CC6}
+.modalbox h2{color:#FFDC8A}
+.go{background:linear-gradient(115deg,#FFE28E,#FFC15D 65%,#F9A342);color:#292137;box-shadow:0 4px 0 #9E622F,0 8px 15px #0009}
+@media(max-width:370px){
+ .mentor{grid-template-columns:38px minmax(0,1fr) 77px;min-height:63px}
+ .mentor-avatar{width:38px;height:47px}
+ .mentor-copy p{font-size:9px}
+ .mentor-action{font-size:9px}
+ #audioDock{gap:4px}
+ .audio-label b{font-size:9px}
+ .audio-toggle{min-width:40px}
+ .quick-button{min-height:48px}
+ .quick-button span{font-size:20px}
+ .quick-button small{font-size:9px}
+}
+@media(max-height:740px){
+ header{min-height:67px}
+ .champ{min-height:58px;margin-top:5px}
+ .portrait{height:50px}
+ #audioDock{margin-top:4px;margin-bottom:4px;min-height:40px}
+ .mentor{min-height:60px;margin-bottom:6px}
+ #fightaction .go{min-height:46px}
+}
+@media(prefers-reduced-motion:reduce){.quick-button{transition:none!important}}

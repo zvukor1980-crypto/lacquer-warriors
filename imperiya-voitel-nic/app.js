@@ -28,24 +28,52 @@ const SHOP=[
 ["magic5","👥","Чары двойников","Открывает новую магию","gems",70],
 ["skin","👗","Глянцевая коллекция","Новый оттенок лаковых доспехов","gems",65],
 ["relic","🔮","Реликвия королев","Постоянное усиление армии","gems",90],
-["chest","🎁","Сундук фортуны","Случайные монеты или кристаллы","coins",165]
+["chest","🎁","Сундук фортуны","Случайные монеты или кристаллы","coins",165],
+["cardChest","🎴","Сундук боевых карт","Открывает случайную карту усиления","coins",140]
 ];
-function defaults(){return {coins:180,gems:85,era:0,stage:1,timeline:1,food:0,base:0,attack:0,vital:0,income:0,auto:false,skin:0,relic:0,magic:[0,1,2],loadout:[0,1,2],units:[1,0,0],hero:0,heroes:[0],wins:0,losses:0,kills:0,deployed:0,claimed:"",first:true};}
+const CARDS=[
+["Корона рассвета","👑","Урон армии +8%","attack",.08,"Королевская"],
+["Сердце стали","🛡️","Здоровье армии +10%","health",.10,"Редкая"],
+["Сад изобилия","🍎","Еда +0,35 в секунду","food",.35,"Обычная"],
+["Жемчужный трон","🏰","Прочность крепости +12%","base",.12,"Редкая"],
+["Золотая монета","🪙","Больше монет за победы +12%","coins",.12,"Обычная"],
+["Звёздный знак","✨","Командирша сильнее на 15%","hero",.15,"Эпическая"],
+["Медаль дуэлянтки","🗡️","Боец первого типа сильнее на 12%","melee",.12,"Редкая"],
+["Лунный лук","🏹","Лучницы наносят больше урона +14%","ranged",.14,"Редкая"],
+["Печать титанов","🦁","Тяжёлые войска сильнее на 15%","heavy",.15,"Эпическая"],
+["Рубин королевы","💎","Магия метеоров +20%","meteors",.20,"Эпическая"],
+["Сапфир исцеления","💠","Сила лечения +22%","healing",.22,"Редкая"],
+["Кристалл времени","⏳","Все войска идут на 9% быстрее","speed",.09,"Легендарная"]
+];
+function cardBonus(type){let sum=0;const deck=Array.isArray(S.deck)?S.deck:[];const seen=new Set();deck.forEach(i=>{if(seen.has(i)||!Number.isInteger(i)||i<0||i>=CARDS.length)return;seen.add(i);const level=Math.max(0,Math.min(5,Number(S.cards[i])||0));if(CARDS[i][3]===type)sum+=CARDS[i][4]*(1+.4*Math.max(0,level-1));});return sum;}
+function drawCard(){const weights=[0,1,2,3,4,5,6,7,8,9,10,11],roll=Math.random(),pick=weights[Math.floor(Math.pow(roll,1.45)*weights.length)];S.cards[pick]=Math.min(5,(S.cards[pick]||0)+1);return CARDS[pick][1]+" "+CARDS[pick][0]+(S.cards[pick]>1?" · уровень "+S.cards[pick]:"");}
+function equipCard(i){if(!S.cards[i])return toast("Сначала открой карту");let slot=Math.max(0,Math.min(2,G.deckSlot||0));const old=S.deck.indexOf(i);if(old===slot)return toast("Карта уже установлена");if(old>=0){const other=S.deck[slot];S.deck[old]=other;}S.deck[slot]=i;G.deckSlot=(slot+1)%3;save();render();toast("Усиление добавлено в колоду");}
+function cardPage(){let out=listHead("Колода королев","Собирай карты в сундуках, повышай их уровень и устанавливай до трёх постоянных усилений. Эффекты работают в каждом бою.");
+out+='<div class="sectionname"><b>БОЕВАЯ КОЛОДА</b><small>Выбери ячейку для карты</small></div><div class="deckslots">';
+for(let j=0;j<3;j++){const id=S.deck[j],card=CARDS[id];out+='<button data-a="deckslot" data-k="'+j+'" class="deckslot '+(j===G.deckSlot?"chosen":"")+'"><small>Ячейка '+(j+1)+'</small><span>'+(card?card[1]:"＋")+'</span><strong>'+(card?card[0]:"Пусто")+'</strong></button>';}
+out+='</div><div class="sectionname"><b>КОЛЛЕКЦИЯ КАРТ</b><small>'+S.cards.filter(x=>x>0).length+' / '+CARDS.length+'</small></div><div class="grid2">';
+CARDS.forEach((x,i)=>{let level=S.cards[i]||0,chosen=S.deck.includes(i);out+='<div class="tile cardtile '+(chosen?"equipped":"")+'"><span class="rarity">'+x[5]+'</span><div class="cardicon">'+x[1]+'</div><strong>'+x[0]+'</strong><p>'+x[2]+(level?' · уровень '+level:'')+'</p><button data-a="equip" data-k="'+i+'">'+(chosen?"↔ Переставить":level?"В колоду":"🔒 Не открыта")+'</button></div>';});out+='</div><button data-a="buy" data-id="cardChest" class="go">🎴 Купить сундук карт · 🪙 140</button>';return out;}
+function dungeonPage(){let out=listHead("Башня королев","Особый режим с более сильными врагами, боссами и коллекционными картами. Проходи этажи, собирай трофеи и улучшай свою колоду.");
+out+='<div class="dungeon-intro"><div class="dungeon-visual"><span>🏯</span><div class="halo"></div></div><div><small>ТЕКУЩЕЕ ИСПЫТАНИЕ</small><h3>Этаж '+S.dungeonFloor+'</h3><p>Босс-страж, волны противниц и награда за победу.</p></div></div>';
+out+='<div class="grid2"><div class="tile"><div class="icon">🎴</div><strong>Карты усиления</strong><p>Одна случайная карта за каждую победу в башне</p></div><div class="tile"><div class="icon">💎</div><strong>+25 кристаллов</strong><p>Награда за этаж; сложность постепенно растёт</p></div></div><button class="go" data-a="dungeon" style="margin:15px 0;width:100%">⚔️ ВОЙТИ В БАШНЮ</button><button class="chip" data-a="tab" data-tab="cards" style="width:100%">Посмотреть колоду карт</button>';
+return out;}
+
+function defaults(){return {coins:180,gems:85,era:0,stage:1,timeline:1,food:0,base:0,attack:0,vital:0,income:0,auto:false,skin:0,relic:0,magic:[0,1,2],loadout:[0,1,2],units:[1,0,0],hero:0,heroes:[0],wins:0,losses:0,kills:0,deployed:0,claimed:"",first:true,cards:[1,1,1,0,0,0,0,0,0,0,0,0],deck:[0,1,2],dungeonFloor:1,dungeonWins:0,bossWins:0};}
 let S=defaults();try{const data=JSON.parse(localStorage.getItem(KEY)||"null");if(data&&typeof data==="object")S=Object.assign(defaults(),data);}catch(e){}
 S.era=Math.max(0,Math.min(6,Number(S.era)||0));S.stage=Math.max(1,Math.min(6,Number(S.stage)||1));
-if(!Array.isArray(S.units))S.units=[1,0,0];if(!Array.isArray(S.heroes))S.heroes=[0];if(!Array.isArray(S.magic))S.magic=[0,1,2];if(!Array.isArray(S.loadout))S.loadout=[0,1,2];
-const G={tab:"battle",mode:"story",playing:false,done:false,paused:false,speed:1,time:0,food:12,base:450,baseMax:450,enemy:450,enemyMax:450,troops:[],particles:[],queue:[],next:0,used:{},heroUsed:false,frozen:0,raging:0,dead:0,damage:0,autoWait:0};
+if(!Array.isArray(S.units))S.units=[1,0,0];if(!Array.isArray(S.heroes))S.heroes=[0];if(!Array.isArray(S.magic))S.magic=[0,1,2];if(!Array.isArray(S.loadout))S.loadout=[0,1,2];if(!Array.isArray(S.cards))S.cards=[1,1,1,0,0,0,0,0,0,0,0,0];if(!Array.isArray(S.deck))S.deck=[0,1,2];S.cards=S.cards.slice(0,CARDS.length).map(x=>Math.max(0,Math.min(5,Number(x)||0)));while(S.cards.length<CARDS.length)S.cards.push(0);S.deck=S.deck.slice(0,3).filter(i=>Number.isInteger(i)&&i>=0&&i<CARDS.length&&S.cards[i]>0);while(S.deck.length<3){let next=S.cards.findIndex((x,i)=>x>0&&!S.deck.includes(i));if(next<0)break;S.deck.push(next);}S.dungeonFloor=Math.max(1,Math.min(1000,Number(S.dungeonFloor)||1));
+const G={tab:"battle",mode:"story",playing:false,done:false,paused:false,speed:1,time:0,food:12,base:450,baseMax:450,enemy:450,enemyMax:450,troops:[],particles:[],queue:[],next:0,used:{},heroUsed:false,frozen:0,raging:0,dead:0,damage:0,autoWait:0,deckSlot:0,bossSpawned:false,bossBeaten:false,bossPulse:12,battleMessage:"",battleMessageTime:0,shake:0};
 const canvas=$("canvas"),c=canvas.getContext("2d");
 let last=0,uiTimer=0,saveTimer=0,toastTimer=0;const W=390,H=300;
 const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+"м":n>=1000?(n/1000).toFixed(1)+"к":String(Math.floor(n));
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
 function toast(t){$("toast").textContent=t;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2350);}
-const a=()=>AGES[S.era],foodRate=()=>2.25+S.food*.55+S.era*.11;
+const a=()=>AGES[S.era],foodRate=()=>2.25+S.food*.55+S.era*.11+cardBonus("food");
 const cost=k=>[8,18,40][k]+S.era*2+(S.timeline-1)*3;
-const baseHP=()=>450+S.base*110+S.era*55+S.relic*55;
-const attackPower=side=>side==="p"?(1+S.attack*.17+S.relic*.11):(1+(S.stage-1)*.13+S.era*.13+(S.timeline-1)*.15);
-const healthPower=side=>side==="p"?(1+S.vital*.18+S.relic*.07):(1+(S.stage-1)*.13+S.era*.12+(S.timeline-1)*.15);
-const enemyHP=()=>Math.round((460+(S.stage-1)*130)*Math.pow(1.25,S.era)*Math.pow(1.55,S.timeline-1)*(G.mode==="arena"?1.55:1));
+const baseHP=()=>Math.round((450+S.base*110+S.era*55+S.relic*55)*(1+cardBonus("base")));
+const attackPower=side=>side==="p"?(1+S.attack*.17+S.relic*.11+cardBonus("attack")):(1+(S.stage-1)*.13+S.era*.13+(S.timeline-1)*.15);
+const healthPower=side=>side==="p"?(1+S.vital*.18+S.relic*.07+cardBonus("health")):(1+(S.stage-1)*.13+S.era*.12+(S.timeline-1)*.15);
+const enemyHP=()=>Math.round((460+(S.stage-1)*130)*Math.pow(1.25,S.era)*Math.pow(1.55,S.timeline-1)*(G.mode==="arena"?1.55:G.mode==="dungeon"?(1.5+Math.min(5,S.dungeonFloor*.13)):1));
 const color=id=>COLORS[(id+S.skin*3)%COLORS.length];
 function heroSvg(id){return window.QueenArt.portrait(id);}
 function champ(){return '<div class="portrait">'+heroSvg(S.hero)+'</div><div class="champtext"><label>ВЕРХОВНАЯ КОМАНДИРША</label><strong>'+NAMES[S.hero]+'</strong><small>'+a().title+' · реликвии '+S.relic+'</small></div><button class="chip" data-a="tab" data-tab="heroes">Героини ›</button>';}
@@ -113,14 +141,48 @@ G.troops.slice().sort((x,y)=>x.y-y.y).forEach(soldier);
 G.particles.forEach(p=>{c.globalAlpha=Math.max(0,Math.min(1,p.life*2));c.fillStyle=p.color;c.beginPath();c.arc(p.x,p.y,p.radius,0,7);c.fill();});c.globalAlpha=1;if(G.frozen>0){c.fillStyle="#cdeaff18";c.fillRect(0,0,W,H);}
 }
 function sparkle(x,y,color,n){for(let i=0;i<n;i++)G.particles.push({x,y,vx:(Math.random()-.5)*100,vy:(Math.random()-.8)*85,life:.3+Math.random()*.5,color,radius:1+Math.random()*2.5});if(G.particles.length>250)G.particles.splice(0,80);}
-function waves(){let arr=[],at=3.5;for(let wave=0;wave<3;wave++){let count=3+wave*2+Math.min(2,S.stage-1);for(let i=0;i<count;i++){arr.push({at,k:i===count-1&&wave>0?2:(i+wave)%4===0?1:0});at+=2.6+Math.random()*.5;}at+=6;}return arr;}
-function createTroop(side,k,hero){const stat=[{hp:82,damage:14,speed:29,range:23,rate:.88},{hp:49,damage:14,speed:23,range:96,rate:1.29},{hp:220,damage:35,speed:14,range:28,rate:1.55}][k];
+function waves(){
+let arr=[],at=3.2;
+const dungeon=G.mode==="dungeon",boss=dungeon||S.stage>=5;
+if(boss)arr.push({at:dungeon?5:12,k:2,boss:true});
+let amount=dungeon?2:3;
+for(let wave=0;wave<amount;wave++){
+let count=3+wave*2+Math.min(3,S.stage-1)+(dungeon?Math.min(4,Math.ceil(S.dungeonFloor/2)):0);
+for(let i=0;i<count;i++){arr.push({at,k:i===count-1&&wave>0?2:(i+wave)%4===0?1:0});at+=2.7+Math.random()*.55;}
+at+=7;
+}
+return arr.sort((x,y)=>x.at-y.at);
+}
+function createTroop(side,k,hero,boss=false){
+const stat=[{hp:84,damage:14,speed:30,range:23,rate:.88},{hp:49,damage:14,speed:23,range:96,rate:1.29},{hp:220,damage:35,speed:15,range:28,rate:1.55}][k];
 const hid=hero==null?side==="p"?(S.deployed+Math.floor(Math.random()*5))%18:(Math.floor(Math.random()*17)+3)%18:hero;
-const t={side,k,hid,x:side==="p"?49:342,y:231+Math.random()*19,hp:stat.hp*healthPower(side)*(hero==null?1:2.5),max:stat.hp*healthPower(side)*(hero==null?1:2.5),damage:stat.damage*attackPower(side)*(hero==null?1:2),speed:stat.speed,range:stat.range,rate:stat.rate,cd:Math.random()*.5,elite:hero!=null,seed:Math.random()*10};
-G.troops.push(t);if(side==="p"){S.deployed++;saveTimer=1;}return t;}
-function begin(){G.playing=true;G.done=false;G.paused=false;G.time=0;G.food=12;G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;G.troops=[];G.particles=[];G.queue=waves();G.next=0;G.used={};G.heroUsed=false;G.frozen=0;G.raging=0;G.dead=0;G.damage=0;G.autoWait=0;closeModal();render();}
-function complete(won){if(G.done)return;G.playing=false;G.done=true;let reward=Math.round((won?185:65)*(1+(S.stage-1)*.2+S.era*.36)*(1+S.income*.18)*(G.mode==="arena"?1.3:1));let gems=won?(G.mode==="arena"?18:8):0;S.coins+=reward;S.gems+=gems;if(won){S.wins++;if(G.mode==="story"&&S.stage<6)S.stage++;}else S.losses++;save();
-$("modal").hidden=false;$("modal").innerHTML='<div class="modalbox"><div class="big">'+(won?"🏆":"🛡️")+'</div><h2>'+(won?"Победа воительниц!":"Армия отступила")+'</h2><p>'+(won&&S.stage===6?"Эпоха покорена! Теперь можно перейти в следующую эпоху.":"Улучши войска и отправляйся в новый поход.")+'</p><p style="font-size:20px;color:#ffe0a0;font-weight:950">🪙 +'+fmt(reward)+'　💎 +'+gems+'</p><button class="go" data-a="newbattle">Продолжить</button><button class="chip" style="margin-top:10px" data-a="tab" data-tab="army">Развитие армии</button></div>';render();}
+const extra=side==="p"?(1+(k===0?cardBonus("melee"):k===1?cardBonus("ranged"):cardBonus("heavy"))):1;
+const bossScale=boss?(G.mode==="dungeon"?4.5+Math.min(5,S.dungeonFloor*.22):3.8):1;
+const hp=stat.hp*healthPower(side)*(hero==null?1:2.5)*bossScale;
+const t={side,k,hid,x:side==="p"?49:342,y:235+Math.random()*14,hp,max:hp,damage:stat.damage*attackPower(side)*(hero==null?1+cardBonus("hero"):2*(1+cardBonus("hero")))*extra*(boss?2.8:1),speed:stat.speed*(side==="p"?1+cardBonus("speed"):1)*(boss?.79:1),range:stat.range,rate:stat.rate*(boss?1.1:1),cd:Math.random()*.5,elite:hero!=null||boss,boss,seed:Math.random()*10};
+G.troops.push(t);if(side==="p"){S.deployed++;saveTimer=1;}if(boss){G.bossSpawned=true;G.bossPulse=13;G.battleMessage="На поле вышла предводительница врага!";G.battleMessageTime=3;}
+return t;
+}
+function begin(){G.playing=true;G.done=false;G.paused=false;G.time=0;G.food=12;G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;G.troops=[];G.particles=[];G.queue=waves();G.next=0;G.used={};G.heroUsed=false;G.frozen=0;G.raging=0;G.dead=0;G.damage=0;G.autoWait=0;G.bossSpawned=false;G.bossBeaten=false;G.bossPulse=14;G.battleMessage="";G.battleMessageTime=0;G.shake=0;closeModal();render();}
+function complete(won){
+if(G.done)return;
+G.playing=false;G.done=true;
+let reward=Math.round((won?195:65)*(1+(S.stage-1)*.2+S.era*.36)*(1+S.income*.18+cardBonus("coins"))*(G.mode==="arena"?1.3:G.mode==="dungeon"?1.45:1));
+let gems=won?(G.mode==="arena"?18:G.mode==="dungeon"?25:8):0;
+S.coins+=reward;S.gems+=gems;
+let bonusText="";
+if(won){
+S.wins++;
+if(G.mode==="story"&&S.stage<6)S.stage++;
+if(G.bossBeaten)S.bossWins++;
+if(G.mode==="dungeon"){S.dungeonWins++;S.dungeonFloor++;bonusText=drawCard();}else if(G.bossBeaten||G.mode==="arena"&&Math.random()<.3){bonusText=drawCard();}
+}else S.losses++;
+save();
+$("modal").hidden=false;
+let msg=won?"Победа воительниц!":"Армия отступила";
+$("modal").innerHTML='<div class="modalbox"><div class="big">'+(won?"🏆":"🛡️")+'</div><h2>'+msg+'</h2><p>'+(won&&G.mode==="dungeon"?"Этаж башни пройден. В награду ты получила новую карту!":won&&S.stage===6?"Эпоха покорена. Теперь можно перейти в новую эпоху.":"Улучши войска и отправляйся в новый поход.")+'</p><p style="font-size:20px;color:#ffe0a0;font-weight:950">🪙 +'+fmt(reward)+'　💎 +'+gems+'</p>'+(bonusText?'<div class="reward-card">🎴 '+bonusText+'</div>':'')+'<button class="go" data-a="newbattle">Продолжить</button><button class="chip" style="margin-top:10px" data-a="tab" data-tab="cards">Моя колода</button></div>';
+render();
+}
 function tick(dt){
 G.particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=150*dt;p.life-=dt;});G.particles=G.particles.filter(p=>p.life>0);
 if(!G.playing||G.done||G.paused)return;G.time+=dt;G.food=Math.min(130,G.food+foodRate()*dt);G.frozen=Math.max(0,G.frozen-dt);G.raging=Math.max(0,G.raging-dt);

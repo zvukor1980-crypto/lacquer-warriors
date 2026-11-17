@@ -48,11 +48,22 @@ const CARDS=[
 function cardBonus(type){let sum=0;const deck=Array.isArray(S.deck)?S.deck:[];const seen=new Set();deck.forEach(i=>{if(seen.has(i)||!Number.isInteger(i)||i<0||i>=CARDS.length)return;seen.add(i);const level=Math.max(0,Math.min(5,Number(S.cards[i])||0));if(CARDS[i][3]===type)sum+=CARDS[i][4]*(1+.4*Math.max(0,level-1));});return sum;}
 function drawCard(){const weights=[0,1,2,3,4,5,6,7,8,9,10,11],roll=Math.random(),pick=weights[Math.floor(Math.pow(roll,1.45)*weights.length)];S.cards[pick]=Math.min(5,(S.cards[pick]||0)+1);return CARDS[pick][1]+" "+CARDS[pick][0]+(S.cards[pick]>1?" · уровень "+S.cards[pick]:"");}
 function equipCard(i){if(!S.cards[i])return toast("Сначала открой карту");let slot=Math.max(0,Math.min(2,G.deckSlot||0));const old=S.deck.indexOf(i);if(old===slot)return toast("Карта уже установлена");if(old>=0){const other=S.deck[slot];S.deck[old]=other;}S.deck[slot]=i;G.deckSlot=(slot+1)%3;save();render();toast("Усиление добавлено в колоду");}
-function cardPage(){let out=listHead("Колода королев","Собирай карты в сундуках, повышай их уровень и устанавливай до трёх постоянных усилений. Эффекты работают в каждом бою.");
-out+='<div class="sectionname"><b>БОЕВАЯ КОЛОДА</b><small>Выбери ячейку для карты</small></div><div class="deckslots">';
-for(let j=0;j<3;j++){const id=S.deck[j],card=CARDS[id];out+='<button data-a="deckslot" data-k="'+j+'" class="deckslot '+(j===G.deckSlot?"chosen":"")+'"><small>Ячейка '+(j+1)+'</small><span>'+(card?card[1]:"＋")+'</span><strong>'+(card?card[0]:"Пусто")+'</strong></button>';}
-out+='</div><div class="sectionname"><b>КОЛЛЕКЦИЯ КАРТ</b><small>'+S.cards.filter(x=>x>0).length+' / '+CARDS.length+'</small></div><div class="grid2">';
-CARDS.forEach((x,i)=>{let level=S.cards[i]||0,chosen=S.deck.includes(i);out+='<div class="tile cardtile '+(chosen?"equipped":"")+'"><span class="rarity">'+x[5]+'</span><div class="cardicon">'+x[1]+'</div><strong>'+x[0]+'</strong><p>'+x[2]+(level?' · уровень '+level:'')+'</p><button data-a="equip" data-k="'+i+'">'+(chosen?"↔ Переставить":level?"В колоду":"🔒 Не открыта")+'</button></div>';});out+='</div><button data-a="buy" data-id="cardChest" class="go">🎴 Купить сундук карт · 🪙 140</button>';return out;}
+function cardPage(){
+ let v=listHead("Колода королев","Все 12 карт открываются и улучшаются бесплатно. Поставь три усиления в боевую колоду.");
+ v+='<div class="free-shop-ribbon"><strong>🎴 ВСЁ БЕСПЛАТНО</strong><span>Каждая карта: получить и развить до уровня 5, не тратя игровые монеты и кристаллы.</span></div>';
+ v+='<div class="sectionname"><b>БОЕВАЯ КОЛОДА</b><small>Выбери слот</small></div><div class="deckslots">';
+ for(let j=0;j<3;j++){
+  const id=S.deck[j],card=CARDS[id];
+  v+='<button data-a="deckslot" data-k="'+j+'" class="deckslot '+(j===G.deckSlot?"chosen":"")+'"><small>Ячейка '+(j+1)+'</small><span>'+(card?card[1]:"＋")+'</span><strong>'+(card?card[0]:"Пусто")+'</strong></button>';
+ }
+ v+='</div><div class="sectionname"><b>КОЛЛЕКЦИЯ КАРТ</b><small>'+S.cards.filter(x=>x>0).length+' / '+CARDS.length+'</small></div><div class="grid2">';
+ CARDS.forEach((x,i)=>{
+  const level=S.cards[i]||0,chosen=S.deck.includes(i);
+  v+='<div class="tile cardtile '+(chosen?"equipped":"")+'"><span class="rarity">'+x[5]+'</span><div class="cardicon">'+x[1]+'</div><strong>'+x[0]+'</strong><p>'+x[2]+' · '+(level?"уровень "+level+"/5":"не открыта")+'</p><div class="free-card-actions"><button data-a="equip" data-k="'+i+'" '+(!level?'disabled':'')+'>'+(chosen?"↔ МЕСТО":level?"В КОЛОДУ":"ОТКРОЙ КАРТУ")+'</button><button class="free-action" data-a="getcard" data-k="'+i+'" '+(level>=5?'disabled':'')+'>'+(level>=5?"✓ МАКС":level?"+ УРОВЕНЬ":"ПОЛУЧИТЬ")+'</button></div></div>';
+ });
+ v+='</div><button class="go" data-a="buy" data-id="cardChest">🎴 СЛУЧАЙНАЯ КАРТА · БЕСПЛАТНО</button>';
+ return v;
+}
 function dungeonPage(){let out=listHead("Башня королев","Особый режим с более сильными врагами, боссами и коллекционными картами. Проходи этажи, собирай трофеи и улучшай свою колоду.");
 out+='<div class="dungeon-intro"><div class="dungeon-visual"><span>🏯</span><div class="halo"></div></div><div><small>ТЕКУЩЕЕ ИСПЫТАНИЕ</small><h3>Этаж '+S.dungeonFloor+'</h3><p>Босс-страж, волны противниц и награда за победу.</p></div></div>';
 out+='<div class="grid2"><div class="tile"><div class="icon">🎴</div><strong>Карты усиления</strong><p>Одна случайная карта за каждую победу в башне</p></div><div class="tile"><div class="icon">💎</div><strong>+25 кристаллов</strong><p>Награда за этаж; сложность постепенно растёт</p></div></div><button class="go" data-a="dungeon" style="margin:15px 0;width:100%">⚔️ ВОЙТИ В БАШНЮ</button><button class="chip" data-a="tab" data-tab="cards" style="width:100%">Посмотреть колоду карт</button>';

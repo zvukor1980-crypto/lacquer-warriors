@@ -136,7 +136,7 @@ function advisorCard(){
  const key=[d.tag,d.title,d.desc,d.label,d.action,d.k,d.id,d.mode].join("|");
  if(G.mentorKey===key&&$("mentor").innerHTML)return;
  G.mentorKey=key;
- $("mentor").innerHTML='<div class="mentor-avatar">'+window.QueenArt.portrait(9)+'</div><div class="mentor-copy"><small>ЛИРА · '+d.tag+'</small><strong>'+d.title+'</strong><p>'+d.desc+'</p></div><button class="mentor-action" data-a="mentor" '+(d.action==="none"?'disabled':'')+'>'+d.label+'</button>';
+ $("mentor").innerHTML='<div class="mentor-avatar">'+window.QueenArt.portrait(9)+'</div><div class="mentor-copy"><small>'+NAMES[9].toUpperCase()+' · '+d.tag+'</small><strong>'+d.title+'</strong><p>'+d.desc+'</p></div><button class="mentor-action" data-a="mentor" '+(d.action==="none"?'disabled':'')+'>'+d.label+'</button>';
 }
 function followAdvice(){
  const d=nextAdvice();

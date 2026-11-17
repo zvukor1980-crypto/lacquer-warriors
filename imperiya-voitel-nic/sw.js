@@ -10,7 +10,12 @@ const FILES=[
   "./art.js?v=17",
   "./app.js?v=17",
   "./icon.svg",
-  "./manifest.webmanifest"
+  "./manifest.webmanifest",
+  "./heroines/0.webp","./heroines/1.webp","./heroines/2.webp","./heroines/3.webp",
+  "./heroines/4.webp","./heroines/5.webp","./heroines/6.webp","./heroines/7.webp",
+  "./heroines/8.webp","./heroines/9.webp","./heroines/10.webp","./heroines/11.webp",
+  "./heroines/12.webp","./heroines/13.webp","./heroines/14.webp","./heroines/15.webp",
+  "./heroines/16.webp","./heroines/17.webp"
 ];
 self.addEventListener("install",event=>{
   event.waitUntil((async()=>{

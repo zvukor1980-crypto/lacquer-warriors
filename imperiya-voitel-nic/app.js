@@ -187,7 +187,7 @@ const healthPower=side=>side==="p"?(1+S.vital*.18+S.relic*.07+cardBonus("health"
 const enemyHP=()=>Math.round((460+(S.stage-1)*130)*Math.pow(1.25,S.era)*Math.pow(1.55,S.timeline-1)*(G.mode==="arena"?1.55:G.mode==="dungeon"?(1.5+Math.min(5,S.dungeonFloor*.13)):1));
 const color=id=>COLORS[(id+S.skin*3)%COLORS.length];
 function heroSvg(id){return window.QueenArt.portrait(id);}
-function champ(){return '<div class="portrait">'+heroSvg(S.hero)+'</div><div class="champtext"><label>ВЕРХОВНАЯ КОМАНДИРША</label><strong>'+NAMES[S.hero]+'</strong><small>'+a().title+' · реликвии '+S.relic+'</small></div><button class="chip" data-a="tab" data-tab="heroes">Сменить ›</button>';}
+function champ(){return '<div class="portrait">'+heroSvg(S.hero)+'</div><div class="champtext"><label>КОРОЛЕВА · '+S.heroes.length+' ИЗ 18</label><strong>'+NAMES[S.hero]+'</strong><small>'+a().title+' · Глянцевые доспехи</small></div><button class="chip" data-a="tab" data-tab="heroes">Героини ›</button>';}
 function rect(x,y,w,h,r,fill,stroke){c.beginPath();c.roundRect(x,y,w,h,r);if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}}
 function backdrop(){window.FairytaleScene.background(c,S.era,G.time+ambientTime*.25,G.mode);if(window.BattleFX)window.BattleFX.scenery(c,S.era,ambientTime);}
 function castle(x,enemy){window.FairytaleScene.castle(c,x,enemy,S.era,G.time+ambientTime*.35);}
@@ -275,9 +275,19 @@ if(k===4){for(const t of G.troops)if(t.side==="e"){t.x=Math.min(359,t.x+48);t.hp
 if(k===5){let u=G.troops.find(t=>t.side==="p");createTroop("p",u?u.k:0,S.hero);createTroop("p",u?u.k:0,S.hero);toast("Двойники призваны!");}if(window.BattleFX)window.BattleFX.magic(k,G.troops);renderBattle();}
 function renderBattleQuick(){
  const dock=$("battleQuick");if(!dock)return;
- if(G.tab!=="battle"||!G.playing||G.done){dock.hidden=true;dock.innerHTML="";return;}
+ if(G.tab!=="battle"||!G.playing||G.done){
+   if(!dock.hidden){dock.hidden=true;dock.innerHTML="";dock.dataset.key="";}
+   return;
+ }
  dock.hidden=false;
  dock.className="battle-quick "+(G.quickMagicOpen?"magic-open":"");
+ // Avoid destroying touch targets on every 280ms HUD update: iPhone taps could
+ // previously vanish when a button was replaced midway through a press.
+ const key=G.quickMagicOpen
+   ?"magic|"+S.loadout.join(",")+"|"+Object.keys(G.used).filter(k=>G.used[k]).join(",")+"|"+Number(G.heroUsed)+"|"+Number(G.paused)
+   :"troops|"+S.units.join(",")+"|"+S.era+"|"+S.timeline+"|"+Number(G.heroUsed)+"|"+Number(G.paused)+"|"+a().units.map((t,k)=>Number(!!S.units[k]&&!G.paused&&G.food>=cost(k))).join("");
+ if(dock.dataset.key===key&&dock.innerHTML)return;
+ dock.dataset.key=key;
  if(G.quickMagicOpen){
    let html='<button class="quick-button back" data-a="quickmagic" aria-label="Вернуться к отрядам"><span>↩</span><small>Отряды</small></button>';
    for(const k of S.loadout.slice(0,3)){
@@ -288,13 +298,12 @@ function renderBattleQuick(){
    return;
  }
  dock.innerHTML=a().units.map((t,k)=>{
-  const available=!!S.units[k],ready=available&&!G.paused&&G.food>=cost(k);
-  return '<button class="quick-button troop '+(!available?"locked":ready?"ready":"")+'" data-a="'+(available?"unit":"unlock")+'" data-k="'+k+'" aria-label="'+t[0]+(available?": еда "+cost(k):": открыть")+'"><span>'+t[1]+'</span><small>'+(available?'🍎 '+cost(k):'🔒')+'</small></button>';
+   const available=!!S.units[k],ready=available&&!G.paused&&G.food>=cost(k);
+   return '<button class="quick-button troop '+(!available?"locked":ready?"ready":"")+'" data-a="'+(available?"unit":"unlock")+'" data-k="'+k+'" aria-label="'+t[0]+(available?": еда "+cost(k):": открыть")+'"><span>'+t[1]+'</span><small>'+(available?'🍎 '+cost(k):'🔒')+'</small></button>';
  }).join("")+
  '<button class="quick-button hero '+(G.heroUsed?"inactive":"")+'" '+(G.heroUsed||G.paused?'disabled':'')+' data-a="hero" aria-label="Призвать командиршу"><span>👑</span><small>Героиня</small></button>'+
  '<button class="quick-button magic" data-a="quickmagic" aria-label="Выбрать заклинание"><span>✨</span><small>Магия</small></button>';
 }
-
 function renderNav(){const reward=readyMissionIndex()>=0;const tabs=[["battle","⚔️","Бой"],["army","⬆️","Улучшить"],["heroes","👑","Герои"],["shop","🛍️","Магазин"],["other","🎯","Цели"]];$("nav").innerHTML=tabs.map(t=>'<button data-a="tab" data-tab="'+t[0]+'" class="'+(G.tab===t[0]||(t[0]==="other"&&(G.tab==="cards"||G.tab==="dungeon"))?"active":"")+'"><span>'+t[1]+(t[0]==="other"&&reward?'<i class="nav-reward"></i>':'')+'</span>'+t[2]+'</button>').join("");}
 function renderBattle(){
 $("eraText").textContent=a().era+" · Линия "+S.timeline;$("eraName").textContent=a().title;$("modeBtn").textContent="Режим: "+(G.mode==="story"?"Поход":G.mode==="arena"?"Арена":"Башня")+" ▾";
@@ -326,7 +335,7 @@ v+='<div class="sectionname"><b>ОТРЯДЫ ЭПОХИ</b></div><div class="gri
 a().units.forEach((t,k)=>{v+='<div class="tile"><div class="icon">'+t[1]+'</div><strong>'+t[0]+'</strong><p>'+["Ближний бой и защита","Урон с расстояния","Мощный тяжёлый отряд"][k]+'</p><button data-a="unlock" data-k="'+k+'">'+(S.units[k]?"✓ Открыто":"🪙 "+(k===1?175:420))+'</button></div>';});v+='</div><hr class="divider">';
 let next=AGES[(S.era+1)%7],price=evolutionPrice();v+=listHead("✨ Новая эпоха",a().title+" → "+next.title+". Войска и улучшения эпохи сбрасываются, а купленные героини, реликвии и магия остаются.");
 v+='<button class="go" style="width:100%;margin:10px 0" data-a="evolve">'+(S.stage<6?"Выиграй пять битв • "+(S.stage-1)+"/5":"ЭВОЛЮЦИЯ • 🪙 "+fmt(price))+'</button>';return v;}
-function heroes(){let v=listHead("Зал героинь","18 воительниц с собственными обликами, волосами, доспехами и темпераментами. Командиршу можно вызвать раз за бой.");
+function heroes(){let v=listHead("Глянцевые королевы","18 взрослых мультяшных героинь с разными причёсками, образами и блестящими лаковыми доспехами.");v+='<section class="queen-feature"><div class="queen-feature-art">'+heroSvg(S.hero)+'</div><div class="queen-feature-copy"><small>ТВОЯ КОМАНДИРША • ВЫБРАНА</small><h3>'+NAMES[S.hero]+'</h3><p>Блистательная предводительница. Призывай один раз за бой и развивай вместе с армией.</p><div class="queen-feature-actions"><button data-a="tab" data-tab="battle">⚔️ В бой</button><button data-a="buy" data-id="skin">✨ Облик · 🪙 '+fmt(levelPrice("skin"))+'</button></div></div></section>';
 v+='<div class="sectionname"><b>КОЛЛЕКЦИЯ</b><small>'+S.heroes.length+' / 18 открыто</small></div><div class="herogrid">';
 for(let i=0;i<18;i++){let own=S.heroes.includes(i),selected=S.hero===i;v+='<div class="herocard '+(selected?"on":"")+'">'+heroSvg(i)+'<strong>'+NAMES[i]+'</strong><small>'+["Защитница","Снайперша","Королева"][i%3]+'</small><button data-a="select" data-k="'+i+'">'+(selected?"✓ Выбрана":own?"Выбрать":"💎 "+(28+i*8))+'</button></div>';}
 return v+'</div><p class="micro">Новые героини остаются открытыми при переходе в следующую эпоху.</p>';}

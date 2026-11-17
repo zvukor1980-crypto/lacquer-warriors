@@ -521,13 +521,22 @@ function getFreeCard(i){
  save();render();sfx("card");
  toast(CARDS[i][0]+": уровень "+S.cards[i]+" — бесплатно");
 }
-function army(){let v=listHead("Развитие империи","Усиления, новые отряды и переходы между эпохами. Монеты зарабатываются даже при поражении.");
-v+='<div class="sectionname"><b>УЛУЧШЕНИЯ</b></div>';
-for(const id of ["food","base","attack","vital","income"]){let x=SHOP.find(t=>t[0]===id);v+='<div class="row"><span class="icon">'+x[1]+'</span><div class="desc"><strong>'+x[2]+'</strong><p>'+x[3]+' · ур. '+S[id]+'</p></div><button data-a="buy" data-id="'+id+'">🪙 '+fmt(levelPrice(id))+'</button></div>';}
-v+='<div class="sectionname"><b>ОТРЯДЫ ЭПОХИ</b></div><div class="grid2">';
-a().units.forEach((t,k)=>{v+='<div class="tile"><div class="icon">'+t[1]+'</div><strong>'+t[0]+'</strong><p>'+["Ближний бой и защита","Урон с расстояния","Мощный тяжёлый отряд"][k]+'</p><button data-a="unlock" data-k="'+k+'">'+(S.units[k]?"✓ Открыто":"🪙 "+(k===1?175:420))+'</button></div>';});v+='</div><hr class="divider">';
-let next=AGES[(S.era+1)%7],price=evolutionPrice();v+=listHead("✨ Новая эпоха",a().title+" → "+next.title+". Войска и улучшения эпохи сбрасываются, а купленные героини, реликвии и магия остаются.");
-v+='<button class="go" style="width:100%;margin:10px 0" data-a="evolve">'+(S.stage<6?"Выиграй пять битв • "+(S.stage-1)+"/5":"ЭВОЛЮЦИЯ • 🪙 "+fmt(price))+'</button>';return v;}
+function army(){
+ let v=listHead("Развитие империи","Все улучшения и войска — бесплатно. Сильные бойцы важны, но для победы всё равно нужна правильная тактика.");
+ v+='<div class="free-shop-ribbon"><strong>⚡ БЕСПЛАТНО</strong><span>Монеты и кристаллы остаются трофеями. Покупки ничего не списывают.</span></div>';
+ v+='<div class="sectionname"><b>УСИЛЕНИЯ</b><small>Постоянные уровни</small></div>';
+ for(const id of ["food","base","attack","vital","income"]){
+  const x=SHOP.find(t=>t[0]===id),max=upgradeMaxed(id);
+  v+='<div class="row"><span class="icon">'+x[1]+'</span><div class="desc"><strong>'+x[2]+'</strong><p>'+x[3]+' · ур. '+S[id]+'/'+FREE_MAX[id]+'</p></div><button class="free-action" data-a="buy" data-id="'+id+'" '+(max?'disabled':'')+'>'+(max?'✓ МАКС':'+ УРОВЕНЬ')+'</button></div>';
+ }
+ v+='<div class="sectionname"><b>ВОЙСКА ЭПОХИ</b><small>Открываются бесплатно</small></div><div class="grid2">';
+ a().units.forEach((t,k)=>{v+='<div class="tile"><div class="icon">'+t[1]+'</div><strong>'+t[0]+'</strong><p>'+["Ближний бой и защита","Урон с расстояния","Мощный тяжёлый отряд"][k]+'</p><button class="free-action" data-a="unlock" data-k="'+k+'" '+(S.units[k]?'disabled':'')+'>'+(S.units[k]?'✓ ОТКРЫТО':'ОТКРЫТЬ БЕСПЛАТНО')+'</button></div>';});
+ v+='</div><hr class="divider">';
+ const next=AGES[(S.era+1)%7];
+ v+=listHead("Новая эпоха",a().title+" → "+next.title+". Улучшения и отряды сохраняются. Для продвижения нужно победить в пяти боях.");
+ v+='<button class="go" style="width:100%;margin:10px 0" data-a="evolve">'+(S.stage<6?"ПОБЕДИ В ПЯТИ БОЯХ · "+(S.stage-1)+"/5":"⚡ НОВАЯ ЭПОХА · БЕСПЛАТНО")+'</button>';
+ return v;
+}
 function heroes(){let v=listHead("Глянцевые королевы","18 взрослых мультяшных героинь с разными причёсками, образами и блестящими лаковыми доспехами.");v+='<section class="queen-feature"><div class="queen-feature-art">'+heroSvg(S.hero)+'</div><div class="queen-feature-copy"><small>ТВОЯ КОМАНДИРША • ВЫБРАНА</small><h3>'+NAMES[S.hero]+'</h3><p><b>'+signature().name+'</b> — '+signature().desc+'</p><div class="hero-rank"><strong>УРОВЕНЬ '+heroLevel()+'</strong><small>'+(heroLevel()===5?'Максимальное мастерство':'До нового уровня: '+heroProgress().remaining+' опыта')+'</small><div class="hero-rank-track"><i style="width:'+heroProgress().value+'%"></i></div></div><div class="queen-feature-actions"><button data-a="tab" data-tab="battle">⚔️ В бой</button><button data-a="buy" data-id="skin">✨ Лаковый облик · 💎 '+fmt(levelPrice("skin"))+'</button></div></div></section>';
 v+='<div class="sectionname"><b>КОЛЛЕКЦИЯ</b><small>'+S.heroes.length+' / 18 открыто</small></div><div class="herogrid">';
 for(let i=0;i<18;i++){let own=S.heroes.includes(i),selected=S.hero===i;v+='<div class="herocard '+(selected?"on":"")+'">'+heroSvg(i)+'<strong>'+NAMES[i]+'</strong><small>'+["Защитница","Снайперша","Королева"][i%3]+' · ур. '+heroLevel(i)+'</small><button data-a="select" data-k="'+i+'">'+(selected?"✓ Выбрана":own?"Выбрать":"💎 "+(28+i*8))+'</button></div>';}

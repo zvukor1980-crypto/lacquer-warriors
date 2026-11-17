@@ -431,7 +431,7 @@ for(const t of G.troops){
  let direction=t.side==="p"?1:-1,baseDistance=t.side==="p"?361-t.x:t.x-28,target=nearest&&dist<baseDistance+4?nearest:null;
  if(!(target?dist<t.range:baseDistance<t.range)){if(t.side==="e"&&G.frozen>0)continue;t.x+=t.speed*dt*direction;t.moving=true;t.x=Math.max(28,Math.min(361,t.x));continue;}
  if(t.cd<=0&&(t.side==="p"||G.frozen<=0)){
-  t.cd=t.rate;t.attackPulse=.22;if(t.side==="p"&&Math.random()<.18)sfx("hit");
+  t.cd=t.rate;t.attackPulse=.4;if(t.side==="p"&&Math.random()<.18)sfx("hit");
   const critical=Math.random()<.085;
   let dmg=t.damage*(t.side==="p"&&G.raging>0?1.6:1)*(critical?1.6:1)*(t.side==="p"?stance().attack:1);
   if(t.side==="e"&&target&&target.side==="p")dmg*=stance().health;

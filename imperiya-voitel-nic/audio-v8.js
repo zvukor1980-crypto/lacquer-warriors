@@ -226,7 +226,7 @@ function sfx(name,pan=0){
  if(cooldown[name]&&t-last<cooldown[name])return;
  lastFx.set(name,t);
  // Heavy effects momentarily duck music and restore it automatically.
- if(musicOn&&musicGain&&["boss","meteor","critical","fortress","start"].includes(name)){
+ if(musicOn&&musicGain&&["boss","meteor","critical","fortress","start","ultimate"].includes(name)){
   const g=musicGain.gain;g.cancelScheduledValues(t);g.setTargetAtTime(musicVol*.7,t,.018);g.setTargetAtTime(musicVol,t+.20,.16);
  }
  try{switch(name){
@@ -240,6 +240,13 @@ function sfx(name,pan=0){
  case"critical":fxVoice(800,t,.19,{end:250,volume:.13,type:"sawtooth",cutoff:2700,pan});fxNoise(t+.035,.21,.15,1900,pan);break;
  case"fortress":fxVoice(88,t,.35,{end:42,volume:.22,type:"sine",cutoff:750,pan});fxNoise(t+.03,.21,.12,380,pan);break;
  case"hero":for(let i=0;i<4;i++)fxVoice(392*Math.pow(2,[0,3,7,12][i]/12),t+i*.095,.47,{volume:.13,type:"sawtooth",reverb:.4});break;
+ case"ultimate":
+  // Original royal ascension fanfare layered with a controlled cinematic impact.
+  fxVoice(88,t,.49,{end:43,volume:.21,type:"sine",cutoff:980});
+  fxNoise(t+.025,.29,.13,690);
+  for(let i=0;i<5;i++)fxVoice(hz([62,67,70,74,79][i]),t+.055+i*.075,.45,{volume:.09,type:"triangle",reverb:.62,pan:(i-2)*.23});
+  fxVoice(880,t+.25,.62,{end:1550,volume:.1,type:"sine",reverb:.65});
+  break;
  case"magic":fxVoice(300,t,.48,{end:1450,volume:.15,type:"sawtooth",reverb:.6});fxNoise(t+.08,.23,.07,2000);break;
  case"buy":fxVoice(660,t,.13,{end:990,volume:.13,type:"sine"});fxVoice(990,t+.12,.24,{end:1320,volume:.13,type:"sine",reverb:.5});break;
  case"card":for(let i=0;i<3;i++)fxVoice(600*Math.pow(2,i/6),t+.12*i,.38,{end:1050*Math.pow(2,i/6),volume:.1,reverb:.7});break;

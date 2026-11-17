@@ -37,7 +37,7 @@ function attack(from,to,damage,kind="slash",enemy=false,critical=false){
   burst(fx,fy,critical?"#FFE76B":enemy?"#F65B9E":"#90FFF2",critical?10:5,69);
  }
  if(critical){ring(fx,fy,"#FFFFFF",2,40,.28,2);}
- if(damage>0&&(critical||Math.random()<.34)){numbers.push({x:fx+rand(-8,8),y:fy-19,dy:rand(-12,-23),amount:Math.max(1,Math.round(damage)),critical,enemy,age:0,life:critical?.9:.62});keep(numbers,MAX.numbers);}
+ if(damage>0&&(critical||!enemy||Math.random()<.5)){numbers.push({x:fx+rand(-8,8),y:fy-19,dy:rand(-12,-23),amount:Math.max(1,Math.round(damage)),critical,enemy,age:0,life:critical?.9:.62});keep(numbers,MAX.numbers);}
 }
 function magic(k,troops=[]){
  const player=troops.filter(t=>t.side==="p"),opponents=troops.filter(t=>t.side==="e");
@@ -149,10 +149,15 @@ function paint(c,time){
   let n=clamp(p.age/p.life,0,1),x=p.sx+(p.x-p.sx)*n,y=p.sy+(p.y-p.sy)*n-4*Math.sin(n*Math.PI);
   if(p.kind==="meteor")y=p.sy+(p.y-p.sy)*n;
   c.strokeStyle=p.color;c.lineWidth=p.kind==="meteor"?7:3;c.lineCap="round";
-  c.shadowColor=p.color;c.shadowBlur=8;
-  c.beginPath();c.moveTo(x-(p.x-p.sx)*.045,y-(p.y-p.sy)*.045);c.lineTo(x,y);c.stroke();
+  c.globalAlpha=.4;
+  c.beginPath();c.moveTo(x-(p.x-p.sx)*.12,y-(p.y-p.sy)*.12);c.lineTo(x,y);c.stroke();
+  c.globalAlpha=1;
   circle(c,x,y,p.kind==="meteor"?5:3,p.color);
-  c.shadowBlur=0;
+ }
+ for(const a of ashes){
+  const fade=clamp(1-a.age/a.life,0,1);
+  c.save();c.translate(a.x,a.y);c.rotate(a.rot||0);c.globalAlpha=fade;c.fillStyle=a.color||"#F2F5F8";
+  c.fillRect(-(a.r||2),-(a.r||2)*.4,(a.r||2)*2,(a.r||2)*.8);c.restore();
  }
  for(const s of sparks){
   let fade=clamp(1-s.age/s.life,0,1);
@@ -182,7 +187,13 @@ function paint(c,time){
  }
  c.restore();
 }
+function defeat(x,y,boss){
+ burst(x,y,boss?"#FFD36D":"#E8EEF6",boss?22:12,boss?110:80);
+ ring(x,y,boss?"#FF4D6A":"#C5CCD6",6,boss?64:34,.48,3);
+ for(let i=0;i<(boss?8:4);i++)ashes.push({x,y:y+10,vx:rand(-36,36),vy:rand(-70,-16),rot:rand(0,6),spin:rand(-4,4),age:0,life:rand(.35,.7),r:rand(2,4),color:i%2?"#F2F5F8":"#E23B55"});
+ keep(ashes,MAX.ashes);
+}
 function reset(){for(const a of [rings,sparks,shots,numbers,ashes,banners])a.length=0;}
-window.BattleFX={summon,attack,magic,reward,baseHit,update,scenery,foreground,paint,reset,
+window.BattleFX={summon,attack,magic,reward,baseHit,defeat,update,scenery,foreground,paint,reset,
  stats:()=>({rings:rings.length,sparks:sparks.length,shots:shots.length,numbers:numbers.length})};
 })();

@@ -1,5 +1,5 @@
-/* Crown Quest v14 · versioned offline-first assets and network-first updates */
-const CACHE="imperiya-voitel-nic-v14",FILES=["./","./index.html","./cockpit-v14.css?v=14","./audio-v8.js?v=13","./battle-v9.js","./storybook.js?v=11","./art.js","./app.js?v=14","./icon.svg","./manifest.webmanifest"];
+/* Crown Quest v15 · versioned offline-first assets and network-first updates */
+const CACHE="imperiya-voitel-nic-v15",FILES=["./","./index.html","./rock-v15.css?v=15","./audio-v8.js?v=13","./battle-v9.js","./storybook.js?v=11","./art.js","./app.js?v=15","./icon.svg","./manifest.webmanifest"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith("imperiya-voitel-nic-")&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",e=>{

@@ -884,3 +884,12 @@ nav button.active{background:linear-gradient(170deg,#683B73,#283C71);color:#FFE7
 @media(prefers-reduced-motion:reduce){
  #app .hero-ultimate.ready,#app .quick-button.ready{animation:none!important}
 }
+
+/* VisualViewport fallback: Safari's collapsing URL bar may not match CSS media height. */
+#app.combat-active.compact-height .battleframe{max-width:min(calc(100% - 16px),356px)}
+#app.combat-active.compact-height header{min-height:51px}
+#app.combat-active.compact-height .mentor{min-height:43px;margin:4px 8px 5px}
+#app.combat-active.compact-height #worldHeading{margin:5px 10px 4px}
+#app.combat-active.very-short .battleframe{max-width:min(calc(100% - 14px),310px)}
+#app.combat-active.very-short header{min-height:47px}
+#app.combat-active.very-short .mentor{min-height:41px;margin:3px 7px 4px}

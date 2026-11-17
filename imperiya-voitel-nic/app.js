@@ -394,7 +394,7 @@ $("hpbar").innerHTML='<b>🏰</b><div class="track"><i style="width:'+Math.max(0
 $("foodValue").textContent=Math.floor(G.food);$("foodRate").textContent="+"+foodRate().toFixed(1)+"/с";$("foodFill").style.width=(G.food/130*100)+"%";
 $("units").innerHTML=a().units.map((t,k)=>'<button class="unit '+(!S.units[k]?"locked":G.playing&&G.food>=cost(k)?"ready":"")+'" aria-label="'+t[0]+'" data-a="'+(S.units[k]?"unit":"unlock")+'" data-k="'+k+'"><span class="art">'+window.QueenArt.figureSvg((S.era*3+k*5+4)%18,k,S.era,false,S.skin)+'</span><strong>'+t[0]+'</strong><span class="cost">'+(S.units[k]?"🍎 "+cost(k):"🔒 Открыть")+'</span></button>').join("");
 $("spells").innerHTML=S.loadout.slice(0,3).map(k=>'<button class="spell" '+(G.used[k]||!G.playing?"disabled":"")+' data-a="magic" data-k="'+k+'"><span>'+MAGICS[k][1]+'</span><small>'+MAGICS[k][0]+'</small></button>').join("")+'<button class="spell" '+(!G.heroUsed?'data-a="hero" '+(!G.playing?'disabled':''):'data-a="ultimate" '+(!ultimateReady()?'disabled':''))+'><span>'+(!G.heroUsed?'👸':signature().icon)+'</span><small>'+(!G.heroUsed?NAMES[S.hero]:'Приём '+Math.floor(G.heroCharge)+'%')+'</small></button>';
-$("fightaction").innerHTML=(!G.playing)?'<button class="go" data-a="start">⚔️ В БОЙ</button>':G.playing?'<div class="battletools"><button class="chip" data-a="speed">⏩ ×'+G.speed+'</button><button class="chip" data-a="pause">'+(G.paused?"▶ Продолжить":"Ⅱ Пауза")+'</button>'+(S.auto?'<button class="chip" data-a="auto">Авто: '+(G.autoEnabled?"Вкл":"Выкл")+'</button>':"")+'</div>':"";
+$("fightaction").innerHTML=(!G.playing)?'<button class="go" data-a="start">⚔️ В БОЙ</button>':G.playing?'<div class="battletools"><button class="chip" data-a="pause">'+(G.paused?"▶ Продолжить":"Ⅱ Пауза")+'</button><button class="chip" data-a="speed">⏩ ×'+G.speed+'</button><button class="chip" data-a="soundmusic">'+(S.music!==false?"♫ Звук":"♫ Вкл")+'</button>'+(S.auto?'<button class="chip" data-a="auto">Авто '+(G.autoEnabled?"✓":"○")+'</button>':"")+'</div>':"";
 renderHeroStatus();$("hint").textContent=G.playing?"Нажимай на подсвеченные отряды, чтобы выпускать бойцов":G.mode==="dungeon"?"Башня: победи босса и получи карту":S.stage===6?"Пять побед! Новая эпоха ждёт в «Улучшить»":"Начни сражение или улучши армию за монеты";$("battleShortcuts").innerHTML=G.playing?"":'<button data-a="tab" data-tab="army">⬆️ Улучшить армию</button><button data-a="tab" data-tab="other">🎯 Задания</button>';}
 
 function updateBossBar(){
@@ -460,7 +460,16 @@ function other(){
  v+='<p class="micro">Игра полностью офлайн после первой загрузки. Сохранение хранится на этом устройстве. Перед очисткой Safari используй «Сохранить прогресс».</p>';
  return v;
 }
-function render(){ ensureMissions();renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);$("champ").innerHTML=champ();let battle=G.tab==="battle";$("battlePage").hidden=!battle;$("otherPage").hidden=battle;if(battle)renderBattle();else $("otherPage").innerHTML=G.tab==="army"?army():G.tab==="heroes"?heroes():G.tab==="shop"?shop():G.tab==="cards"?cardPage():G.tab==="dungeon"?dungeonPage():other();renderNav();advisorCard();renderBattleQuick();}
+function applyMobileLayout(){
+ const root=$("app");if(!root||!root.classList)return;
+ const h=Number(window.visualViewport&&window.visualViewport.height)||Number(window.innerHeight)||800;
+ const w=Number(window.visualViewport&&window.visualViewport.width)||Number(window.innerWidth)||390;
+ root.classList.toggle("combat-active",G.tab==="battle"&&G.playing&&!G.done);
+ root.classList.toggle("compact-height",h<765);
+ root.classList.toggle("very-short",h<675);
+ root.classList.toggle("compact-width",w<374);
+}
+function render(){ applyMobileLayout();ensureMissions();renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);$("champ").innerHTML=champ();let battle=G.tab==="battle";$("battlePage").hidden=!battle;$("otherPage").hidden=battle;if(battle)renderBattle();else $("otherPage").innerHTML=G.tab==="army"?army():G.tab==="heroes"?heroes():G.tab==="shop"?shop():G.tab==="cards"?cardPage():G.tab==="dungeon"?dungeonPage():other();renderNav();advisorCard();renderBattleQuick();}
 function setTab(tab){G.tab=tab;closeModal();render();window.scrollTo(0,0);}
 function closeModal(){$("modal").hidden=true;$("modal").innerHTML="";}
 function showModePicker(){
@@ -503,7 +512,7 @@ switch(action){case"tab":setTab(el.dataset.tab);break;case"quickmagic":G.quickMa
 });
 function frame(now){let dt=Math.min(.045,(now-last)/1000||.016);last=now;ambientTime+=dt;if(!G.paused){for(let i=0;i<G.speed;i++)tick(dt);}if(G.tab==="battle"&&!document.hidden)draw();uiTimer+=dt;if(uiTimer>.28){uiTimer=0;if(G.tab==="battle")updateHud();advisorCard();if(window.CrownAudio)window.CrownAudio.sceneTick({playing:G.playing,paused:G.paused,boss:G.troops.some(t=>t.boss&&t.hp>0),done:G.done,era:S.era});renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);}requestAnimationFrame(frame);}
 function resize(){let d=Math.min(devicePixelRatio||1,2);canvas.width=W*d;canvas.height=H*d;c.setTransform(d,0,0,d,0,0);draw();}
-window.addEventListener("pagehide",save);document.addEventListener("visibilitychange",()=>{if(document.hidden)save();});window.addEventListener("resize",resize);
+window.addEventListener("pagehide",save);document.addEventListener("visibilitychange",()=>{if(document.hidden)save();});window.addEventListener("resize",()=>{applyMobileLayout();resize();});if(window.visualViewport&&window.visualViewport.addEventListener)window.visualViewport.addEventListener("resize",applyMobileLayout);
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;render();resize();requestAnimationFrame(frame);
 if(S.first){S.first=false;save();setTimeout(showHelp,750);}

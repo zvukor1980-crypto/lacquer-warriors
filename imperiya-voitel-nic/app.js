@@ -435,12 +435,14 @@ function renderBattleQuick(){
   const food=dock.querySelector("#dockFood");
   if(food)food.textContent=Math.floor(G.food);
   const task=dock.querySelector("#dockContract");
-  if(task)task.textContent=G.playing&&G.contract?(G.contractDone?"✓ КОНТРАКТ":G.contract.title+" "+contractProgress()+"/"+G.contract.goal):"⚡ ВЫБЕРИ ВОИТЕЛЬНИЦУ";
+  if(task)task.textContent=G.quickMagicOpen?"✦ МАГИЯ":G.playing&&G.contract?(G.contractDone?"✓ КОНТРАКТ":G.contract.title+" "+contractProgress()+"/"+G.contract.goal):"⚡ ВЫБЕРИ ВОИТЕЛЬНИЦУ";
   const auto=dock.querySelector("#dockAuto");if(auto)auto.textContent=G.autoEnabled?"▣ АВТО":"▫ АВТО";
   const charge=dock.querySelector("[data-hero-charge]");
   if(charge)charge.textContent=G.ultimateUsed?"ИСПОЛЬЗОВАН":Math.floor(G.heroCharge)+"%";
   if(dock.querySelectorAll)dock.querySelectorAll(".quick-button.troop").forEach((button,k)=>{
    const ready=!!S.units[k]&&!G.paused&&(!G.playing||G.food>=cost(k));
+   const bar=button.querySelector&&button.querySelector(".recruit-meter i");
+   if(bar&&bar.style)bar.style.width=(!G.playing?100:Math.min(100,G.food/cost(k)*100))+"%";
    if(button.classList){button.classList.toggle("ready",ready);button.classList.toggle("charging",!!S.units[k]&&!ready);}
   });
   return;
@@ -462,7 +464,7 @@ function renderBattleQuick(){
    const price=k===1?175:420;
    const unitSvg=window.QueenArt.figureSvg((S.era*3+k*5+4)%18,k,S.era,false,S.skin);
    return '<button class="quick-button troop troop-'+k+' '+(!own?"locked":ready?"ready":"charging")+'" data-a="'+(own?"unit":"unlock")+'" data-k="'+k+'" aria-label="'+t[0]+(own?": нужно "+cost(k)+" еды":": открыть за "+price+" монет")+'">'+
-    '<span class="quick-portrait">'+unitSvg+'</span><span class="quick-name">'+t[0]+'</span><span class="quick-price">'+(own?(G.playing?"🍎 "+cost(k):"⚡ В БОЙ"):"🪙 "+price)+'</span></button>';
+    '<span class="quick-portrait">'+unitSvg+'</span><span class="quick-name">'+t[0]+'</span><span class="quick-price">'+(own?(G.playing?"🍎 "+cost(k):"⚡ В БОЙ"):"🪙 "+price)+'</span><span class="recruit-meter" aria-hidden="true"><i style="width:'+(own?(!G.playing?100:Math.min(100,G.food/cost(k)*100)):0)+'%"></i></span></button>';
   }).join("")+heroAction+
   '<button class="quick-button magic" data-a="quickmagic" aria-label="Выбрать магию"><span class="quick-portrait rock-glyph">✦</span><span class="quick-name">МАГИЯ</span><span class="quick-price">3 ПРИЁМА</span></button>';
  }
@@ -471,6 +473,7 @@ function renderBattleQuick(){
 }
 function renderNav(){const reward=readyMissionIndex()>=0;const tabs=[["battle","⚔️","Бой"],["army","⬆️","Улучшить"],["heroes","👑","Герои"],["shop","🛍️","Магазин"],["other","🎯","Цели"]];$("nav").innerHTML=tabs.map(t=>'<button data-a="tab" data-tab="'+t[0]+'" class="'+(G.tab===t[0]||(t[0]==="other"&&(G.tab==="cards"||G.tab==="dungeon"))?"active":"")+'"><span>'+t[1]+(t[0]==="other"&&reward?'<i class="nav-reward"></i>':'')+'</span>'+t[2]+'</button>').join("");}
 function renderBattle(){
+$("topchip").className="topchip "+(G.contractDone?"contract-done":"");
 $("eraText").textContent=a().era+" · Линия "+S.timeline;$("eraName").textContent=a().title;$("modeBtn").textContent="Режим: "+(G.mode==="story"?"Поход":G.mode==="arena"?"Арена":"Башня")+" ▾";
 $("topchip").innerHTML='<span>'+(G.mode==="dungeon"?"🏯 "+S.dungeonFloor:"⚔️ "+Math.min(5,S.stage)+"/5")+'</span><span>'+(G.playing?"⚡ ВОЛНА "+Math.max(1,G.wave)+"/"+(G.mode==="dungeon"?2:3):"⏱ "+Math.floor(G.time)+" с")+'</span><span aria-label="'+(G.contract?G.contract.desc:"Боевой контракт")+'">'+contractLabel()+'</span>';
 $("hpbar").innerHTML='<b>🏰</b><div class="track"><i style="width:'+Math.max(0,G.base/G.baseMax*100)+'%"></i></div><div class="track enemy"><i style="width:'+Math.max(0,G.enemy/G.enemyMax*100)+'%"></i></div><b>🏯</b>';
@@ -487,6 +490,7 @@ if(boss)bar.innerHTML='<strong>👑 БОСС</strong><div class="boss-track"><i 
 notice.hidden=!(G.battleMessageTime>0);if(!notice.hidden)notice.textContent=G.battleMessage;
 }
 function updateHud(){
+$("topchip").className="topchip "+(G.contractDone?"contract-done":"");
 $("topchip").innerHTML='<span>'+(G.mode==="dungeon"?"🏯 "+S.dungeonFloor:"⚔️ "+Math.min(5,S.stage)+"/5")+'</span><span>'+(G.playing?"⚡ ВОЛНА "+Math.max(1,G.wave)+"/"+(G.mode==="dungeon"?2:3):"⏱ "+Math.floor(G.time)+" с")+'</span><span aria-label="'+(G.contract?G.contract.desc:"Боевой контракт")+'">'+contractLabel()+'</span>';
 $("hpbar").innerHTML='<b>🏰</b><div class="track"><i style="width:'+Math.max(0,G.base/G.baseMax*100)+'%"></i></div><div class="track enemy"><i style="width:'+Math.max(0,G.enemy/G.enemyMax*100)+'%"></i></div><b>🏯</b>';
 $("foodValue").textContent=Math.floor(G.food);$("foodRate").textContent="+"+foodRate().toFixed(1)+"/с";$("foodFill").style.width=(G.food/130*100)+"%";updateBossBar();renderHeroStatus();renderBattleQuick();if(document.querySelectorAll){document.querySelectorAll("#units .unit").forEach((el,k)=>{if(el.classList&&el.classList.toggle)el.classList.toggle("ready",!!S.units[k]&&G.playing&&!G.paused&&G.food>=cost(k));});}

@@ -179,11 +179,21 @@ function renderHeroStatus(){
  const dock=$("heroStatus");if(!dock)return;
  dock.hidden=!G.playing||!G.heroUsed||G.done||G.tab!=="battle";
  if(dock.hidden)return;
- const charged=ultimateReady(),value=Math.max(0,Math.min(100,Math.floor(G.heroCharge)));
- const label=G.ultimateUsed?"ИСПОЛЬЗОВАН":!heroAlive()?"ГЕРОИНЯ ВЫБЫЛА":charged?"ГОТОВО!":"ЗАРЯД "+value+"%";
- dock.innerHTML='<div class="hero-status-top"><strong>👑 '+NAMES[S.hero]+' · ур. '+heroLevel()+'</strong><span>'+label+'</span></div>'+
- '<div class="hero-charge-track"><i style="width:'+value+'%"></i></div>'+
- '<button class="hero-ultimate '+(charged?"ready":"")+'" data-a="ultimate" '+(!charged?'disabled':'')+'>'+signature().icon+' '+signature().name+'</button>';
+ const charged=ultimateReady(),alive=heroAlive();
+ const value=Math.max(0,Math.min(100,Math.floor(G.heroCharge)));
+ const label=G.ultimateUsed?"ИСПОЛЬЗОВАН":!alive?"ГЕРОИНЯ ВЫБЫЛА":charged?"ГОТОВО!":"ЗАРЯД "+value+"%";
+ const key=[S.hero,heroLevel(),G.ultimateUsed,charged,alive,G.paused].join("|");
+ // Preserve the physical button DOM during charging to avoid lost touches in Safari.
+ if(dock.dataset.key!==key||!dock.innerHTML){
+  dock.dataset.key=key;
+  dock.innerHTML='<div class="hero-status-top"><strong>👑 '+NAMES[S.hero]+' · ур. '+heroLevel()+'</strong><span></span></div>'+
+  '<div class="hero-charge-track"><i></i></div>'+
+  '<button class="hero-ultimate '+(charged?"ready":"")+'" data-a="ultimate" '+(!charged?'disabled':'')+'>'+signature().icon+' '+signature().name+'</button>';
+ }
+ const track=dock.querySelector(".hero-charge-track i");
+ if(track)track.style.width=value+"%";
+ const top=dock.querySelector(".hero-status-top span");
+ if(top&&top.textContent!==label)top.textContent=label;
 }
 function ultimate(){
  if(!G.playing||G.paused||G.done)return toast("Сначала продолжи битву");

@@ -61,12 +61,12 @@ function cardPage(){
   const level=S.cards[i]||0,chosen=S.deck.includes(i);
   v+='<div class="tile cardtile '+(chosen?"equipped":"")+'"><span class="rarity">'+x[5]+'</span><div class="cardicon">'+x[1]+'</div><strong>'+x[0]+'</strong><p>'+x[2]+' · '+(level?"уровень "+level+"/5":"не открыта")+'</p><div class="free-card-actions"><button data-a="equip" data-k="'+i+'" '+(!level?'disabled':'')+'>'+(chosen?"↔ МЕСТО":level?"В КОЛОДУ":"ОТКРОЙ КАРТУ")+'</button><button class="free-action" data-a="getcard" data-k="'+i+'" '+(level>=5?'disabled':'')+'>'+(level>=5?"✓ МАКС":level?"+ УРОВЕНЬ":"ПОЛУЧИТЬ")+'</button></div></div>';
  });
- v+='</div><button class="go" data-a="buy" data-id="cardChest">🎴 СЛУЧАЙНАЯ КАРТА · БЕСПЛАТНО</button>';
+ v+='</div><button class="go block-action" data-a="buy" data-id="cardChest">🎴 СЛУЧАЙНАЯ КАРТА · БЕСПЛАТНО</button>';
  return v;
 }
 function dungeonPage(){let out=listHead("Башня королев","Особый режим с более сильными врагами, боссами и коллекционными картами. Проходи этажи, собирай трофеи и улучшай свою колоду.");
 out+='<div class="dungeon-intro"><div class="dungeon-visual"><span>🏯</span><div class="halo"></div></div><div><small>ТЕКУЩЕЕ ИСПЫТАНИЕ</small><h3>Этаж '+S.dungeonFloor+'</h3><p>Босс-страж, волны противниц и награда за победу.</p></div></div>';
-out+='<div class="grid2"><div class="tile"><div class="icon">🎴</div><strong>Карты усиления</strong><p>Одна случайная карта за каждую победу в башне</p></div><div class="tile"><div class="icon">💎</div><strong>+25 кристаллов</strong><p>Награда за этаж; сложность постепенно растёт</p></div></div><button class="go" data-a="dungeon" style="margin:15px 0;width:100%">⚔️ ВОЙТИ В БАШНЮ</button><button class="chip" data-a="tab" data-tab="cards" style="width:100%">Посмотреть колоду карт</button>';
+out+='<div class="grid2"><div class="tile"><div class="icon">🎴</div><strong>Карты усиления</strong><p>Одна случайная карта за каждую победу в башне</p></div><div class="tile"><div class="icon">💎</div><strong>+25 кристаллов</strong><p>Награда за этаж; сложность постепенно растёт</p></div></div><button class="go block-action" data-a="dungeon">⚔️ ВОЙТИ В БАШНЮ</button><button class="chip block-action" data-a="tab" data-tab="cards">Посмотреть колоду карт</button>';
 return out;}
 
 
@@ -575,7 +575,7 @@ function army(){
  v+='</div><hr class="divider">';
  const next=AGES[(S.era+1)%7];
  v+=listHead("Новая эпоха",a().title+" → "+next.title+". Улучшения и отряды сохраняются. Для продвижения нужно победить в пяти боях.");
- v+='<button class="go" style="width:100%;margin:10px 0" data-a="evolve">'+(S.stage<6?"ПОБЕДИ В ПЯТИ БОЯХ · "+(S.stage-1)+"/5":"⚡ НОВАЯ ЭПОХА · БЕСПЛАТНО")+'</button>';
+ v+='<button class="go block-action" data-a="evolve">'+(S.stage<6?"ПОБЕДИ В ПЯТИ БОЯХ · "+(S.stage-1)+"/5":"⚡ НОВАЯ ЭПОХА · БЕСПЛАТНО")+'</button>';
  return v;
 }
 function heroes(){let v=listHead("Глянцевые королевы","Все 18 взрослых мультяшных героинь открываются бесплатно. Навыки развиваются в боях.");v+='<section class="queen-feature"><div class="queen-feature-art">'+heroSvg(S.hero)+'</div><div class="queen-feature-copy"><small>ТВОЯ КОМАНДИРША • ВЫБРАНА</small><h3>'+NAMES[S.hero]+'</h3><p><b>'+signature().name+'</b> — '+signature().desc+'</p><div class="hero-rank"><strong>УРОВЕНЬ '+heroLevel()+'</strong><small>'+(heroLevel()===5?'Максимальное мастерство':'До нового уровня: '+heroProgress().remaining+' опыта')+'</small><div class="hero-rank-track"><i style="width:'+heroProgress().value+'%"></i></div></div><div class="queen-feature-actions"><button data-a="tab" data-tab="battle">⚔️ В бой</button><button data-a="buy" data-id="skin">✨ НОВЫЙ ОБЛИК · БЕСПЛАТНО</button></div></div></section>';
@@ -627,41 +627,57 @@ function other(){
  v+='<p class="micro">Игра полностью офлайн после первой загрузки. Сохранение хранится на этом устройстве. Перед очисткой Safari используй «Сохранить прогресс».</p>';
  return v;
 }
+function viewportBox(){
+ const vv=window.visualViewport;
+ const h=Number(vv&&vv.height)||Number(window.innerHeight)||800;
+ const w=Number(vv&&vv.width)||Number(window.innerWidth)||390;
+ const top=Number(vv&&vv.offsetTop)||0;
+ const innerH=Number(window.innerHeight)||h;
+ return {h,w,top,bottom:Math.max(0,innerH-h-top)};
+}
 function applyMobileLayout(){
  const root=$("app");if(!root||!root.classList)return;
- const h=Number(window.visualViewport&&window.visualViewport.height)||Number(window.innerHeight)||800;
- const w=Number(window.visualViewport&&window.visualViewport.width)||Number(window.innerWidth)||390;
+ const box=viewportBox();
  const cockpit=G.tab==="battle"&&!G.done;
  root.classList.toggle("combat-cockpit",cockpit);
  root.classList.toggle("combat-active",G.tab==="battle"&&G.playing&&!G.done);
- root.classList.toggle("compact-height",h<765);
- root.classList.toggle("very-short",h<675);
- root.classList.toggle("compact-width",w<374);
+ root.classList.toggle("compact-height",box.h<765);
+ root.classList.toggle("very-short",box.h<675);
+ root.classList.toggle("compact-width",box.w<360);
  if(document.body&&document.body.classList)document.body.classList.toggle("game-cockpit",cockpit);
 }
-function syncArenaLayout(){
- const root=$("app");if(!root||!root.classList||!root.classList.contains("combat-cockpit"))return;
- const vp=window.visualViewport||null;
- const height=Number(vp&&vp.height)||Number(window.innerHeight)||800;
- const width=Number(vp&&vp.width)||Number(window.innerWidth)||390;
- const rect=(e,fallback)=>{
-  if(!e||e.hidden)return 0;
-  const b=e.getBoundingClientRect&&e.getBoundingClientRect();
-  return b&&Number(b.height)>0?Number(b.height):fallback;
- };
- const header=$("gameHeader")||document.querySelector("header");
- const headerH=rect(header,height<500?42:49);
- const dockH=rect($("battleQuick"),height<540?128:height<750?152:165);
- const actionH=rect($("fightaction"),G.playing?43:53);
- // Budget includes the iOS status bar, corners, Home indicator and inter-row gaps.
- const reserve=height<480?10:height<650?29:50;
- if(root.style&&root.style.removeProperty){root.style.removeProperty("--arena-h");root.style.removeProperty("--arena-w");}
+function syncViewport(){
+ const box=viewportBox();
+ const root=document.documentElement;
+ root.style.setProperty("--vvh",Math.round(box.h)+"px");
+ root.style.setProperty("--vvw",Math.round(box.w)+"px");
+ root.style.setProperty("--vv-top",Math.round(box.top)+"px");
+ root.style.setProperty("--vv-bottom",Math.round(box.bottom)+"px");
+ applyMobileLayout();
+ const cockpit=document.body.classList.contains("game-cockpit");
+ const nav=$("nav");
+ if(nav&&nav.getBoundingClientRect){
+  const nb=nav.getBoundingClientRect();
+  if(nb.height>0)root.style.setProperty("--nav-h",Math.ceil(nb.height)+"px");
+ }
+ document.body.classList.toggle("toast-under-header",cockpit);
+ if(cockpit){
+  const header=$("gameHeader")||document.querySelector("header");
+  const hb=header&&header.getBoundingClientRect?header.getBoundingClientRect():null;
+  const top=hb?Math.max(8,Math.round(hb.bottom-box.top+6)):52;
+  root.style.setProperty("--toast-top",top+"px");
+ }else{
+  const nav=$("nav");
+  const nb=nav&&nav.getBoundingClientRect?nav.getBoundingClientRect():null;
+  root.style.setProperty("--toast-gap",(nb&&nb.height?Math.round(nb.height)+10:78)+"px");
+ }
 }
+function syncArenaLayout(){syncViewport();}
 function transferStrip(){return '<button class="transfer-strip" data-a="transfer"><b>⇄ Перенести прогресс</b><small>Со старого сайта — файлом или кодом. Героини, опыт, уровни, карты и покупки сохранятся.</small></button>';}
-function render(){ applyMobileLayout();ensureMissions();renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);$("champ").innerHTML=champ();let battle=G.tab==="battle";$("battlePage").hidden=!battle;$("otherPage").hidden=battle;if(battle)renderBattle();else $("otherPage").innerHTML=transferStrip()+(G.tab==="army"?army():G.tab==="heroes"?heroes():G.tab==="shop"?shop():G.tab==="cards"?cardPage():G.tab==="dungeon"?dungeonPage():other());renderNav();advisorCard();renderBattleQuick();syncArenaLayout();requestAnimationFrame(resize);}
+function render(){ applyMobileLayout();ensureMissions();renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);$("champ").innerHTML=champ();let battle=G.tab==="battle";$("battlePage").hidden=!battle;$("otherPage").hidden=battle;if(battle)renderBattle();else $("otherPage").innerHTML=transferStrip()+(G.tab==="army"?army():G.tab==="heroes"?heroes():G.tab==="shop"?shop():G.tab==="cards"?cardPage():G.tab==="dungeon"?dungeonPage():other());renderNav();advisorCard();renderBattleQuick();syncViewport();requestAnimationFrame(()=>{syncViewport();resize();});}
 function setTab(tab){
  if(G.playing&&G.tab==="battle"&&tab!=="battle"){G.paused=true;if(window.CrownAudio)window.CrownAudio.setScene("pause");}
- G.tab=tab;closeModal();render();window.scrollTo(0,0);
+ G.tab=tab;closeModal();render();window.scrollTo(0,0);const root=$("app");if(root)root.scrollTop=0;
 }
 function showBattleMenu(){
  if(G.playing&&!G.paused){G.paused=true;if(window.CrownAudio)window.CrownAudio.setScene("pause");}
@@ -781,7 +797,15 @@ switch(action){case"tab":setTab(el.dataset.tab);break;case"battlemenu":showBattl
 });
 function frame(now){let dt=Math.min(.045,(now-last)/1000||.016);last=now;ambientTime+=dt;if(!G.paused){for(let i=0;i<G.speed;i++)tick(dt);}if(G.tab==="battle"&&!document.hidden)draw();uiTimer+=dt;if(uiTimer>.28){uiTimer=0;if(G.tab==="battle")updateHud();advisorCard();if(window.CrownAudio)window.CrownAudio.sceneTick({playing:G.playing,paused:G.paused,boss:G.troops.some(t=>t.boss&&t.hp>0),done:G.done,era:S.era});renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);}requestAnimationFrame(frame);}
 function resize(){if(!canvas||!c)return;const frame=canvas.parentElement;if(!frame)return;const w=frame.clientWidth,h=frame.clientHeight;if(w<50||h<50)return;viewD=Math.min(devicePixelRatio||1,2);viewW=w;viewH=h;canvas.width=Math.round(w*viewD);canvas.height=Math.round(h*viewD);c.setTransform(viewD,0,0,viewD,0,0);draw();}
-window.addEventListener("pagehide",save);document.addEventListener("visibilitychange",()=>{if(document.hidden)save();});window.addEventListener("resize",()=>{applyMobileLayout();syncArenaLayout();resize();});if(window.visualViewport&&window.visualViewport.addEventListener)window.visualViewport.addEventListener("resize",()=>{applyMobileLayout();syncArenaLayout();resize();});
+window.addEventListener("pagehide",save);document.addEventListener("visibilitychange",()=>{if(document.hidden)save();});
+function onViewportChange(){syncViewport();resize();}
+window.addEventListener("resize",onViewportChange);
+window.addEventListener("orientationchange",onViewportChange);
+if(window.visualViewport&&window.visualViewport.addEventListener){
+ window.visualViewport.addEventListener("resize",onViewportChange);
+ window.visualViewport.addEventListener("scroll",onViewportChange);
+}
+syncViewport();
 if("serviceWorker" in navigator){let hadController=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hadController)location.reload();});window.addEventListener("load",()=>{const url=new URL("sw.js",document.baseURI||location.href).href;navigator.serviceWorker.register(url).catch(()=>{});});}
 G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;render();resize();requestAnimationFrame(frame);
 if(S.first){S.first=false;save();setTimeout(showHelp,750);}

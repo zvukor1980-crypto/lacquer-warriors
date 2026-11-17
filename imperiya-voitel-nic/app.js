@@ -225,7 +225,7 @@ function ultimate(){
  toast(NAMES[S.hero]+": "+signature().name+"!");
 }
 
-function defaults(){return {coins:180,gems:85,era:0,stage:1,timeline:1,food:0,base:0,attack:0,vital:0,income:0,auto:false,skin:0,relic:0,magic:[0,1,2],loadout:[0,1,2],units:[1,0,0],hero:0,heroes:[0],wins:0,losses:0,kills:0,deployed:0,claimed:"",first:true,sound:true,music:true,fx:true,musicVolume:.68,fxVolume:.72,cards:[1,1,1,0,0,0,0,0,0,0,0,0],deck:[0,1,2],dungeonFloor:1,dungeonWins:0,bossWins:0,purchases:0,quests:null,streak:0,bestStreak:0,heroXP:Array(18).fill(0)};}
+function defaults(){return {coins:180,gems:85,era:0,stage:1,timeline:1,food:0,base:0,attack:0,vital:0,income:0,auto:false,skin:0,relic:0,magic:[0,1,2],loadout:[0,1,2],units:[1,0,0],hero:0,heroes:[0],wins:0,losses:0,kills:0,deployed:0,claimed:"",first:true,sound:true,music:true,fx:true,musicVolume:.68,fxVolume:.72,cards:[1,1,1,0,0,0,0,0,0,0,0,0],deck:[0,1,2],dungeonFloor:1,dungeonWins:0,bossWins:0,purchases:0,quests:null,streak:0,bestStreak:0,heroXP:Array(18).fill(0),freeKitClaimed:false};}
 let S=defaults();try{const data=JSON.parse(localStorage.getItem(KEY)||"null");if(data&&typeof data==="object")S=Object.assign(defaults(),data);}catch(e){}
 S.era=Math.max(0,Math.min(6,Number(S.era)||0));S.stage=Math.max(1,Math.min(6,Number(S.stage)||1));
 if(!Array.isArray(S.units))S.units=[1,0,0];if(!Array.isArray(S.heroes))S.heroes=[0];if(!Array.isArray(S.magic))S.magic=[0,1,2];if(!Array.isArray(S.loadout))S.loadout=[0,1,2];if(!Array.isArray(S.cards))S.cards=[1,1,1,0,0,0,0,0,0,0,0,0];if(!Array.isArray(S.deck))S.deck=[0,1,2];S.cards=S.cards.slice(0,CARDS.length).map(x=>Math.max(0,Math.min(5,Number(x)||0)));while(S.cards.length<CARDS.length)S.cards.push(0);S.deck=S.deck.slice(0,3).filter(i=>Number.isInteger(i)&&i>=0&&i<CARDS.length&&S.cards[i]>0);while(S.deck.length<3){let next=S.cards.findIndex((x,i)=>x>0&&!S.deck.includes(i));if(next<0)break;S.deck.push(next);}S.dungeonFloor=Math.max(1,Math.min(1000,Number(S.dungeonFloor)||1));S.musicVolume=[.35,.52,.68,.85,1].reduce((a,b)=>Math.abs(b-(Number(S.musicVolume)||.68))<Math.abs(a-(Number(S.musicVolume)||.68))?b:a,.68);S.fxVolume=Math.max(.2,Math.min(1,Number(S.fxVolume)||.72));S.music=S.music!==false;S.fx=S.fx!==false;S.heroXP=Array.isArray(S.heroXP)?Array.from({length:18},(_,i)=>Math.max(0,Math.min(100000,Number(S.heroXP[i])||0))):Array(18).fill(0);S.purchases=Math.max(0,Number(S.purchases)||0);S.streak=Math.max(0,Number(S.streak)||0);S.bestStreak=Math.max(0,Number(S.bestStreak)||0);
@@ -496,7 +496,31 @@ $("hpbar").innerHTML='<b>🏰</b><div class="track"><i style="width:'+Math.max(0
 $("foodValue").textContent=Math.floor(G.food);$("foodRate").textContent="+"+foodRate().toFixed(1)+"/с";$("foodFill").style.width=(G.food/130*100)+"%";updateBossBar();renderHeroStatus();renderBattleQuick();if(document.querySelectorAll){document.querySelectorAll("#units .unit").forEach((el,k)=>{if(el.classList&&el.classList.toggle)el.classList.toggle("ready",!!S.units[k]&&G.playing&&!G.paused&&G.food>=cost(k));});}
 }
 function listHead(title,desc){return '<div class="herohead"><h2>'+title+'</h2><p>'+desc+'</p></div>';}
-function levelPrice(id){let item=SHOP.find(t=>t[0]===id);if(!item)return 0;let p=item[5];if(["food","base","attack","vital","income"].includes(id))p=Math.round(p*Math.pow(1.48,S[id]));if(id==="skin")p+=S.skin*40;if(id==="relic")p+=S.relic*50;return p;}
+const FREE_MAX={food:12,base:10,attack:10,vital:10,income:10,skin:24,relic:10};
+function levelPrice(id){return 0;} // No in-game or real currency costs.
+function upgradeMaxed(id){return Object.prototype.hasOwnProperty.call(FREE_MAX,id)&&S[id]>=FREE_MAX[id];}
+function starterKit(){
+ if(S.freeKitClaimed)return toast("Рок-набор уже получен");
+ S.freeKitClaimed=true;
+ S.units=[1,1,1];
+ S.heroes=Array.from(new Set([...(S.heroes||[]),0,1,2]));
+ S.magic=Array.from(new Set([...(S.magic||[]),0,1,2,3]));
+ S.loadout=[0,1,3];S.auto=true;G.autoEnabled=true;
+ S.skin=Math.min(FREE_MAX.skin,S.skin+1);
+ S.cards[3]=Math.max(1,S.cards[3]||0);
+ S.cards[5]=Math.max(1,S.cards[5]||0);
+ S.purchases=(S.purchases||0)+1;
+ save();render();sfx("buy");
+ toast("Рок-набор: 3 отряда, героини, магия, облик, карты и АВТО!");
+}
+function getFreeCard(i){
+ if(!Number.isInteger(i)||i<0||i>=CARDS.length)return;
+ if(S.cards[i]>=5)return toast("Карта уже улучшена до максимума");
+ S.cards[i]=Math.min(5,(S.cards[i]||0)+1);
+ S.purchases=(S.purchases||0)+1;
+ save();render();sfx("card");
+ toast(CARDS[i][0]+": уровень "+S.cards[i]+" — бесплатно");
+}
 function army(){let v=listHead("Развитие империи","Усиления, новые отряды и переходы между эпохами. Монеты зарабатываются даже при поражении.");
 v+='<div class="sectionname"><b>УЛУЧШЕНИЯ</b></div>';
 for(const id of ["food","base","attack","vital","income"]){let x=SHOP.find(t=>t[0]===id);v+='<div class="row"><span class="icon">'+x[1]+'</span><div class="desc"><strong>'+x[2]+'</strong><p>'+x[3]+' · ур. '+S[id]+'</p></div><button data-a="buy" data-id="'+id+'">🪙 '+fmt(levelPrice(id))+'</button></div>';}
@@ -622,25 +646,65 @@ toast(mode==="story"?"Выбран поход":mode==="arena"?"Выбрана а
 }
 
 function showHelp(){$("modal").hidden=false;$("modal").innerHTML='<div class="modalbox"><div class="big">👑</div><h2>Три шага к победе</h2><div class="intro-steps"><div><b>1</b><span><strong>Нажми «В бой»</strong><small>Еда начинает появляться сама.</small></span></div><div><b>2</b><span><strong>Выпускай воительниц</strong><small>Нажимай на их карточки и применяй магию.</small></span></div><div><b>3</b><span><strong>Улучшай армию</strong><small>Лира подскажет, что выгоднее купить. Выполняй задания и получай призы.</small></span></div></div><button class="go" style="width:100%" data-a="close">Понятно, играть!</button></div>';}
-function unlock(k){if(S.units[k])return toast("Отряд уже открыт");if(k===0)return;if(k===2&&!S.units[1])return toast("Сначала открой второй отряд");let p=k===1?175:420;if(S.coins<p){setTab("army");return toast("Нужно "+p+" монет");}S.coins-=p;S.units[k]=1;S.purchases=(S.purchases||0)+1;save();render();sfx("buy");toast("Открыт новый отряд!");}
-function purchase(id){let item=SHOP.find(t=>t[0]===id);if(!item)return;
-if(id==="auto"&&S.auto)return toast("Уже куплено");if(id.startsWith("magic")&&S.magic.includes(Number(id.slice(5)))){let spell=Number(id.slice(5));if(S.loadout.includes(spell))return toast("Эта магия уже в колоде");S.loadout[2]=spell;save();render();return toast("Магия выбрана для боя!");}
-let currency=item[4],price=levelPrice(id);if(S[currency]<price)return toast("Недостаточно "+(currency==="gems"?"кристаллов":"монет"));
-S[currency]-=price;S.purchases=(S.purchases||0)+1;
-if(["food","base","attack","vital","income","skin","relic"].includes(id))S[id]++;
-else if(id==="auto")S.auto=true;else if(id.startsWith("magic")){let spell=Number(id.slice(5));S.magic.push(spell);S.loadout[2]=spell;}
-else if(id==="cardChest"){let card=drawCard();toast("Новая карта: "+card);}
-else if(id==="chest"){if(Math.random()<.3){S.gems+=25;toast("Из сундука: 25 кристаллов!");}else {S.coins+=Math.round(180+Math.random()*220);toast("Сундук полон монет!");}}
-save();render();sfx(id==="cardChest"?"card":"buy");if(id!=="chest"&&id!=="cardChest")toast("Покупка успешна!");}
-function choose(i){if(i<0||i>=18)return;if(G.playing)return toast("Героиню можно сменить после битвы");if(!S.heroes.includes(i)){let price=28+i*8;if(S.gems<price)return toast("Недостаточно кристаллов");S.gems-=price;S.heroes.push(i);toast(NAMES[i]+" присоединилась к армии!");}S.hero=i;save();render();}
-function evolutionPrice(){return Math.round(400*Math.pow(2.15,S.era)*(1+.25*(S.timeline-1)));}
-function evolve(){if(S.stage<6)return toast("Сначала выиграй пять битв");let p=evolutionPrice();if(S.coins<p)return toast("Для эволюции нужно "+fmt(p)+" монет");S.coins-=p;S.era++;if(S.era>=7){S.era=0;S.timeline++;S.gems+=85;}S.stage=1;S.food=0;S.base=0;S.attack=0;S.vital=0;S.income=0;S.units=[1,0,0];G.done=false;G.playing=false;G.troops=[];G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;save();setTab("battle");toast("Новая эпоха: "+a().title);}
+function unlock(k){
+ if(!Number.isInteger(k)||k<0||k>2)return;
+ if(S.units[k])return toast("Отряд уже открыт");
+ S.units[k]=1;
+ S.purchases=(S.purchases||0)+1;
+ save();render();sfx("buy");
+ toast(a().units[k][0]+" открыта бесплатно!");
+}
+function purchase(id){
+ const item=SHOP.find(t=>t[0]===id);if(!item)return;
+ if(upgradeMaxed(id))return toast("Максимальный уровень уже достигнут");
+ if(id==="auto"&&S.auto)return toast("Автопризыв уже открыт");
+ if(id.startsWith("magic")&&S.magic.includes(Number(id.slice(5)))){
+  const spell=Number(id.slice(5));
+  if(S.loadout.includes(spell))return toast("Эта магия уже в колоде");
+  S.loadout[2]=spell;save();render();sfx("buy");return toast(MAGICS[spell][0]+" выбрана для боя");
+ }
+ S.purchases=(S.purchases||0)+1;
+ if(["food","base","attack","vital","income","skin","relic"].includes(id))S[id]++;
+ else if(id==="auto"){S.auto=true;G.autoEnabled=true;}
+ else if(id.startsWith("magic")){
+  const spell=Number(id.slice(5));
+  S.magic=Array.from(new Set([...S.magic,spell]));
+  S.loadout[2]=spell;
+ }else if(id==="cardChest"){
+  if(S.cards.every(n=>n>=5)){save();render();return toast("Все карты уже максимального уровня");}
+  const available=S.cards.map((n,i)=>n<5?i:-1).filter(i=>i>=0);
+  const pick=available[Math.floor(Math.random()*available.length)];
+  S.cards[pick]=Math.min(5,(S.cards[pick]||0)+1);
+  toast("🎴 "+CARDS[pick][0]+" · уровень "+S.cards[pick]);
+ }else if(id==="chest"){
+  if(Math.random()<.3){S.gems+=25;toast("Сундук: +25 кристаллов");}
+  else{S.coins+=Math.round(180+Math.random()*220);toast("Сундук: монеты в коллекцию!");}
+ }
+ save();render();sfx(id==="cardChest"?"card":"buy");
+ if(id!=="chest"&&id!=="cardChest")toast(item[2]+" — бесплатно!");
+}
+function choose(i){
+ if(!Number.isInteger(i)||i<0||i>=18)return;
+ if(G.playing)return toast("Смени командиршу после боя");
+ if(!S.heroes.includes(i)){S.heroes.push(i);toast(NAMES[i]+" присоединилась бесплатно!");}
+ S.hero=i;save();render();
+}
+function evolutionPrice(){return 0;}
+function evolve(){
+ if(S.stage<6)return toast("Выиграй пять битв, чтобы открыть новую эпоху");
+ S.era++;if(S.era>=7){S.era=0;S.timeline++;S.gems+=85;}
+ S.stage=1;
+ // Keep previously chosen levels and troops: no repetitive reacquisition.
+ G.done=false;G.playing=false;G.troops=[];
+ G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;
+ save();setTab("battle");toast("Новая эпоха бесплатно: "+a().title);
+}
 function daily(){let today=todayKey();if(S.claimed===today)return toast("Сегодня уже получено");S.claimed=today;S.coins+=100;S.gems+=20;save();render();toast("Подарок: 100 монет и 20 кристаллов!");}
 function backup(){const blob=new Blob([JSON.stringify({app:"queen-empire-offline",version:1,state:S},null,2)],{type:"application/json"}),link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="voitel-nicy-save.json";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(link.href),2000);}
 function restore(){let input=$("savefile");input.value="";input.onchange=()=>{let file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{let v=JSON.parse(reader.result);if(v.app!=="queen-empire-offline"||!v.state)throw Error("bad");S=Object.assign(defaults(),v.state);S.heroXP=Array.isArray(S.heroXP)?Array.from({length:18},(_,i)=>Math.max(0,Math.min(100000,Number(S.heroXP[i])||0))):Array(18).fill(0);if(!Array.isArray(S.heroes)||!Array.isArray(S.units))throw Error("bad");save();G.playing=false;G.done=false;G.troops=[];G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;setTab("battle");toast("Сохранение восстановлено");}catch(e){toast("Не удалось прочитать сохранение");}};reader.readAsText(file);};input.click();}
 document.addEventListener("click",e=>{let el=e.target.closest("[data-a]");if(!el)return;let action=el.dataset.a,k=Number(el.dataset.k)||0;
 if(["tab","mode","setmode","deckslot","pause","speed","shopfilter","help","close","export","import"].includes(action))sfx("click");
-switch(action){case"tab":setTab(el.dataset.tab);break;case"battlemenu":showBattleMenu();break;case"resumebattle":resumeBattleMenu();break;case"quickmagic":G.quickMagicOpen=!G.quickMagicOpen;renderBattleQuick();sfx("click");break;case"mentor":followAdvice();break;case"claimquest":claimMission(k);break;case"shopfilter":G.shopFilter=el.dataset.filter;render();break;case"deckslot":G.deckSlot=k;render();break;case"equip":equipCard(k);break;case"dungeon":if(G.playing){toast("Закончи текущую битву");break;}G.mode="dungeon";G.done=false;setTab("battle");toast("Башня королев · этаж "+S.dungeonFloor);break;case"unit":unit(k);break;case"unlock":unlock(k);break;case"hero":summonHero();break;case"ultimate":ultimate();break;case"magic":cast(k);G.quickMagicOpen=false;renderBattleQuick();break;case"buy":purchase(el.dataset.id);break;case"select":choose(k);break;case"evolve":evolve();break;case"claim":daily();break;case"start":case"newbattle":begin();break;case"close":closeModal();break;case"mode":showModePicker();break;case"setmode":chooseMode(el.dataset.mode);break;case"pause":G.paused=!G.paused;if(window.CrownAudio)window.CrownAudio.setScene(G.paused?"pause":"battle");renderBattle();renderBattleQuick();renderAudioDock();break;case"auto":G.autoEnabled=!G.autoEnabled;G.autoWait=0;renderBattleQuick();toast(G.autoEnabled?"Автопризыв включён · можно управлять вручную":"Автопризыв выключен");break;case"speed":G.speed=G.speed===1?2:1;renderBattle();break;case"stance":changeStance();break;case"help":showHelp();break;case"sound":S.sound=S.sound===false;syncAudio();save();render();sfx("click");break;case"soundmusic":S.music=S.music===false;S.sound=true;syncAudio();if(window.CrownAudio)window.CrownAudio.unlock();save();render();sfx("click");break;case"soundfx":S.fx=S.fx===false;S.sound=true;syncAudio();save();render();sfx("click");break;case"soundvolume":{const levels=[.35,.52,.68,.85,1];let i=levels.findIndex(v=>Math.abs(v-S.musicVolume)<.02);S.musicVolume=levels[(i+1)%levels.length];syncAudio();save();render();sfx("click");break;}case"export":backup();break;case"import":restore();break;}
+switch(action){case"tab":setTab(el.dataset.tab);break;case"battlemenu":showBattleMenu();break;case"resumebattle":resumeBattleMenu();break;case"quickmagic":G.quickMagicOpen=!G.quickMagicOpen;renderBattleQuick();sfx("click");break;case"mentor":followAdvice();break;case"claimquest":claimMission(k);break;case"shopfilter":G.shopFilter=el.dataset.filter;render();break;case"deckslot":G.deckSlot=k;render();break;case"equip":equipCard(k);break;case"dungeon":if(G.playing){toast("Закончи текущую битву");break;}G.mode="dungeon";G.done=false;setTab("battle");toast("Башня королев · этаж "+S.dungeonFloor);break;case"unit":unit(k);break;case"unlock":unlock(k);break;case"hero":summonHero();break;case"ultimate":ultimate();break;case"magic":cast(k);G.quickMagicOpen=false;renderBattleQuick();break;case"buy":purchase(el.dataset.id);break;case"starterkit":starterKit();break;case"getcard":getFreeCard(k);break;case"select":choose(k);break;case"evolve":evolve();break;case"claim":daily();break;case"start":case"newbattle":begin();break;case"close":closeModal();break;case"mode":showModePicker();break;case"setmode":chooseMode(el.dataset.mode);break;case"pause":G.paused=!G.paused;if(window.CrownAudio)window.CrownAudio.setScene(G.paused?"pause":"battle");renderBattle();renderBattleQuick();renderAudioDock();break;case"auto":G.autoEnabled=!G.autoEnabled;G.autoWait=0;renderBattleQuick();toast(G.autoEnabled?"Автопризыв включён · можно управлять вручную":"Автопризыв выключен");break;case"speed":G.speed=G.speed===1?2:1;renderBattle();break;case"stance":changeStance();break;case"help":showHelp();break;case"sound":S.sound=S.sound===false;syncAudio();save();render();sfx("click");break;case"soundmusic":S.music=S.music===false;S.sound=true;syncAudio();if(window.CrownAudio)window.CrownAudio.unlock();save();render();sfx("click");break;case"soundfx":S.fx=S.fx===false;S.sound=true;syncAudio();save();render();sfx("click");break;case"soundvolume":{const levels=[.35,.52,.68,.85,1];let i=levels.findIndex(v=>Math.abs(v-S.musicVolume)<.02);S.musicVolume=levels[(i+1)%levels.length];syncAudio();save();render();sfx("click");break;}case"export":backup();break;case"import":restore();break;}
 });
 function frame(now){let dt=Math.min(.045,(now-last)/1000||.016);last=now;ambientTime+=dt;if(!G.paused){for(let i=0;i<G.speed;i++)tick(dt);}if(G.tab==="battle"&&!document.hidden)draw();uiTimer+=dt;if(uiTimer>.28){uiTimer=0;if(G.tab==="battle")updateHud();advisorCard();if(window.CrownAudio)window.CrownAudio.sceneTick({playing:G.playing,paused:G.paused,boss:G.troops.some(t=>t.boss&&t.hp>0),done:G.done,era:S.era});renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);}requestAnimationFrame(frame);}
 function resize(){let d=Math.min(devicePixelRatio||1,2);canvas.width=W*d;canvas.height=H*d;c.setTransform(d,0,0,d,0,0);draw();}

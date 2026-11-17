@@ -1,14 +1,14 @@
 {
-  "name": "Империя воительниц · Royal Lacquer",
+  "name": "Империя воительниц · Queen Ascendant",
   "short_name": "Воительницы",
-  "start_url": "./?v=10",
+  "start_url": "./?v=11",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "lang": "ru",
   "background_color": "#070F23",
-  "theme_color": "#101C3A",
-  "description": "Строгая красочная мультяшная офлайн-стратегия с 18 взрослыми героинями в блестящих лаковых доспехах",
+  "theme_color": "#101B39",
+  "description": "Офлайн-стратегия с мультяшными героинями, лакированной королевской бронёй, уровнями командирш и особыми боевыми приёмами",
   "icons": [
     {
       "src": "icon.svg",

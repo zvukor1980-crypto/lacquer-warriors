@@ -367,6 +367,8 @@ function renderBattleQuick(){
  if(dock.dataset.key===key&&dock.innerHTML){
   const food=dock.querySelector("#dockFood");
   if(food)food.textContent=Math.floor(G.food);
+  const charge=dock.querySelector("[data-hero-charge]");
+  if(charge)charge.textContent=G.ultimateUsed?"ИСПОЛЬЗОВАН":Math.floor(G.heroCharge)+"%";
   if(dock.querySelectorAll)dock.querySelectorAll(".quick-button.troop").forEach((button,k)=>{
    const ready=!!S.units[k]&&!G.paused&&(!G.playing||G.food>=cost(k));
    if(button.classList){button.classList.toggle("ready",ready);button.classList.toggle("charging",!!S.units[k]&&!ready);}
@@ -375,7 +377,7 @@ function renderBattleQuick(){
  }
  dock.dataset.key=key;
  const heroAction=G.heroUsed?
-  '<button class="quick-button hero '+(ultimateReady()?"ready":"inactive")+'" '+(!ultimateReady()?'disabled':'')+' data-a="ultimate" aria-label="'+signature().name+'"><span class="quick-portrait portrait-power">'+signature().icon+'</span><span class="quick-name">ПРИЁМ</span><span class="quick-price">'+(G.ultimateUsed?"ИСПОЛЬЗОВАН":Math.floor(G.heroCharge)+"%")+'</span></button>':
+  '<button class="quick-button hero '+(ultimateReady()?"ready":"inactive")+'" '+(!ultimateReady()?'disabled':'')+' data-a="ultimate" aria-label="'+signature().name+'"><span class="quick-portrait portrait-power">'+signature().icon+'</span><span class="quick-name">ПРИЁМ</span><span class="quick-price" data-hero-charge>'+(G.ultimateUsed?"ИСПОЛЬЗОВАН":Math.floor(G.heroCharge)+"%")+'</span></button>':
   '<button class="quick-button hero" '+(G.paused?'disabled':'')+' data-a="hero" aria-label="Призвать '+NAMES[S.hero]+'"><span class="quick-portrait hero-face">'+heroSvg(S.hero)+'</span><span class="quick-name">'+NAMES[S.hero]+'</span><span class="quick-price">ПРИЗВАТЬ</span></button>';
  let cards="";
  if(G.quickMagicOpen){

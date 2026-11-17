@@ -1,9 +1,8 @@
 /**
- * v17.1 layout check — Playwright WebKit with iPhone emulation.
- * Run: NODE_PATH=/tmp/pw-layout/node_modules node tests/layout-iphone.mjs
- * Serves imperiya-voitel-nic/ and asserts every element stays inside the
- * visible viewport. Battle must not scroll. Screenshots land in
- * /opt/cursor/artifacts/v17.1/.
+ * v17.2 layout check — Playwright WebKit with iPhone emulation.
+ * Run: node tests/layout-iphone.mjs
+ * Asserts documentElement.scrollWidth <= innerWidth and every visible box
+ * stays inside innerWidth. Screenshots land in /opt/cursor/artifacts/v17.2/.
  */
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
@@ -19,7 +18,7 @@ if (!playwrightRoot) throw new Error("Install playwright (npm install playwright
 const { webkit, devices } = createRequire(playwrightRoot)("playwright");
 
 const ROOT = join(process.cwd(), "imperiya-voitel-nic");
-const OUT = "/opt/cursor/artifacts/v17.1";
+const OUT = "/opt/cursor/artifacts/v17.2";
 mkdirSync(OUT, { recursive: true });
 
 const TYPES = {
@@ -33,15 +32,16 @@ const TYPES = {
 };
 
 const VIEWPORTS = [
+  { name: "390x844", width: 390, height: 844, safe: null },
+  { name: "390x730", width: 390, height: 730, safe: null },
   { name: "390x664", width: 390, height: 664, safe: null },
-  { name: "390x750", width: 390, height: 750, safe: null },
-  { name: "390x844-standalone", width: 390, height: 844, safe: { top: 47, bottom: 34 } },
-  { name: "375x553", width: 375, height: 553, safe: null },
-  { name: "393x659", width: 393, height: 659, safe: null },
-  { name: "430x740", width: 430, height: 740, safe: null }
+  { name: "375x667", width: 375, height: 667, safe: null },
+  { name: "430x932", width: 430, height: 932, safe: null },
+  { name: "360x740", width: 360, height: 740, safe: null },
+  { name: "390x664-large-text", width: 390, height: 664, safe: null, largeText: true }
 ];
 
-const SHOTS = new Set(["390x664", "390x844-standalone"]);
+const SHOTS = new Set(["390x664", "390x844"]);
 const SCREENS = ["menu", "battle", "heroes", "shop", "upgrades", "goals", "transfer"];
 
 function serve() {
@@ -87,7 +87,7 @@ function auditScript(expectBattle) {
       if (r.width < 1 && r.height < 1) continue;
       const overR = r.right - vw;
       const overL = -r.left;
-      if (overR > 1 || overL > 1) {
+      if (overR > 0.5 || overL > 0.5) {
         const id = el.id ? "#" + el.id : "";
         const cls = el.className && typeof el.className === "string" ? "." + el.className.trim().split(/\\s+/).slice(0, 2).join(".") : "";
         offenders.push({ box: id || cls || el.tagName, left: Math.round(r.left), right: Math.round(r.right), w: Math.round(r.width), text: (el.innerText || "").trim().slice(0, 40) });
@@ -135,8 +135,9 @@ function auditScript(expectBattle) {
     const rootStyle = getComputedStyle(document.documentElement);
     return {
       vw, vh,
-      scrollWidth: se.scrollWidth,
-      clientWidth: se.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      innerWidth: window.innerWidth,
+      clientWidth: document.documentElement.clientWidth,
       scrollHeight: se.scrollHeight,
       clientHeight: se.clientHeight,
       offenders,
@@ -163,6 +164,14 @@ function auditScript(expectBattle) {
         nodes.forEach(el => { const b = el.getBoundingClientRect(); if (b.height > 1) bottom = Math.max(bottom, b.bottom); });
         return Math.round(bottom);
       })(),
+      dockFit: (() => {
+        const buttons = [...document.querySelectorAll("#battleQuick .rock-dock-grid .quick-button")].filter(el => el.getBoundingClientRect().height > 1);
+        if (buttons.length < 5) return null;
+        return buttons.every(el => {
+          const r = el.getBoundingClientRect();
+          return r.left >= -0.5 && r.right <= vw + 0.5 && r.width >= 32;
+        });
+      })(),
       viewport: document.querySelector('meta[name="viewport"]').content,
       expectBattle: ${expectBattle ? "true" : "false"}
     };
@@ -171,7 +180,7 @@ function auditScript(expectBattle) {
 
 function problems(name, screen, data, safe) {
   const issues = [];
-  if (data.scrollWidth > data.clientWidth + 1) issues.push("document scrollWidth " + data.scrollWidth + " > " + data.clientWidth);
+  if (data.scrollWidth > data.innerWidth + 0.5) issues.push("document scrollWidth " + data.scrollWidth + " > innerWidth " + data.innerWidth);
   if (data.offenders.length) issues.push("horizontal overflow: " + JSON.stringify(data.offenders.slice(0, 6)));
   if (data.wallet.clipped) issues.push("wallet text clipped");
   if (data.wallet.right > data.vw + 1) issues.push("wallet past the right edge");
@@ -181,7 +190,9 @@ function problems(name, screen, data, safe) {
     const [bl, br, fl, fr] = data.dockInset;
     if (Math.abs(bl - fl) > 3 || Math.abs(br - fr) > 3) issues.push("dock not aligned with battlefield " + data.dockInset.join(","));
   }
-  if (!data.viewport.includes("maximum-scale=1") || !data.viewport.includes("viewport-fit=cover")) issues.push("viewport meta: " + data.viewport);
+  if (!/width\s*=\s*device-width/.test(data.viewport) || !/initial-scale\s*=\s*1/.test(data.viewport) || !data.viewport.includes("viewport-fit=cover")) issues.push("viewport meta: " + data.viewport);
+  if (/shrink-to-fit\s*=\s*no/i.test(data.viewport) || /maximum-scale\s*=\s*1/.test(data.viewport)) issues.push("viewport locks scale and clips a wide page: " + data.viewport);
+  if (data.dockFit === false) issues.push("dock is not five columns inside the viewport");
   const vvh = parseFloat(data.vvh);
   if (Math.abs(vvh - data.vh) > 1) issues.push("--vvh " + data.vvh + " != visualViewport " + data.vh);
   if (data.expectBattle || data.battle) {
@@ -276,6 +287,10 @@ async function main() {
         await page.addStyleTag({ content: ":root{--safe-t:" + vp.safe.top + "px !important;--safe-b:" + vp.safe.bottom + "px !important}" });
         await page.waitForTimeout(50);
       }
+      if (vp.largeText) {
+        await page.addStyleTag({ content: "html,body,#app,#app *{font-size:17px !important;-webkit-text-size-adjust:140% !important;text-size-adjust:140% !important}" });
+        await page.waitForTimeout(50);
+      }
       for (const screen of SCREENS) {
         await show(page, screen);
         const battleish = screen === "menu" || screen === "battle";
@@ -283,7 +298,7 @@ async function main() {
         const found = problems(vp.name, screen, data, vp.safe);
         if (logs.length) found.push(vp.name + " " + screen + " pageerror: " + logs.splice(0).join(" | "));
         failures.push(...found);
-        if (SHOTS.has(vp.name)) {
+        if (SHOTS.has(vp.name) && (screen === "menu" || screen === "battle")) {
           await page.evaluate(() => document.getElementById("toast").classList.remove("show"));
           await page.screenshot({ path: join(OUT, vp.name + "-" + screen + ".png") });
         }

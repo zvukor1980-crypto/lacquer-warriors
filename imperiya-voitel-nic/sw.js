@@ -1,14 +1,14 @@
-/* Crown Quest v17.1 · relative offline cache for GitHub Pages subpaths */
-const CACHE="imperiya-voitel-nic-v17.1";
+/* Crown Quest v17.2 · relative offline cache for GitHub Pages subpaths */
+const CACHE="imperiya-voitel-nic-v17.2";
 const FILES=[
   "./",
   "./index.html",
-  "./rock-v17.css?v=17.1",
-  "./audio-v8.js?v=17.1",
-  "./battle-v9.js?v=17.1",
-  "./storybook.js?v=17.1",
-  "./art.js?v=17.1",
-  "./app.js?v=17.1",
+  "./rock-v17.css?v=17.2",
+  "./audio-v8.js?v=17.2",
+  "./battle-v9.js?v=17.2",
+  "./storybook.js?v=17.2",
+  "./art.js?v=17.2",
+  "./app.js?v=17.2",
   "./icon.svg",
   "./manifest.webmanifest",
   "./heroines/0.webp","./heroines/1.webp","./heroines/2.webp","./heroines/3.webp",

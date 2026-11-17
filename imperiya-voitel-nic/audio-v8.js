@@ -155,6 +155,14 @@ function pluck(m,t,dur=.15,v=.095){
 function bass(m,t,len=.3,strong=false){
  voice(m-12,t,len,{type:"sawtooth",v:strong?.23:.17,atk:.007,cutoff:360,sweep:225,sub:true,sustain:.34});
 }
+function rockRiff(root,t,pos,boss=false){
+ // Original driving double-saw "power chord" tone: rhythmic guitar-like synthesizer,
+ // deliberately low-volume to leave the snare, voices and combat SFX uncluttered.
+ const accent=pos===0||pos===8,vol=boss?(accent?.064:.042):(accent?.050:.031);
+ const len=STEP*(accent?2.1:.68);
+ voice(root+12,t,len,{type:"sawtooth",v:vol,atk:.006,cutoff:boss?1650:1450,sweep:boss?860:760,layers:2,sustain:.25});
+ if(accent)voice(root+19,t,STEP*2.0,{type:"sawtooth",v:boss?.034:.029,atk:.007,cutoff:1170,sweep:690,sustain:.28});
+}
 function lead(m,t,dur=.27,vol=.12){
  voice(m,t,dur,{type:"sawtooth",v:vol,atk:.013,cutoff:2800,sweep:1250,layers:2,sustain:.47,delay:true,verb:.2});
 }
@@ -168,7 +176,7 @@ function schedule(){
  let n=0;while(next<ctx.currentTime+.21&&n<12){
   const t=next,pos=step%16,bar=Math.floor(step/16),B=scene==="boss"?"boss":scene==="battle"?"battle":"menu";
   let {root,prog,idx}=currentHarmony();
-  // Menu and pause are warm cinematic; battle is orchestral-rock;
+  // Menu is cinematic hard rock; battle has original power-chord riff and pounding drums;
   // boss pushes a double-time industrial-rock rhythm.
   const isBattle=B!=="menu",boss=B==="boss",pat=drumPatterns[B];
   const silent=(scene==="victory"||scene==="defeat");
@@ -184,6 +192,7 @@ function schedule(){
    if(pos%2===0){const oct=pos===14?12:0;
     pluck(root+12+NOTES[(pos/2+bar)%NOTES.length]+oct,t,STEP*.8,isBattle?.084:.065);}
    if(isBattle){
+    if([0,2,3,6,8,10,11,14].includes(pos))rockRiff(root,t,pos,boss);
     const melodic=prog.lead[(pos+idx*3)%prog.lead.length];
     if([0,3,6,8,11,14].includes(pos))lead(prog.root+ERA_OFFSETS[eraIndex]+24+melodic,t,STEP*([0,8].includes(pos)?2.7:1.55),boss?.135:.107);
     if(boss&&[2,7,10,15].includes(pos))lead(root+24+(pos%3?7:12),t,STEP*.8,.085);

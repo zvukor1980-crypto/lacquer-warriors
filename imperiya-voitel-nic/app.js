@@ -542,22 +542,28 @@ v+='<div class="sectionname"><b>КОЛЛЕКЦИЯ</b><small>'+S.heroes.length+'
 for(let i=0;i<18;i++){let own=S.heroes.includes(i),selected=S.hero===i;v+='<div class="herocard '+(selected?"on":"")+'">'+heroSvg(i)+'<strong>'+NAMES[i]+'</strong><small>'+["Защитница","Снайперша","Королева"][i%3]+' · ур. '+heroLevel(i)+'</small><button data-a="select" data-k="'+i+'">'+(selected?"✓ Выбрана":own?"Выбрать":"💎 "+(28+i*8))+'</button></div>';}
 return v+'</div><p class="micro">Новые героини остаются открытыми при переходе в следующую эпоху.</p>';}
 function shop(){
- let v=listHead("Королевский магазин","Все покупки за игровые монеты и кристаллы. Настоящих платежей и рекламы нет.");
- const filters=[["popular","⭐ Важное"],["power","⚔️ Сила"],["magic","✨ Магия"],["style","🎨 Облики"]];
+ let v=listHead("ROCK SHOP","Все улучшения, магия, героини, карты и облики — БЕСПЛАТНО. Ни монеты, ни кристаллы не списываются. Никаких реальных платежей и рекламы.");
+ v+='<div class="free-shop-banner"><div class="free-shop-stamp">100% FREE</div><div><strong>МАГАЗИН БЕЗ ПЛАТЕЖЕЙ</strong><p>Выбирай и используй сразу. Улучшения сохраняются между эпохами.</p></div></div>';
+ v+='<div class="free-starter"><div><small>ПОДАРОК КОРОЛЕВЫ</small><strong>⚡ РОК-НАБОР</strong><p>3 отряда, новые героини, лаковый облик, магия, карты и автопризыв.</p></div><button data-a="starterkit" '+(S.freeKitClaimed?'disabled':'')+'>'+(S.freeKitClaimed?'✓ ПОЛУЧЕНО':'ЗАБРАТЬ БЕСПЛАТНО')+'</button></div>';
+ const filters=[["popular","⭐ Главное"],["all","Всё"],["power","⚔️ Сила"],["magic","✨ Магия"],["style","🎨 Облики"]];
  v+='<div class="shopfilters">'+filters.map(x=>'<button data-a="shopfilter" data-filter="'+x[0]+'" class="'+(G.shopFilter===x[0]?"active":"")+'">'+x[1]+'</button>').join("")+'</div>';
- let ids=G.shopFilter==="power"?["food","attack","vital","base","income","relic"]:
+ const ids=G.shopFilter==="all"?SHOP.map(item=>item[0]):
+ G.shopFilter==="power"?["food","attack","vital","base","income","relic"]:
  G.shopFilter==="magic"?["magic3","magic4","magic5","auto","cardChest"]:
  G.shopFilter==="style"?["skin","relic","chest","cardChest"]:
- ["food","attack","base","vital","auto","cardChest"];
+ ["food","attack","base","vital","auto","skin","cardChest"];
  for(const id of ids){
   const item=SHOP.find(x=>x[0]===id);if(!item)continue;
-  let [key,icon,name,desc,currency]=item;
-  let owned=id==="auto"?S.auto:id.startsWith("magic")?S.magic.includes(Number(id.slice(5))):false;
-  const enough=Number(S[currency])>=levelPrice(id);
-  const pay=currency==="gems"?"💎 ":"🪙 ";
-  v+='<div class="market-card '+(enough&&!owned?"affordable":"")+'"><div class="market-icon">'+icon+'</div><div class="market-desc"><strong>'+name+'</strong><small>'+desc+'</small>'+(["food","attack","base","vital","income"].includes(id)?'<span>Уровень '+S[id]+'</span>':"")+'</div><button data-a="buy" data-id="'+id+'" class="'+(owned?"owned":!enough?"tooexpensive":"")+'">'+(owned?(id.startsWith("magic")?"Выбрать":"✓ Есть"):pay+fmt(levelPrice(id)))+'</button></div>';
+  const [key,icon,name,desc]=item;
+  const owned=id==="auto"?!!S.auto:id.startsWith("magic")?S.magic.includes(Number(id.slice(5))):false;
+  const equipped=owned&&id.startsWith("magic")&&S.loadout.includes(Number(id.slice(5)));
+  const max=upgradeMaxed(id);
+  const label=max?"✓ МАКС":id==="auto"&&owned?"✓ ПОЛУЧЕНО":equipped?"✓ В КОЛОДЕ":owned?"ВЫБРАТЬ":id==="skin"?"СМЕНИТЬ":id==="cardChest"?"ОТКРЫТЬ":id==="chest"?"ПОДАРОК":Object.prototype.hasOwnProperty.call(FREE_MAX,id)?"УЛУЧШИТЬ":"ПОЛУЧИТЬ";
+  const level=Object.prototype.hasOwnProperty.call(FREE_MAX,id)?'<span>Уровень '+S[id]+' / '+FREE_MAX[id]+'</span>':'';
+  v+='<div class="market-card free-market-card '+((!owned&&!max)?"affordable":"")+'"><div class="market-icon">'+icon+'</div><div class="market-desc"><strong>'+name+'</strong><small>'+desc+'</small>'+level+'</div><button class="free-action '+((owned||max)?"owned":"")+'" data-a="buy" data-id="'+id+'" '+(max||id==="auto"&&owned||equipped?'disabled':'')+'>'+label+'</button></div>';
  }
- v+='<p class="micro" style="margin:12px 3px">Советница Лира сверху показывает наиболее полезную покупку с учётом твоих монет, войск и прогресса.</p>';
+ v+='<div class="free-shop-links"><button data-a="tab" data-tab="heroes">👑 18 ГЕРОИНЬ · БЕСПЛАТНО</button><button data-a="tab" data-tab="cards">🎴 12 КАРТ · БЕСПЛАТНО</button><button data-a="tab" data-tab="army">⚔️ ОТРЯДЫ И СИЛА</button></div>';
+ v+='<p class="micro">Монеты и кристаллы остаются как игровой счёт и трофеи. Настоящих платежей, подписок и рекламы нет.</p>';
  return v;
 }
 function other(){

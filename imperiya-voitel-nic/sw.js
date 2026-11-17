@@ -33,7 +33,14 @@ const FILES=[
   "./heroines/full/14.webp","./heroines/full/14_atk.webp",
   "./heroines/full/15.webp","./heroines/full/15_atk.webp",
   "./heroines/full/16.webp","./heroines/full/16_atk.webp",
-  "./heroines/full/17.webp","./heroines/full/17_atk.webp"
+  "./heroines/full/17.webp","./heroines/full/17_atk.webp",
+  "./enemies/0_knight.webp","./enemies/0_knight_atk.webp","./enemies/0_shade.webp","./enemies/0_shade_atk.webp","./enemies/0_marksman.webp","./enemies/0_marksman_atk.webp","./enemies/0_brute.webp","./enemies/0_brute_atk.webp","./enemies/0_boss.webp","./enemies/0_boss_atk.webp",
+  "./enemies/1_knight.webp","./enemies/1_knight_atk.webp","./enemies/1_shade.webp","./enemies/1_shade_atk.webp","./enemies/1_marksman.webp","./enemies/1_marksman_atk.webp","./enemies/1_brute.webp","./enemies/1_brute_atk.webp","./enemies/1_boss.webp","./enemies/1_boss_atk.webp",
+  "./enemies/2_knight.webp","./enemies/2_knight_atk.webp","./enemies/2_shade.webp","./enemies/2_shade_atk.webp","./enemies/2_marksman.webp","./enemies/2_marksman_atk.webp","./enemies/2_brute.webp","./enemies/2_brute_atk.webp","./enemies/2_boss.webp","./enemies/2_boss_atk.webp",
+  "./enemies/3_knight.webp","./enemies/3_knight_atk.webp","./enemies/3_shade.webp","./enemies/3_shade_atk.webp","./enemies/3_marksman.webp","./enemies/3_marksman_atk.webp","./enemies/3_brute.webp","./enemies/3_brute_atk.webp","./enemies/3_boss.webp","./enemies/3_boss_atk.webp",
+  "./enemies/4_knight.webp","./enemies/4_knight_atk.webp","./enemies/4_shade.webp","./enemies/4_shade_atk.webp","./enemies/4_marksman.webp","./enemies/4_marksman_atk.webp","./enemies/4_brute.webp","./enemies/4_brute_atk.webp","./enemies/4_boss.webp","./enemies/4_boss_atk.webp",
+  "./enemies/5_knight.webp","./enemies/5_knight_atk.webp","./enemies/5_shade.webp","./enemies/5_shade_atk.webp","./enemies/5_marksman.webp","./enemies/5_marksman_atk.webp","./enemies/5_brute.webp","./enemies/5_brute_atk.webp","./enemies/5_boss.webp","./enemies/5_boss_atk.webp",
+  "./enemies/6_knight.webp","./enemies/6_knight_atk.webp","./enemies/6_shade.webp","./enemies/6_shade_atk.webp","./enemies/6_marksman.webp","./enemies/6_marksman_atk.webp","./enemies/6_brute.webp","./enemies/6_brute_atk.webp","./enemies/6_boss.webp","./enemies/6_boss_atk.webp"
 ];
 self.addEventListener("install",event=>{
   event.waitUntil((async()=>{

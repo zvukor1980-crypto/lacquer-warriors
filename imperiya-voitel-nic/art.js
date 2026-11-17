@@ -35,11 +35,11 @@ function hero(id,shift){
 }
 function facePath(jaw){
   return [
-    "M70 96C66 126 78 162 100 170C122 162 134 126 130 96C126 64 116 50 100 50C84 50 74 64 70 96Z",
-    "M72 92C68 122 82 160 100 176C118 160 132 122 128 92C124 60 114 48 100 48C86 48 76 60 72 92Z",
-    "M62 100C60 130 74 164 100 168C126 164 140 130 138 100C134 66 118 52 100 52C82 52 66 66 62 100Z",
-    "M74 82C70 118 80 164 100 178C120 164 130 118 126 82C122 52 112 44 100 44C88 44 78 52 74 82Z",
-    "M66 98C64 132 78 156 100 162C122 156 136 132 134 98C130 68 116 54 100 54C84 54 70 68 66 98Z"
+    "M64 118C60 140 76 164 100 172C124 164 140 140 136 118C132 102 118 94 100 94C82 94 68 102 64 118Z",
+    "M68 114C64 136 82 168 100 178C118 168 136 136 132 114C128 100 116 90 100 90C84 90 72 100 68 114Z",
+    "M58 120C56 144 74 166 100 170C126 166 144 144 142 120C138 104 120 94 100 94C80 94 62 104 58 120Z",
+    "M70 112C66 138 80 170 100 180C120 170 134 138 130 112C126 98 114 90 100 90C86 90 74 98 70 112Z",
+    "M62 120C60 142 78 160 100 166C122 160 140 142 138 120C134 106 118 98 100 98C82 98 66 106 62 120Z"
   ][jaw%5];
 }
 function hairBack(style,q){
@@ -73,7 +73,10 @@ function hairBack(style,q){
   return paths[style%18];
 }
 function hairFront(style,q){
-  const h=q.hair;
+  const h=q.hair,hi=q.hi;
+  const cap='<path d="M42 128C32 78 52 28 100 24C152 26 174 78 160 130C142 104 124 112 100 96C76 112 56 104 42 128Z" fill="'+h+'"/>'+
+    '<path d="M62 70C78 48 96 58 108 78" stroke="'+hi+'" stroke-width="5" fill="none" stroke-linecap="round" opacity=".55"/>'+
+    '<path d="M70 96C88 86 112 88 126 100" stroke="'+hi+'" stroke-width="3" fill="none" stroke-linecap="round" opacity=".35"/>';
   const bangs=[
     '<path d="M64 104C66 70 82 58 100 64C118 56 140 72 138 106C124 86 112 92 100 78C88 94 76 88 64 104Z" fill="'+h+'"/>',
     '<path d="M66 96C70 68 88 60 100 70C114 58 136 72 132 100C118 86 108 90 100 76C90 90 78 84 66 96Z" fill="'+h+'"/>',
@@ -94,27 +97,28 @@ function hairFront(style,q){
     '<path d="M70 96C76 66 94 58 108 74C122 60 140 76 132 102C120 88 108 92 100 78C90 92 80 86 70 96Z" fill="'+h+'"/>',
     '<path d="M66 104C70 68 88 58 100 74C116 56 140 72 136 108C122 90 110 96 100 80C88 98 76 90 66 104Z" fill="'+h+'"/>'
   ];
-  return bangs[style%18];
+  return cap+bangs[style%18];
 }
 function eyes(q){
   const c=q.eye,s=q.eyeS%6;
-  const L=s===4?82:84,R=s===4?118:116,y=s===1?110:108;
-  const rx=s===3?13:s===1?14:12,ry=s===3?8:s===2?12:11;
+  const L=s===4?80:82,R=s===4?120:118,y=s===1?126:124;
+  const rx=s===3?14:s===1?15:14,ry=s===3?11:s===2?16:15;
   let out="";
   const one=(x,closed)=>{
     if(closed)return '<path d="M'+(x-12)+' '+(y+2)+'Q'+x+' '+(y-4)+' '+(x+12)+' '+(y+2)+'" stroke="#3A2A32" stroke-width="3" fill="none" stroke-linecap="round"/>';
     return '<ellipse cx="'+x+'" cy="'+y+'" rx="'+rx+'" ry="'+ry+'" fill="#fff"/>'+
       '<ellipse cx="'+(x+1)+'" cy="'+(y+1)+'" rx="'+(rx*.62)+'" ry="'+(ry*.72)+'" fill="'+c+'"/>'+
       '<ellipse cx="'+(x+1)+'" cy="'+(y+2)+'" rx="'+(rx*.32)+'" ry="'+(ry*.4)+'" fill="#1A1420"/>'+
-      '<circle cx="'+(x-3)+'" cy="'+(y-3)+'" r="2.4" fill="#fff"/>'+
-      '<path d="M'+(x-rx)+' '+(y-ry+2)+'Q'+x+' '+(y-ry-6)+' '+(x+rx)+' '+(y-ry+1)+'" stroke="#2A242C" stroke-width="2.4" fill="none" stroke-linecap="round"/>'+
-      '<path d="M'+(x+rx-2)+' '+(y-2)+'l6 3M'+(x+rx-1)+' '+(y+2)+'l6 4" stroke="#2A242C" stroke-width="1.6" stroke-linecap="round"/>';
+      '<ellipse cx="'+(x-4)+'" cy="'+(y-5)+'" rx="3.1" ry="2.2" fill="#fff"/>'+
+      '<ellipse cx="'+(x+3)+'" cy="'+(y+4)+'" rx="1.3" ry="1" fill="#fff" opacity=".85"/>'+
+      '<path d="M'+(x-rx)+' '+(y-ry+3)+'Q'+x+' '+(y-ry-8)+' '+(x+rx)+' '+(y-ry+2)+'" stroke="#241820" stroke-width="2.8" fill="none" stroke-linecap="round"/>'+
+      '<path d="M'+(x+rx-1)+' '+(y-4)+'l7 2M'+(x+rx)+' '+(y+1)+'l7 4M'+(x+rx-1)+' '+(y+6)+'l5 3" stroke="#241820" stroke-width="1.7" stroke-linecap="round"/>';
   };
   out+=one(L,s===5)+one(R,false);
   return out;
 }
 function brows(q){
-  const y=q.brow===3?90:q.brow===2?96:94;
+  const y=q.brow===3?108:q.brow===2?116:112;
   const l=q.brow===2?"M70 "+(y+6)+"Q80 "+(y-2)+"94 "+y:"M70 "+y+"Q82 "+(y-8)+"94 "+(y-1);
   const r=q.brow===1?"M106 "+(y+2)+"Q118 "+(y-8)+"132 "+y:"M106 "+(y-1)+"Q118 "+(y-8)+"130 "+y;
   return '<path d="'+l+"M"+r.slice(1)+'" stroke="#3A2A32" stroke-width="3.2" fill="none" stroke-linecap="round"/>'.replace("MM","M");
@@ -122,11 +126,11 @@ function brows(q){
 function mouth(q){
   const m=q.mouth%5;
   const d=[
-    "M86 146Q100 158 114 146",
-    "M88 148Q100 154 116 142",
-    "M84 144Q100 162 116 144",
-    "M90 148Q100 154 110 148",
-    "M88 146Q100 156 112 146"
+    "M84 150Q100 164 116 150",
+    "M86 152Q102 158 120 144",
+    "M82 148Q100 168 118 148",
+    "M90 152Q100 156 112 150",
+    "M86 150Q100 162 114 148"
   ][m];
   return '<path d="'+d+'" stroke="#A84860" stroke-width="'+(m===2?5:4)+'" fill="'+(m===2?"#E07088":"none")+'" stroke-linecap="round"/>'+
     '<path d="'+d+'" stroke="#F6C6D0" stroke-width="1.5" fill="none" stroke-linecap="round" transform="translate(0 1)"/>';
@@ -164,15 +168,20 @@ function portrait(id,shift){
     '<g transform="rotate('+tilt+' 100 120)">'+
     hairBack(q.id,q)+
     '<path d="M18 250C28 176 62 164 86 170L100 188 114 170C146 162 176 178 186 250Z" fill="'+q.deep+'"/>'+
+    '<ellipse cx="48" cy="186" rx="30" ry="18" fill="url(#'+n+'arm)" stroke="'+q.metal+'" stroke-width="3"/>'+
+    '<ellipse cx="152" cy="186" rx="30" ry="18" fill="url(#'+n+'arm)" stroke="'+q.metal+'" stroke-width="3"/>'+
+    '<path d="M32 180C40 168 52 172 58 184" stroke="#fff" stroke-width="5" opacity=".75" fill="none" stroke-linecap="round"/>'+
+    '<path d="M142 178C150 168 162 174 168 186" stroke="#fff" stroke-width="4" opacity=".55" fill="none" stroke-linecap="round"/>'+
     '<path d="M36 214C52 176 78 168 100 186C122 168 150 176 166 214L176 250H24Z" fill="url(#'+n+'arm)" stroke="'+q.metal+'" stroke-width="3"/>'+
     '<path d="M58 196C74 178 88 190 96 206" stroke="#fff" stroke-width="6" opacity=".72" fill="none" stroke-linecap="round"/>'+
     '<path d="M48 214C78 198 122 198 154 216" stroke="#fff" stroke-width="3" opacity=".28" fill="none" stroke-linecap="round"/>'+
     '<path d="M118 188C132 176 148 190 156 210" stroke="'+q.deep+'" stroke-width="8" opacity=".35" fill="none" stroke-linecap="round"/>'+
     '<path d="M92 176h16l6 28H86Z" fill="url(#'+n+'skin)"/>'+
     '<path d="'+facePath(q.jaw)+'" fill="url(#'+n+'skin)" stroke="'+q.shade+'" stroke-width="1.4"/>'+
-    '<ellipse cx="76" cy="126" rx="10" ry="6" fill="'+q.blush+'" opacity=".45"/>'+
-    '<ellipse cx="124" cy="126" rx="10" ry="6" fill="'+q.blush+'" opacity=".45"/>'+
-    '<path d="M98 116c2 8 1 14 0 16" stroke="'+q.shade+'" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>'+
+    '<ellipse cx="74" cy="142" rx="11" ry="6" fill="'+q.blush+'" opacity=".5"/>'+
+    '<ellipse cx="126" cy="142" rx="11" ry="6" fill="'+q.blush+'" opacity=".5"/>'+
+    '<path d="M100 132c2 10 1 16 0 18" stroke="'+q.shade+'" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".65"/>'+
+    '<ellipse cx="96" cy="128" rx="5" ry="7" fill="#fff" opacity=".18"/>'+
     eyes(q)+brows(q)+mouth(q)+mark(q)+
     hairFront(q.id,q)+
     '<path d="M78 78C88 70 96 74 100 84" stroke="#fff" stroke-width="3" opacity=".35" fill="none" stroke-linecap="round"/>'+
@@ -215,18 +224,18 @@ function paintHairCanvas(ctx,style,color,hi,front){
     ctx.beginPath();
     if(style===6){ctx.moveTo(2,-78);ctx.quadraticCurveTo(18,-60,14,-40);ctx.quadraticCurveTo(6,-62,0,-70);ctx.fill();}
     else if(style===8){ctx.moveTo(-10,-86);ctx.lineTo(-4,-100);ctx.lineTo(2,-84);ctx.lineTo(8,-98);ctx.lineTo(12,-82);ctx.fill();}
-    else {ctx.save();ctx.beginPath();ctx.rect(-22,-102,44,18);ctx.clip();ctx.beginPath();ctx.ellipse(0,-86,16,12,0,0,7);ctx.fill();ctx.restore();}
+    else {ctx.beginPath();ctx.moveTo(-18,-64);ctx.quadraticCurveTo(-20,-98,0,-104);ctx.quadraticCurveTo(20,-98,18,-64);ctx.quadraticCurveTo(8,-76,0,-72);ctx.quadraticCurveTo(-8,-76,-18,-64);ctx.fill();}
   }
 }
 function drawEyes(ctx,q,blink,mood){
-  const y=-78,open=blink?0.15:mood==="hit"?0.45:1;
+  const y=-62,open=blink?0.12:mood==="hit"?0.4:1;
   for(const x of [-6.5,6.5]){
     ctx.fillStyle="#fff";
-    ctx.beginPath();ctx.ellipse(x,y,4.2,4.6*open,0,0,7);ctx.fill();
+    ctx.beginPath();ctx.ellipse(x,y,5.4,5.8*open,0,0,7);ctx.fill();
     if(open>0.4){
-      ctx.fillStyle=q.eye;ctx.beginPath();ctx.arc(x+0.4,y+0.4,2.3,0,7);ctx.fill();
-      ctx.fillStyle="#1A1420";ctx.beginPath();ctx.arc(x+0.4,y+0.8,1.2,0,7);ctx.fill();
-      ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(x-1,y-1.2,0.7,0,7);ctx.fill();
+      ctx.fillStyle=q.eye;ctx.beginPath();ctx.ellipse(x+0.4,y+0.6,3.1,3.4,0,0,7);ctx.fill();
+      ctx.fillStyle="#1A1420";ctx.beginPath();ctx.arc(x+0.5,y+1,1.6,0,7);ctx.fill();
+      ctx.fillStyle="#fff";ctx.beginPath();ctx.ellipse(x-1.6,y-1.6,1.5,1.1,0,0,7);ctx.fill();
     }
   }
   ctx.strokeStyle="#2C242C";ctx.lineWidth=1.3;ctx.lineCap="round";
@@ -295,8 +304,12 @@ function drawHeroine(ctx,id,k,anim,shift){
   ctx.strokeStyle=q.metal;ctx.lineWidth=1.4;ctx.stroke();
   ctx.fillStyle="rgba(255,255,255,.72)";
   ctx.beginPath();ctx.ellipse(-5,-46,3.2,8,-0.5,0,7);ctx.fill();
+  ctx.fillStyle=q.armor;
+  ctx.beginPath();ctx.ellipse(-16,-54,8,5.5,.5,0,7);ctx.ellipse(16,-54,8,5.5,-.5,0,7);ctx.fill();
+  ctx.fillStyle="rgba(255,255,255,.65)";
+  ctx.beginPath();ctx.ellipse(-17,-55,3,2,0,0,7);ctx.fill();
   ctx.fillStyle=q.gem;
-  ctx.beginPath();ctx.moveTo(0,-40);ctx.lineTo(3,-36);ctx.lineTo(0,-32);ctx.lineTo(-3,-36);ctx.fill();
+  ctx.beginPath();ctx.moveTo(0,-40);ctx.lineTo(3.4,-35);ctx.lineTo(0,-30);ctx.lineTo(-3.4,-35);ctx.fill();
   ctx.fillStyle="#fff";ctx.globalAlpha=.8;ctx.beginPath();ctx.arc(-0.6,-37,0.8,0,7);ctx.fill();ctx.globalAlpha=1;
   if((anim.level||0)>=2){
     ctx.strokeStyle=q.metal;ctx.lineWidth=1.6;
@@ -314,9 +327,9 @@ function drawHeroine(ctx,id,k,anim,shift){
   drawEyes(ctx,q,blink,mood);
   ctx.strokeStyle=mood==="hit"?"#A84860":"#C46078";ctx.lineWidth=1.5;
   ctx.beginPath();
-  if(mood==="attack")ctx.arc(0,-68,3.2,0.15,Math.PI-0.15);
-  else if(mood==="hit")ctx.arc(0,-67,2.4,0.35,Math.PI-0.35);
-  else ctx.arc(0,-68,3.4,0.2,Math.PI-0.2);
+  if(mood==="attack")ctx.arc(0,-52,3.4,0.1,Math.PI-0.1);
+  else if(mood==="hit")ctx.arc(0,-51,2.3,0.4,Math.PI-0.4);
+  else ctx.arc(0,-52,3.6,0.15,Math.PI-0.15);
   ctx.stroke();
   paintHairCanvas(ctx,q.id,q.hair,q.hi,true);
   if((anim.level||0)>=4){
@@ -385,7 +398,7 @@ function draw(ctx,t,era,time,shift){
   const death=t.dying?Math.max(0,Math.min(1,1-(t.deathT||0)/.52)):0;
   const anim={time,seed:t.seed||0,moving:!!t.moving&&death===0,phase:time*10+(t.seed||0),attack:death?0:Math.max(0,Math.min(1,(t.attackPulse||0)/.22)),hit:death?0:Math.max(0,Math.min(1,(t.hitPulse||0)/.22)),death,level:t.heroLevel||0};
   const boss=!!t.boss;
-  const scale=boss?1.55:(t.elite?1.16:1)*(t.k===2?1.08:1);
+  const scale=(boss?1.62:(t.elite?1.22:1.08)*(t.k===2?1.08:1))*(t.paintScale||1);
   ctx.save();
   ctx.translate(t.x,t.y);
   if(t.side==="e")ctx.scale(-1,1);

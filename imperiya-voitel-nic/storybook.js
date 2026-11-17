@@ -12,73 +12,80 @@ function rr(c,x,y,w,h,r){
   c.arcTo(x,y,x+w,y,rad);
   c.closePath();
 }
-function background(c,era,time,mode){
+function background(c,era,time,mode,w,h){
+  w=w||390; h=h||300;
   const accent=["#E23B55","#C4473A","#E2B15C","#C43B55","#7AA8C8","#8A6AD4","#E23B55"][Math.max(0,Math.min(6,era|0))];
-  const sky=c.createLinearGradient(0,0,0,300);
-  sky.addColorStop(0,"#141824");
-  sky.addColorStop(.45,"#1A1420");
-  sky.addColorStop(1,"#0C0E12");
-  c.fillStyle=sky;c.fillRect(0,0,390,300);
-  const moon=c.createRadialGradient(300,54,4,300,54,70);
-  moon.addColorStop(0,"#F4F7FB");
-  moon.addColorStop(.35,accent+"88");
+  const skyTop=["#1A2040","#2A1830","#241810","#1A1430","#10202C","#120E28","#0C1024"][Math.max(0,Math.min(6,era|0))];
+  const sky=c.createLinearGradient(0,0,0,h);
+  sky.addColorStop(0,skyTop);
+  sky.addColorStop(.42,"#1A1422");
+  sky.addColorStop(.72,"#12151C");
+  sky.addColorStop(1,"#0A0C10");
+  c.fillStyle=sky;c.fillRect(0,0,w,h);
+  const moonX=w*0.78, moonY=h*0.16;
+  const moon=c.createRadialGradient(moonX,moonY,4,moonX,moonY,h*0.28);
+  moon.addColorStop(0,"#F7F4EF");
+  moon.addColorStop(.25,accent+"AA");
   moon.addColorStop(1,"#0000");
-  c.fillStyle=moon;c.fillRect(220,0,170,140);
-  circle(c,302,54,16,"#F7F4EF");
-  c.fillStyle="#141824";circle(c,310,50,12,"#1A2030");
-  c.globalAlpha=.9;c.fillStyle="#F4F7FB";
-  for(let i=0;i<16;i++){
-    const x=(i*67+20)%390,y=18+(i*41)%120;
-    const tw=.35+.35*(.5+.5*Math.sin(time*1.6+i));
-    c.globalAlpha=tw;
-    circle(c,x,y,i%4===0?1.8:1.1,"#F4F7FB");
+  c.fillStyle=moon;c.fillRect(0,0,w,h*0.5);
+  circle(c,moonX,moonY,Math.max(14,h*0.035),"#F7F4EF");
+  c.fillStyle=skyTop;circle(c,moonX+h*0.012,moonY-h*0.008,Math.max(10,h*0.026),skyTop);
+  c.fillStyle="#F4F7FB";
+  for(let i=0;i<22;i++){
+    const x=(i*97+time*8)%w, y=(i*53)% (h*0.42);
+    c.globalAlpha=.25+.45*(.5+.5*Math.sin(time*1.4+i));
+    circle(c,x,y,i%5===0?2.2:1.2,"#F4F7FB");
   }
   c.globalAlpha=1;
-  c.fillStyle="#12151C";
-  c.beginPath();c.moveTo(0,168);
-  for(let x=0;x<=390;x+=20)c.lineTo(x,158+Math.sin(x*0.02+1)*10+Math.cos(x*0.01)*6);
-  c.lineTo(390,300);c.lineTo(0,300);c.fill();
-  c.fillStyle="#1A1E28";
-  c.beginPath();c.moveTo(0,196);
-  for(let x=0;x<=390;x+=16)c.lineTo(x,190+Math.sin(x*0.03+time*0.2)*4);
-  c.lineTo(390,300);c.lineTo(0,300);c.fill();
+  c.fillStyle="#10141C";
+  c.beginPath();c.moveTo(0,h*0.62);
+  for(let x=0;x<=w;x+=24)c.lineTo(x,h*0.56+Math.sin(x*0.012+time*0.15)*h*0.03);
+  c.lineTo(w,h);c.lineTo(0,h);c.fill();
+  c.fillStyle="#18141C";
+  c.beginPath();c.moveTo(0,h*0.7);
+  for(let x=0;x<=w;x+=18)c.lineTo(x,h*0.66+Math.sin(x*0.02+1.2)*h*0.018);
+  c.lineTo(w,h);c.lineTo(0,h);c.fill();
+  const mid=era>=4?"#243044":"#2A2430";
+  c.fillStyle=mid;
   if(era<=1){
-    for(let i=0;i<4;i++){
-      const x=48+i*90,flick=Math.sin(time*3+i)*3;
-      c.fillStyle="#2A241C";rr(c,x-8,200,16,14,3);c.fill();
-      c.fillStyle="#E23B55";
-      c.beginPath();c.moveTo(x-7,200);c.quadraticCurveTo(x,178+flick,x+7,200);c.fill();
-      c.fillStyle="#E2B15C";
-      c.beginPath();c.moveTo(x-3,198);c.quadraticCurveTo(x,186+flick*.4,x+3,198);c.fill();
+    for(let i=0;i<6;i++){
+      const x=w*(0.08+i*0.16), bh=h*(0.16+(i%3)*0.04);
+      c.beginPath();c.moveTo(x,h*0.72);c.lineTo(x-18,h*0.72-bh*0.2);c.lineTo(x,h*0.72-bh);c.lineTo(x+18,h*0.72-bh*0.2);c.fill();
     }
   }else if(era<=3){
-    c.fillStyle="#232833";
-    for(let i=0;i<4;i++){rr(c,18+i*100,150,16,48,2);c.fill();c.fillStyle=accent;c.fillRect(18+i*100,146,16,4);c.fillStyle="#232833";}
-  }else{
-    c.fillStyle="#1C2433";
     for(let i=0;i<5;i++){
-      const h=36+(i%3)*16;
-      rr(c,12+i*78,176-h,18,h,2);c.fill();
-      c.fillStyle=i%2?accent:"#E2B15C";
-      c.fillRect(16+i*78,180-h,6,4);
-      c.fillStyle="#1C2433";
+      const x=w*(0.06+i*0.2), bh=h*(0.18+(i%2)*0.06);
+      rr(c,x,h*0.7-bh,w*0.08,bh,4);c.fill();
+      c.fillStyle=accent;c.fillRect(x,h*0.7-bh-4,w*0.08,5);c.fillStyle=mid;
+    }
+  }else{
+    for(let i=0;i<6;i++){
+      const x=w*(0.04+i*0.16), bh=h*(0.22+(i%3)*0.08);
+      rr(c,x,h*0.72-bh,14,bh,2);c.fill();
+      c.fillStyle=i%2?accent:"#E2B15C";c.fillRect(x+3,h*0.72-bh+8,6,4);c.fillStyle=mid;
     }
   }
-  const road=c.createLinearGradient(0,230,0,300);
-  road.addColorStop(0,"#2A241C");
-  road.addColorStop(1,"#14120F");
+  const roadY=h*0.78;
+  const road=c.createLinearGradient(0,roadY,0,h);
+  road.addColorStop(0,"#3A3228");
+  road.addColorStop(1,"#14110E");
   c.fillStyle=road;
-  c.beginPath();c.moveTo(0,236);c.quadraticCurveTo(195,214,390,236);c.lineTo(390,300);c.lineTo(0,300);c.fill();
-  c.strokeStyle="#C5CCD6";c.globalAlpha=.45;c.lineWidth=2;
-  c.beginPath();c.moveTo(0,238);c.quadraticCurveTo(195,216,390,238);c.stroke();
-  c.globalAlpha=.25;c.setLineDash([8,10]);
-  c.beginPath();c.moveTo(0,268);c.quadraticCurveTo(195,250,390,268);c.stroke();
+  c.beginPath();c.moveTo(0,roadY);c.quadraticCurveTo(w*0.5,roadY-h*0.06,w,roadY);c.lineTo(w,h);c.lineTo(0,h);c.fill();
+  c.strokeStyle="#C5CCD6";c.globalAlpha=.4;c.lineWidth=2;
+  c.beginPath();c.moveTo(0,roadY+2);c.quadraticCurveTo(w*0.5,roadY-h*0.055,w,roadY+2);c.stroke();
+  c.globalAlpha=.18;c.setLineDash([10,12]);
+  c.beginPath();c.moveTo(0,roadY+h*0.08);c.quadraticCurveTo(w*0.5,roadY+h*0.02,w,roadY+h*0.08);c.stroke();
   c.setLineDash([]);c.globalAlpha=1;
-  if(mode==="dungeon"){
-    c.fillStyle="rgba(90,20,40,.28)";c.fillRect(0,0,390,300);
-  }else if(mode==="arena"){
-    c.fillStyle="rgba(226,177,92,.06)";c.fillRect(0,0,390,300);
+  for(let i=0;i<5;i++){
+    const x=w*(0.12+i*0.18), flick=Math.sin(time*3+i)*4;
+    c.fillStyle="#2A241C";rr(c,x-10,roadY-8,20,16,3);c.fill();
+    c.fillStyle="#E23B55";
+    c.beginPath();c.moveTo(x-8,roadY-6);c.quadraticCurveTo(x,roadY-28+flick,x+8,roadY-6);c.fill();
+    c.fillStyle="#FFE08A";
+    c.beginPath();c.moveTo(x-3,roadY-8);c.quadraticCurveTo(x,roadY-18+flick*0.4,x+3,roadY-8);c.fill();
   }
+  if(mode==="dungeon"){c.fillStyle="rgba(90,16,32,.3)";c.fillRect(0,0,w,h);}
+  else if(mode==="arena"){c.fillStyle="rgba(226,177,92,.07)";c.fillRect(0,0,w,h);}
 }
 function castle(c,x,enemy,era,time){
   c.save();

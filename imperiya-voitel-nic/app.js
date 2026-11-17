@@ -240,7 +240,7 @@ for(const key of ["coins","gems","wins","losses","kills","deployed","food","base
 if(typeof S.freeKitClaimed!=="boolean")S.freeKitClaimed=false;
 const G={tab:"battle",mode:"story",playing:false,done:false,paused:false,speed:1,time:0,food:12,base:450,baseMax:450,enemy:450,enemyMax:450,troops:[],particles:[],queue:[],next:0,used:{},heroUsed:false,frozen:0,raging:0,dead:0,damage:0,autoWait:0,autoEnabled:!!S.auto,deckSlot:0,bossSpawned:false,bossBeaten:false,bossPulse:12,battleMessage:"",battleMessageTime:0,shake:0,shopFilter:"popular",quickMagicOpen:false,heroCharge:0,ultimateUsed:false,stance:"balanced",wave:0,battleDeployed:0,contract:null,contractDone:false};
 const canvas=$("canvas"),c=canvas.getContext("2d");if(window.CrownAudio)window.CrownAudio.settings(S);
-let last=0,uiTimer=0,saveTimer=0,toastTimer=0;const W=390,H=300;let ambientTime=0;
+let last=0,uiTimer=0,saveTimer=0,toastTimer=0;const W=390,H=300;let ambientTime=0,viewW=390,viewH=300,viewD=1;
 const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+"м":n>=1000?(n/1000).toFixed(1)+"к":String(Math.floor(n));
 let audioContext=null;
 function sfx(kind,pan=0){if(window.CrownAudio)window.CrownAudio.sfx(kind,pan);}
@@ -273,16 +273,21 @@ const color=id=>COLORS[(id+S.skin*3)%COLORS.length];
 function heroSvg(id){return window.QueenArt.portrait(id,S.skin+Math.floor((heroLevel(id)-1)/2));}
 function champ(){return '<div class="portrait">'+heroSvg(S.hero)+'</div><div class="champtext"><label>КОРОЛЕВА · '+S.heroes.length+' ИЗ 18</label><strong>'+NAMES[S.hero]+'</strong><small>'+a().title+' · Глянцевые доспехи</small></div><button class="chip" data-a="tab" data-tab="heroes">Героини ›</button>';}
 function rect(x,y,w,h,r,fill,stroke){c.beginPath();if(c.roundRect)c.roundRect(x,y,w,h,r);else c.rect(x,y);if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}}
-function backdrop(){window.FairytaleScene.background(c,S.era,G.time+ambientTime*.25,G.mode);if(window.BattleFX)window.BattleFX.scenery(c,S.era,ambientTime);}
+function backdrop(w,h){window.FairytaleScene.background(c,S.era,G.time+ambientTime*.25,G.mode,w,h);}
 function castle(x,enemy){window.FairytaleScene.castle(c,x,enemy,S.era,G.time+ambientTime*.35);}
 function soldier(t){window.QueenArt.draw(c,t,S.era,G.time+ambientTime*.3,S.skin);}
-function draw(){if(!c)return;c.clearRect(0,0,W,H);c.save();if(G.shake>0)c.translate((Math.random()-.5)*G.shake*8,(Math.random()-.5)*G.shake*4);backdrop();castle(28,false);castle(361,true);
-if(!G.playing&&!G.done){rect(54,92,282,58,14,"#12151CE6","#D7DEE8");c.textAlign="center";c.fillStyle="#F4F7FB";c.font="900 16px system-ui";c.fillText("ИМПЕРИЯ ВОИТЕЛЬНИЦ",195,116);c.fillStyle="#E7B8C2";c.font="700 13px system-ui";c.fillText("Собери армию и выходи на тропу",195,136);c.textAlign="left";}
-G.troops.slice().sort((x,y)=>x.y-y.y).forEach(soldier);if(window.BattleFX)window.BattleFX.foreground(c,S.era,ambientTime);
+function draw(){if(!c)return;const w=viewW,h=viewH;c.setTransform(viewD,0,0,viewD,0,0);c.clearRect(0,0,w,h);c.save();if(G.shake>0)c.translate((Math.random()-.5)*G.shake*10,(Math.random()-.5)*G.shake*6);backdrop(w,h);
+const sx=w/W,ground=h*0.86,ty=ground-252*sx;
+c.save();c.translate(0,ty);c.scale(sx,sx);
+castle(28,false);castle(361,true);
+if(!G.playing&&!G.done){rect(48,78,294,62,14,"#12151CE6","#D7DEE8");c.textAlign="center";c.fillStyle="#F4F7FB";c.font="900 18px system-ui";c.fillText("ИМПЕРИЯ ВОИТЕЛЬНИЦ",195,104);c.fillStyle="#E7B8C2";c.font="700 13px system-ui";c.fillText("Собери армию и выходи на тропу",195,126);c.textAlign="left";}
+G.troops.slice().sort((a,b)=>a.y-b.y).forEach(t=>{c.save();c.translate(t.x,t.y);c.scale(1.82,1.82);c.translate(-t.x,-t.y);soldier(t);c.restore();});
+if(window.BattleFX)window.BattleFX.foreground(c,S.era,ambientTime);
 G.particles.forEach((p,i)=>{const opacity=Math.max(0,Math.min(1,p.life*2));c.globalAlpha=opacity;c.save();c.translate(p.x,p.y);c.rotate(G.time*3+i*.3);c.fillStyle=p.color;c.beginPath();const rad=p.radius*(i%3===0?1.8:1);if(i%3===0){for(let j=0;j<8;j++){let angle=j*Math.PI/4,r=j%2?rad*.26:rad;c.lineTo(Math.sin(angle)*r,Math.cos(angle)*r);}c.closePath();}else c.arc(0,0,rad,0,Math.PI*2);c.fill();c.restore();});c.globalAlpha=1;
 if(window.BattleFX)window.BattleFX.paint(c,ambientTime);
-if(G.frozen>0){c.fillStyle="#E2F6FF3F";c.fillRect(0,0,W,H);}
-if(G.raging>0){c.fillStyle="#FFE1B415";c.fillRect(0,0,W,H);}
+c.restore();
+if(G.frozen>0){c.fillStyle="#E2F6FF3F";c.fillRect(0,0,w,h);}
+if(G.raging>0){c.fillStyle="#FFE1B418";c.fillRect(0,0,w,h);}
 c.restore();
 }
 function sparkle(x,y,color,n){for(let i=0;i<n;i++)G.particles.push({x,y,vx:(Math.random()-.5)*100,vy:(Math.random()-.8)*85,life:.3+Math.random()*.5,color,radius:1+Math.random()*2.5});if(G.particles.length>250)G.particles.splice(0,80);}
@@ -650,16 +655,10 @@ function syncArenaLayout(){
  const actionH=rect($("fightaction"),G.playing?43:53);
  // Budget includes the iOS status bar, corners, Home indicator and inter-row gaps.
  const reserve=height<480?10:height<650?29:50;
- const available=Math.max(58,height-headerH-dockH-actionH-reserve-18);
- const widthLimit=(Math.min(480,width)-18)*300/390;
- const arena=Math.max(58,Math.min(available,widthLimit));
- if(root.style&&root.style.setProperty){
-  root.style.setProperty("--arena-h",arena.toFixed(1)+"px");
-  root.style.setProperty("--arena-w",(arena*390/300).toFixed(1)+"px");
- }
+ if(root.style&&root.style.removeProperty){root.style.removeProperty("--arena-h");root.style.removeProperty("--arena-w");}
 }
 function transferStrip(){return '<button class="transfer-strip" data-a="transfer"><b>⇄ Перенести прогресс</b><small>Со старого сайта — файлом или кодом. Героини, опыт, уровни, карты и покупки сохранятся.</small></button>';}
-function render(){ applyMobileLayout();ensureMissions();renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);$("champ").innerHTML=champ();let battle=G.tab==="battle";$("battlePage").hidden=!battle;$("otherPage").hidden=battle;if(battle)renderBattle();else $("otherPage").innerHTML=transferStrip()+(G.tab==="army"?army():G.tab==="heroes"?heroes():G.tab==="shop"?shop():G.tab==="cards"?cardPage():G.tab==="dungeon"?dungeonPage():other());renderNav();advisorCard();renderBattleQuick();syncArenaLayout();}
+function render(){ applyMobileLayout();ensureMissions();renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);$("champ").innerHTML=champ();let battle=G.tab==="battle";$("battlePage").hidden=!battle;$("otherPage").hidden=battle;if(battle)renderBattle();else $("otherPage").innerHTML=transferStrip()+(G.tab==="army"?army():G.tab==="heroes"?heroes():G.tab==="shop"?shop():G.tab==="cards"?cardPage():G.tab==="dungeon"?dungeonPage():other());renderNav();advisorCard();renderBattleQuick();syncArenaLayout();requestAnimationFrame(resize);}
 function setTab(tab){
  if(G.playing&&G.tab==="battle"&&tab!=="battle"){G.paused=true;if(window.CrownAudio)window.CrownAudio.setScene("pause");}
  G.tab=tab;closeModal();render();window.scrollTo(0,0);
@@ -781,8 +780,8 @@ if(["tab","mode","setmode","deckslot","pause","speed","shopfilter","help","close
 switch(action){case"tab":setTab(el.dataset.tab);break;case"battlemenu":showBattleMenu();break;case"resumebattle":resumeBattleMenu();break;case"quickmagic":G.quickMagicOpen=!G.quickMagicOpen;renderBattleQuick();sfx("click");break;case"mentor":followAdvice();break;case"claimquest":claimMission(k);break;case"shopfilter":G.shopFilter=el.dataset.filter;render();break;case"deckslot":G.deckSlot=k;render();break;case"equip":equipCard(k);break;case"dungeon":if(G.playing){toast("Закончи текущую битву");break;}G.mode="dungeon";G.done=false;setTab("battle");toast("Башня королев · этаж "+S.dungeonFloor);break;case"unit":unit(k);break;case"unlock":unlock(k);break;case"hero":summonHero();break;case"ultimate":ultimate();break;case"magic":cast(k);G.quickMagicOpen=false;renderBattleQuick();break;case"buy":purchase(el.dataset.id);break;case"starterkit":starterKit();break;case"getcard":getFreeCard(k);break;case"select":choose(k);break;case"evolve":evolve();break;case"claim":daily();break;case"start":case"newbattle":begin();break;case"close":closeModal();break;case"mode":showModePicker();break;case"setmode":chooseMode(el.dataset.mode);break;case"pause":G.paused=!G.paused;if(window.CrownAudio)window.CrownAudio.setScene(G.paused?"pause":"battle");renderBattle();renderBattleQuick();renderAudioDock();break;case"auto":G.autoEnabled=!G.autoEnabled;G.autoWait=0;renderBattleQuick();toast(G.autoEnabled?"Автопризыв включён · можно управлять вручную":"Автопризыв выключен");break;case"speed":G.speed=G.speed===1?2:1;renderBattle();break;case"stance":changeStance();break;case"help":showHelp();break;case"sound":S.sound=S.sound===false;syncAudio();save();render();sfx("click");break;case"soundmusic":S.music=S.music===false;S.sound=true;syncAudio();if(window.CrownAudio)window.CrownAudio.unlock();save();render();sfx("click");break;case"soundfx":S.fx=S.fx===false;S.sound=true;syncAudio();save();render();sfx("click");break;case"soundvolume":{const levels=[.35,.52,.68,.85,1];let i=levels.findIndex(v=>Math.abs(v-S.musicVolume)<.02);S.musicVolume=levels[(i+1)%levels.length];syncAudio();save();render();sfx("click");break;}case"export":backup();break;case"import":restore();break;case"transfer":showTransfer();break;case"copycode":{const el=$("transferCode");const text=el?el.value:exportCode();const done=()=>toast("Код скопирован");if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(()=>{if(el){el.focus();el.select();}toast("Удержи поле и скопируй код");});else{if(el){el.focus();el.select();}done();}break;}case"importcode":{try{importState(decodeSaveText($("importCode")&&$("importCode").value));}catch(err){toast("Не удалось прочитать сохранение");}break;}}
 });
 function frame(now){let dt=Math.min(.045,(now-last)/1000||.016);last=now;ambientTime+=dt;if(!G.paused){for(let i=0;i<G.speed;i++)tick(dt);}if(G.tab==="battle"&&!document.hidden)draw();uiTimer+=dt;if(uiTimer>.28){uiTimer=0;if(G.tab==="battle")updateHud();advisorCard();if(window.CrownAudio)window.CrownAudio.sceneTick({playing:G.playing,paused:G.paused,boss:G.troops.some(t=>t.boss&&t.hp>0),done:G.done,era:S.era});renderAudioDock();$("gold").textContent=fmt(S.coins);$("gems").textContent=fmt(S.gems);}requestAnimationFrame(frame);}
-function resize(){let d=Math.min(devicePixelRatio||1,2);canvas.width=W*d;canvas.height=H*d;c.setTransform(d,0,0,d,0,0);draw();}
-window.addEventListener("pagehide",save);document.addEventListener("visibilitychange",()=>{if(document.hidden)save();});window.addEventListener("resize",()=>{applyMobileLayout();syncArenaLayout();resize();});if(window.visualViewport&&window.visualViewport.addEventListener)window.visualViewport.addEventListener("resize",()=>{applyMobileLayout();syncArenaLayout();});
+function resize(){if(!canvas||!c)return;const frame=canvas.parentElement;if(!frame)return;const w=frame.clientWidth,h=frame.clientHeight;if(w<50||h<50)return;viewD=Math.min(devicePixelRatio||1,2);viewW=w;viewH=h;canvas.width=Math.round(w*viewD);canvas.height=Math.round(h*viewD);c.setTransform(viewD,0,0,viewD,0,0);draw();}
+window.addEventListener("pagehide",save);document.addEventListener("visibilitychange",()=>{if(document.hidden)save();});window.addEventListener("resize",()=>{applyMobileLayout();syncArenaLayout();resize();});if(window.visualViewport&&window.visualViewport.addEventListener)window.visualViewport.addEventListener("resize",()=>{applyMobileLayout();syncArenaLayout();resize();});
 if("serviceWorker" in navigator){let hadController=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hadController)location.reload();});window.addEventListener("load",()=>{const url=new URL("sw.js",document.baseURI||location.href).href;navigator.serviceWorker.register(url).catch(()=>{});});}
 G.baseMax=baseHP();G.base=G.baseMax;G.enemyMax=enemyHP();G.enemy=G.enemyMax;render();resize();requestAnimationFrame(frame);
 if(S.first){S.first=false;save();setTimeout(showHelp,750);}

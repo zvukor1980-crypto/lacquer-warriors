@@ -360,13 +360,17 @@ function renderBattleQuick(){
  }
  dock.hidden=false;
  dock.className="battle-quick rock-dock "+(G.quickMagicOpen?"magic-open":"");
- const readyFlags=a().units.map((t,k)=>Number(!!S.units[k]&&!G.paused&&G.food>=cost(k))).join("");
+ 
  const key=[G.quickMagicOpen?"magic":"troops",S.era,S.skin,S.hero,S.timeline,
   S.units.join(","),S.loadout.join(","),Object.keys(G.used).filter(k=>G.used[k]).join(","),
-  G.heroUsed,G.ultimateUsed,ultimateReady(),G.paused,readyFlags].join("|");
+  G.heroUsed,G.ultimateUsed,ultimateReady(),G.paused].join("|");
  if(dock.dataset.key===key&&dock.innerHTML){
   const food=dock.querySelector("#dockFood");
   if(food)food.textContent=Math.floor(G.food);
+  if(dock.querySelectorAll)dock.querySelectorAll(".quick-button.troop").forEach((button,k)=>{
+   const ready=!!S.units[k]&&!G.paused&&G.food>=cost(k);
+   if(button.classList){button.classList.toggle("ready",ready);button.classList.toggle("charging",!!S.units[k]&&!ready);}
+  });
   return;
  }
  dock.dataset.key=key;

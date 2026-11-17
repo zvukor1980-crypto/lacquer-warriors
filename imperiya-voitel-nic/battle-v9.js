@@ -37,7 +37,7 @@ function attack(from,to,damage,kind="slash",enemy=false,critical=false){
   burst(fx,fy,critical?"#FFE76B":enemy?"#F65B9E":"#90FFF2",critical?10:5,69);
  }
  if(critical){ring(fx,fy,"#FFFFFF",2,40,.28,2);}
- if(damage>0&&(critical||!enemy||Math.random()<.5)){numbers.push({x:fx+rand(-8,8),y:fy-19,dy:rand(-12,-23),amount:Math.max(1,Math.round(damage)),critical,enemy,age:0,life:critical?.9:.62});keep(numbers,MAX.numbers);}
+ if(damage>0&&(critical||!enemy||Math.random()<.5)){numbers.push({x:fx+rand(-6,6),y:fy-14,dy:rand(-10,-16),amount:Math.max(1,Math.round(damage)),critical,enemy,age:0,life:critical?.48:.32});keep(numbers,MAX.numbers);}
 }
 function magic(k,troops=[]){
  const player=troops.filter(t=>t.side==="p"),opponents=troops.filter(t=>t.side==="e");
@@ -129,20 +129,7 @@ function scenery(c,era,time){
  }
  c.restore();
 }
-function foreground(c,era,time){
- c.save();
- // Clean, dark floor treatment around feet: stronger depth cue without hiding fighters.
- const g=c.createLinearGradient(0,256,0,300);
- g.addColorStop(0,"#060A1800");g.addColorStop(.42,"#0A102342");g.addColorStop(1,"#090E27A5");
- c.fillStyle=g;c.fillRect(0,256,390,44);
- const light=era<=1?"#32E69F":era<=3?"#FFC979":era===4?"#4EC9E9":"#F36CB8";
- for(let i=0;i<7;i++){
-  const x=((i*61+10)%390)+Math.sin(time*.6+i)*2,y=287+i%2*5;
-  c.strokeStyle=light;c.lineWidth=1.6;c.globalAlpha=.4;
-  c.beginPath();c.moveTo(x,y);c.lineTo(x-5,y-8);c.moveTo(x,y);c.lineTo(x+3,y-11);c.stroke();
- }c.globalAlpha=1;
- c.restore();
-}
+function foreground(){}
 function paint(c,time){
  c.save();
  for(const p of shots){
@@ -172,8 +159,8 @@ function paint(c,time){
  for(const n of numbers){
   const a=1-n.age/n.life;
   c.save();c.globalAlpha=a;c.textAlign="center";c.textBaseline="middle";
-  c.font=n.critical?"900 18px system-ui":"900 13px system-ui";
-  c.lineWidth=3.4;c.strokeStyle="#0E1732";c.fillStyle=n.critical?"#FFE16E":n.enemy?"#FF7EA8":"#BFFFE5";
+  c.font=n.critical?"900 13px Nunito,system-ui":"800 11px Nunito,system-ui";
+  c.lineWidth=3;c.strokeStyle="#4A3018";c.fillStyle=n.critical?"#FFE16E":"#FFFFFF";
   let y=n.y+n.dy*n.age;
   c.strokeText((n.critical?"✦ ":"")+n.amount,n.x,y);
   c.fillText((n.critical?"✦ ":"")+n.amount,n.x,y);c.restore();

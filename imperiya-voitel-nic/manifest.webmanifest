@@ -1,19 +1,25 @@
 {
   "name": "Империя воительниц",
   "short_name": "Воительницы",
-  "start_url": "./?v=17.2",
+  "start_url": "./?v=18",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "lang": "ru",
-  "background_color": "#0C0E12",
-  "theme_color": "#0C0E12",
-  "description": "Офлайн-рок-стратегия: 18 героинь, бесплатный магазин и бой на одном экране iPhone",
+  "background_color": "#7EC8F0",
+  "theme_color": "#7EC8F0",
+  "description": "Офлайн-стратегия: 18 мультяшных героинь, бесплатный магазин и бой на одном экране iPhone",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

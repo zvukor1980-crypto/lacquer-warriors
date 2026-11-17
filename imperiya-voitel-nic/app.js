@@ -22,14 +22,14 @@ const SHOP=[
 ["attack","⚔️","Алый клинок","+17% к урону всех воительниц","coins",150],
 ["vital","❤️","Шёлковая броня","+18% здоровья армии","coins",155],
 ["income","💰","Королевская казна","Больше наград за бои","coins",230],
-["auto","🌟","Королевский призыв","Премиум-автопризыв: быстрее на 25%","gems",110],
+["auto","🌟","Королевский призыв","Быстрый автопризыв: до 25% чаще подкрепления","gems",110],
 ["magic3","🔥","Чары ярости","Открывает новую магию","gems",45],
 ["magic4","🌪️","Чары тайфуна","Открывает новую магию","gems",55],
 ["magic5","👥","Чары двойников","Открывает новую магию","gems",70],
 ["skin","👗","Глянцевая коллекция","Новый оттенок лаковых доспехов","gems",65],
 ["relic","🔮","Реликвия королев","Постоянное усиление армии","gems",90],
 ["chest","🎁","Сундук фортуны","Случайные монеты или кристаллы","coins",165],
-["cardChest","🎴","Сундук боевых карт","Открывает случайную карту усиления","coins",140]
+["cardChest","🎴","Сундук боевых карт","Открывает бесплатную случайную карту усиления","coins",140]
 ];
 const CARDS=[
 ["Корона рассвета","👑","Урон армии +8%","attack",.08,"Королевская"],
@@ -121,23 +121,15 @@ function nextAdvice(){
  const ready=readyMissionIndex();
  if(ready>=0)return {tag:"ЕСТЬ НАГРАДА",title:"Поручение выполнено!",desc:"Забери награду за «"+MISSIONS[ready].name+"»: монеты и кристаллы.",action:"claimquest",k:ready,label:"🎁 Забрать"};
  if(S.claimed!==todayKey())return {tag:"ПОДАРОК ДНЯ",title:"Начни с бесплатного подарка",desc:"100 монет и 20 кристаллов — без рекламы и настоящих платежей.",action:"claim",label:"🎁 Получить"};
- if(S.stage>=6){
-  const p=evolutionPrice();
-  return S.coins>=p?
-   {tag:"СЛЕДУЮЩАЯ ЭПОХА",title:"Открывай новый мир",desc:"Пять побед уже есть. За "+fmt(p)+" монет перейдёшь к следующей эпохе.",action:"evolve",label:"🌟 Эволюция"}:
-   {tag:"НАСТУПАЕТ НОВАЯ ЭПОХА",title:"Накопи на эволюцию",desc:"До следующей эпохи нужно ещё "+fmt(p-S.coins)+" монет. Победи в новом походе.",action:"setmode",mode:"story",label:"⚔️ Поход"};
- }
- if(S.food<1&&S.coins>=levelPrice("food"))return {tag:"СОВЕТ ПО УЛУЧШЕНИЯМ",title:"Сначала ускорь получение еды",desc:"«Сады изобилия» позволят быстрее выпускать войска. Купи за "+fmt(levelPrice("food"))+" монет.",action:"buy",id:"food",label:"🍎 Улучшить"};
- if(!S.units[1]&&S.coins>=175)return {tag:"ПОРА ОТКРЫТЬ ОТРЯД",title:"Открой стрелков",desc:"Дальнобойная поддержка поможет справляться с тяжёлыми противницами. Цена 175 монет.",action:"unlock",k:1,label:"🏹 Открыть"};
- if(S.attack<1&&S.coins>=levelPrice("attack"))return {tag:"СОВЕТ ПО УЛУЧШЕНИЯМ",title:"Усиль всех воительниц",desc:"«Алый клинок» даёт +17% к урону каждой воительницы.",action:"buy",id:"attack",label:"⚔️ Улучшить"};
- if(!S.units[2]&&S.units[1]&&S.coins>=420)return {tag:"ПОРА ОТКРЫТЬ ОТРЯД",title:"Добавь тяжёлую защитницу",desc:"Третий отряд выдерживает больше урона и помогает наступлению.",action:"unlock",k:2,label:"🛡️ Открыть"};
- const next=["food","attack","vital","base","income"].sort((x,y)=>Number(S[x])-Number(S[y])||levelPrice(x)-levelPrice(y))[0];
- if(S.coins>=levelPrice(next)){
-  const item=SHOP.find(x=>x[0]===next);
-  return {tag:"ЛУЧШАЯ ПОКУПКА СЕЙЧАС",title:item[2],desc:item[3]+". Цена "+fmt(levelPrice(next))+" монет.",action:"buy",id:next,label:"Улучшить"};
- }
- if(S.heroes.length===1&&S.gems>=36&&S.wins>=2)return {tag:"КОЛЛЕКЦИЯ ГЕРОИНЬ",title:"Пригласи вторую героиню",desc:"У тебя достаточно кристаллов для новой командирши. Познакомься с Мирой.",action:"select",k:1,label:"👑 Пригласить"};
- return {tag:"СЛЕДУЮЩИЙ ШАГ",title:"Отправляйся в новый поход",desc:"Получишь монеты за каждую победу и даже за поражение. Затем вернись за усилениями.",action:"startstory",label:"⚔️ В бой"};
+ if(S.stage>=6)return {tag:"НОВАЯ ЭПОХА · FREE",title:"Открывай следующий мир",desc:"Пять побед уже есть. Переход бесплатный, улучшения сохраняются.",action:"evolve",label:"⚡ Новая эпоха"};
+ if(!S.units[1])return {tag:"БЕСПЛАТНЫЙ ОТРЯД",title:"Открой стрелков",desc:"Дальнобойная поддержка поможет справиться с тяжёлыми противницами. Без монет.",action:"unlock",k:1,label:"🏹 Открыть"};
+ if(!S.units[2])return {tag:"БЕСПЛАТНЫЙ ОТРЯД",title:"Открой тяжёлых воительниц",desc:"Третий отряд лучше держит оборону. Без монет.",action:"unlock",k:2,label:"🛡️ Открыть"};
+ if(!S.auto)return {tag:"ROCK SHOP · FREE",title:"Включи быстрый автопризыв",desc:"В магазине бесплатно доступен постоянный автопризыв.",action:"buy",id:"auto",label:"⚡ Получить"};
+ const next=["food","attack","vital","base","income"].filter(id=>!upgradeMaxed(id)).sort((x,y)=>Number(S[x])-Number(S[y]))[0];
+ if(next){const item=SHOP.find(x=>x[0]===next);
+  return {tag:"БЕСПЛАТНОЕ УСИЛЕНИЕ",title:item[2],desc:item[3]+". Получи без валюты.",action:"buy",id:next,label:"+ Уровень"};}
+ if(S.heroes.length<18)return {tag:"ВСЕ ГЕРОИНИ БЕСПЛАТНО",title:"Открой новую королеву",desc:"Все 18 героинь доступны без кристаллов.",action:"select",k:NAMES.findIndex((n,i)=>!S.heroes.includes(i)),label:"👑 Открыть"};
+ return {tag:"СЛЕДУЮЩИЙ ШАГ",title:"Попробуй новую тактику",desc:"Меняй «Баланс», «Напор» и «Защиту» во время боя.",action:"startstory",label:"⚔️ В бой"};
 }
 function advisorCard(){
  const d=nextAdvice();

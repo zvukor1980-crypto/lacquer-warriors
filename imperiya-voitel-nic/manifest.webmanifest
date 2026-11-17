@@ -1,14 +1,14 @@
 {
-  "name": "Империя воительниц · Mobile Edition",
+  "name": "Империя воительниц · ROCK EDITION",
   "short_name": "Воительницы",
-  "start_url": "./?v=12",
+  "start_url": "./?v=13",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "lang": "ru",
-  "background_color": "#070F23",
-  "theme_color": "#101B39",
-  "description": "Королевская офлайн-стратегия с удобным боевым экраном для iPhone, глянцевыми героинями, магией и музыкой",
+  "background_color": "#08090E",
+  "theme_color": "#0B0D17",
+  "description": "Офлайн-рок-стратегия: крупные изображения воительниц и кнопки призыва всегда под большим пальцем, оригинальная рок-музыка, магия и королевы",
   "icons": [
     {
       "src": "icon.svg",

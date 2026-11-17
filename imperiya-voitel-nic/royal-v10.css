@@ -664,3 +664,223 @@ nav button.active{background:linear-gradient(180deg,#823f69,#512f64);box-shadow:
  .hero-rank strong{font-size:11px}
 }
 @media(prefers-reduced-motion:reduce){.hero-ultimate.ready,.quick-button.hero.ready{animation:none}}
+
+
+/* V12: iPhone 16e screen-first layout, 390pt portrait, with variable Safari chrome
+   and standalone safe areas. Keep every active combat button fully reachable. */
+:root{--mobile-nav-height:64px;--mobile-quick-height:68px}
+body{ -webkit-text-size-adjust:100%; }
+#app{min-height:100dvh;padding-bottom:calc(90px + env(safe-area-inset-bottom));}
+#app :is(button,[role=button]){touch-action:manipulation}
+#app button:focus-visible{outline:3px solid #FFDF85;outline-offset:2px}
+.battleframe, .queen-feature, .hero-status, .mentor{contain:layout style}
+nav{
+ min-height:var(--mobile-nav-height);
+ padding-bottom:env(safe-area-inset-bottom);
+ border-top:2px solid #CB9663;
+ background:linear-gradient(180deg,#15284BFA,#0B1734FA);
+ box-shadow:0 -5px 20px #030719b0;
+}
+nav button{
+ min-height:var(--mobile-nav-height);
+ padding:8px 2px 7px;
+ gap:5px;font-size:11px;line-height:1.1;
+}
+nav button span{font-size:23px}
+nav button.active{background:linear-gradient(170deg,#683B73,#283C71);color:#FFE7A4;box-shadow:inset 0 3px #FFCC79}
+.battle-quick{
+ bottom:calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
+ padding:6px 8px 7px;gap:6px;
+ background:linear-gradient(180deg,#192D57F9,#111F42FD);
+ border-top:2px solid #E6B26B;
+ box-shadow:0 -3px 20px #020917A6;
+}
+.quick-button{
+ min-height:54px;border-radius:11px;
+ border:1.5px solid #768EBF;
+ box-shadow:inset 0 1px #FFFFFF2A,0 2px 0 #07142F;
+}
+.quick-button span{font-size:23px}
+.quick-button small{font-size:10.5px}
+.quick-button.ready{border-color:#50EAC1;background:linear-gradient(125deg,#245C78,#225464);box-shadow:0 0 0 1px #45EBB0,0 0 10px #06BCA866}
+#app .hero-rank strong,#app .hero-status-top strong{letter-spacing:.2px}
+#app .queen-feature{
+ background:
+ radial-gradient(ellipse 95% 135% at 14% 30%,#BF458F69,transparent 70%),
+ linear-gradient(125deg,#463065,#263963 68%,#152C52);
+ border-color:#D2A977;
+}
+#app .herocard{
+ background:linear-gradient(140deg,#323C6A,#1E2D51);
+ border-color:#9A8DAE;
+ box-shadow:0 6px 15px #0008,inset 0 1px #FFFFFF2A;
+}
+#app .herocard.on{border-color:#FFE5A7;box-shadow:0 0 0 2px #FFE1A06B,0 7px 15px #0008}
+#app .herocard svg{background:linear-gradient(145deg,#CA61A6,#5253AD)}
+#app .herohead{
+ background:linear-gradient(125deg,#3C3869,#223B65);
+ border:1.5px solid #A78AAA;border-left:4px solid #FFE09A;
+}
+#app .market-card{border-color:#8294BC;background:linear-gradient(115deg,#2B3A65,#1A2D50)}
+#app .market-card.affordable{border-color:#48E0B6}
+#app .market-desc small,#app .tile p,#app .row p{color:#DAE4F6;font-size:11.5px}
+#app .mentor-copy p{color:#E4EDFA}
+#app .unit{border-color:#9991B6}
+#app .unit.ready{border-color:#49E9B6}
+#app .go{
+ background:linear-gradient(125deg,#FFE49B 0%,#FFC86E 52%,#FEAC54 100%);
+ border-color:#FFF1B1;
+ box-shadow:0 4px 0 #925328,0 9px 17px #020A19A8;
+}
+#app .mode{background:linear-gradient(120deg,#56366D,#33477A);border-color:#A9A4C4}
+#app .hint,#app .micro{color:#D2E0F0}
+
+/* Focus mode: once battle starts, the battlefield has priority over decoration. */
+#app.combat-active .champ,
+#app.combat-active #audioDock{display:none!important}
+#app.combat-active header{
+ min-height:57px;height:auto;padding:5px 11px;
+ background:linear-gradient(120deg,#172A56,#283F79 55%,#1C2A53);
+}
+#app.combat-active header .eyebrow{display:none}
+#app.combat-active header h1{font:900 19px/.93 Georgia,serif;margin:0}
+#app.combat-active header h1 span{margin-top:3px}
+#app.combat-active .wallet{gap:2px}
+#app.combat-active .wallet div{font-size:10.5px;min-width:69px;padding:4px 6px;border-radius:7px}
+#app.combat-active .mentor{
+ grid-template-columns:minmax(0,1fr) minmax(81px,94px);
+ min-height:47px;margin:6px 8px 7px;padding:5px 6px;gap:7px;
+ border-left:3px solid #4FEAD2;
+ background:linear-gradient(120deg,#1E365C,#1A3457);
+}
+#app.combat-active .mentor-avatar,
+#app.combat-active .mentor-copy p,
+#app.combat-active .mentor-copy small{display:none!important}
+#app.combat-active .mentor-copy strong{
+ font-size:12px;line-height:1.22;color:#FFDE96;
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ line-clamp:2;overflow:hidden;
+}
+#app.combat-active .mentor-action{min-height:39px;padding:5px 4px;font-size:10.5px;box-shadow:0 2px 0 #94652C}
+#app.combat-active .battleframe{
+ width:calc(100% - 16px);
+ max-width:420px;margin:0 auto;
+ border:2px solid #E9BA6C;border-radius:11px;
+ box-shadow:0 0 0 1px #7F699B,0 4px 15px #030E28B3;
+}
+#app.combat-active .battleframe canvas{display:block;width:100%;height:auto;aspect-ratio:390/300}
+#app.combat-active .topchip{top:5px;left:6px;right:6px;gap:3px}
+#app.combat-active .topchip span{
+ min-height:29px;padding:5px 6px;font-size:10px;
+ border:1px solid #D7A873;background:#101F42E8;
+}
+#app.combat-active .hpbar{bottom:5px}
+#app.combat-active .bossbar{top:36px}
+#app.combat-active #fightaction{margin:6px 8px 0}
+#app.combat-active #fightaction .battletools{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));
+ margin:0;gap:6px;
+}
+#app.combat-active #fightaction .battletools .chip{
+ min-width:0;min-height:43px;padding:6px 3px;margin:0;
+ font-size:clamp(10px,2.7vw,11.5px);
+ font-weight:950;white-space:nowrap;
+ background:linear-gradient(130deg,#283B69,#1B315B);
+}
+#app.combat-active #worldHeading{
+ min-height:34px;margin:7px 10px 5px;gap:8px;
+}
+#app.combat-active #worldHeading small{font-size:9px;line-height:1.12;color:#C7D9EE}
+#app.combat-active #worldHeading h2{
+ font:900 16px Georgia,serif;line-height:1.1;margin:2px 0 0;
+ color:#FFE2A0;
+}
+#app.combat-active #modeBtn{
+ min-height:35px;padding:5px 10px;
+ font-size:10px;pointer-events:none;opacity:.82;
+}
+#app.combat-active .foodbar{
+ margin:0 8px;padding:6px 10px;min-height:37px;
+ border-color:#7892B9;background:#1D2B50;
+}
+#app.combat-active .foodbar span{font-size:11.5px}
+#app.combat-active .foodbar .bar{height:10px}
+#app.combat-active #heroStatus{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,36%);
+ grid-template-rows:auto 11px;
+ align-items:center;column-gap:8px;row-gap:5px;
+ min-height:62px;margin:7px 8px 1px;padding:7px 9px;
+ border-color:#B58ABB;border-left:4px solid #FFE092;
+}
+#app.combat-active #heroStatus[hidden]{display:none!important}
+#app.combat-active .hero-status-top{
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+ grid-column:1;grid-row:1;margin:0;gap:3px;min-width:0;
+}
+#app.combat-active .hero-status-top strong{
+ font-size:11px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#app.combat-active .hero-status-top span{font-size:9px}
+#app.combat-active .hero-charge-track{grid-column:1;grid-row:2;height:11px}
+#app.combat-active .hero-ultimate{
+ grid-column:2;grid-row:1/span 2;align-self:stretch;
+ min-height:45px;margin:0;padding:5px 7px;font-size:11px;line-height:1.2;
+}
+#app.combat-active #troopHeading,
+#app.combat-active #units,
+#app.combat-active #magicHeading,
+#app.combat-active #spells,
+#app.combat-active #battleShortcuts,
+#app.combat-active #hint{display:none!important}
+#app.combat-active #battlePage{
+ padding-bottom:calc(var(--mobile-nav-height) + var(--mobile-quick-height) + 16px + env(safe-area-inset-bottom));
+}
+#app.combat-active{padding-bottom:0}
+#app.combat-active #battleQuick{display:grid}
+#app.combat-active .quick-button{min-height:56px}
+#app.combat-active nav button{min-height:var(--mobile-nav-height)}
+#app.combat-active #toast{bottom:calc(var(--mobile-nav-height) + var(--mobile-quick-height) + 12px + env(safe-area-inset-bottom))}
+
+/* Safari has less space than a home-screen installation. Reduce art proportionally. */
+@media(max-height:765px){
+ #app.combat-active header{min-height:51px}
+ #app.combat-active header h1{font-size:18px}
+ #app.combat-active .mentor{min-height:43px;margin:4px 8px 5px}
+ #app.combat-active .battleframe{max-width:min(calc(100% - 16px),356px)}
+ #app.combat-active #worldHeading{margin:5px 10px 4px}
+ #app.combat-active #worldHeading h2{font-size:15px}
+ #app.combat-active #fightaction .battletools .chip{min-height:40px}
+ #app.combat-active #heroStatus{min-height:55px}
+ #app.combat-active .quick-button{min-height:51px}
+}
+@media(max-height:675px){
+ :root{--mobile-nav-height:58px;--mobile-quick-height:61px}
+ #app.combat-active header{min-height:47px}
+ #app.combat-active .mentor{min-height:41px;margin:3px 7px 4px}
+ #app.combat-active .battleframe{max-width:min(calc(100% - 14px),310px)}
+ #app.combat-active .topchip span{font-size:9px;min-height:25px}
+ #app.combat-active .foodbar{min-height:34px;padding:5px 8px}
+ #app.combat-active .battletools .chip{min-height:39px}
+ nav button{min-height:var(--mobile-nav-height);font-size:10px}
+ .battle-quick{padding:4px 7px 5px}
+ .quick-button{min-height:49px}
+}
+@media(max-width:374px){
+ #app.combat-active .wallet div{min-width:62px;padding:3px 4px;font-size:10px}
+ #app.combat-active header h1{font-size:17px}
+ #app.combat-active .mentor{grid-template-columns:minmax(0,1fr) 79px;gap:4px}
+ #app.combat-active .mentor-copy strong{font-size:10.5px}
+ #app.combat-active .mentor-action{font-size:9.5px}
+ #app.combat-active .battletools{gap:3px}
+ #app.combat-active #fightaction .battletools .chip{font-size:9.5px;padding:4px 2px}
+ #app.combat-active #worldHeading h2{font-size:14px}
+ #app.combat-active #heroStatus{grid-template-columns:minmax(0,1fr) 106px}
+ nav button{font-size:10px}
+ .quick-button small{font-size:9.5px}
+}
+@media(min-width:481px){
+ #app.combat-active .battleframe{max-width:420px}
+}
+@media(prefers-reduced-motion:reduce){
+ #app .hero-ultimate.ready,#app .quick-button.ready{animation:none!important}
+}

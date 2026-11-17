@@ -36,7 +36,7 @@ return '<path d="M'+x+' '+(y-r)+'Q'+(x+r*.21)+' '+(y-r*.23)+' '+(x+r)+' '+y+'Q'+
 function portrait(id){
 const q=get(id),p="fp"+q.id,f=shortFringes[q.style];
 const clip=q.id%3===0?'<circle cx="142" cy="67" r="11" fill="#FEF4BC" stroke="#B98ABA" stroke-width="2"/><circle cx="142" cy="67" r="5" fill="#FFA7C9"/>':q.id%3===1?'<path d="M132 53L149 45 149 63Z" fill="#FFE6A3"/><path d="M150 45L163 59 145 62Z" fill="#FFD6E8"/>':star(147,57,13,"#FFF2C9");
-return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 250" aria-label="Героиня в сказочном платье" role="img">'+svgDefs(p,q)+
+return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 250" aria-label="Взрослая героиня в глянцевом королевском доспехе" role="img">'+svgDefs(p,q)+
 '<rect width="200" height="250" rx="13" fill="url(#'+p+'Sky)"/><circle cx="148" cy="64" r="78" fill="#fff" opacity=".36"/><circle cx="148" cy="64" r="55" fill="#fff" opacity=".24"/>'+
 star(23,37,10,"#fff",.9)+star(178,119,7,"#fff",.7)+star(156,22,8,"#fff",.6)+
 '<path d="M0 212Q53 180 109 214T200 196L200 250H0Z" fill="#fff" opacity=".24"/>'+
@@ -65,6 +65,20 @@ star(23,37,10,"#fff",.9)+star(178,119,7,"#fff",.7)+star(156,22,8,"#fff",.6)+
 clip+
 '<circle cx="100" cy="215" r="15" fill="#FFF4D9" stroke="#FFFDF2" stroke-width="3"/><path d="M100 204L108 215 100 227 92 215Z" fill="url(#'+p+'Gem)"/>'+
 '<path d="M14 247Q28 207 54 194M186 247Q174 208 148 193" stroke="#fff" stroke-opacity=".6" stroke-width="5" fill="none"/>'+
+/* Royal lacquer bodice: sculpted glossy panels, satin-black seams and jeweled trim. */
+'<path d="M55 194Q72 175 94 197L96 221Q76 225 56 209Z" fill="url(#'+p+'Dress)" stroke="#34263F" stroke-width="2.8"/>'+
+'<path d="M144 194Q125 175 105 197L103 221Q125 225 144 209Z" fill="url(#'+p+'Dress)" stroke="#34263F" stroke-width="2.8"/>'+
+'<path d="M59 200Q75 181 88 194M140 201Q125 184 113 194" stroke="#FFFDF5" stroke-width="5" stroke-linecap="round" fill="none" opacity=".92"/>'+
+'<path d="M63 210Q76 216 88 213M136 210Q122 216 111 213" stroke="#FFDBF1" stroke-width="2.2" stroke-linecap="round" fill="none" opacity=".75"/>'+
+'<path d="M99 194L99 250M76 233Q99 245 123 233" stroke="#29233F" stroke-opacity=".74" stroke-width="4" fill="none"/>'+
+'<path d="M98 192L98 246" stroke="#F5CF78" stroke-width="2.7" fill="none"/>'+
+'<path d="M51 224L65 240 55 250M147 224L132 240 142 250" stroke="#FFE79F" stroke-width="4" stroke-linecap="round" fill="none"/>'+
+'<path d="M36 193Q47 176 60 179M165 193Q154 176 141 179" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".72" fill="none"/>'+
+'<path d="M91 137Q101 143 112 137" stroke="#FFF1DF" stroke-width="1.9" stroke-linecap="round" fill="none" opacity=".85"/>'+
+'<path d="M70 48Q100 21 132 49" stroke="'+q.gold+'" stroke-width="4.5" stroke-linecap="round" fill="none"/>'+
+'<path d="M73 43L81 29 95 39 102 23 112 39 126 29 132 44" fill="none" stroke="'+q.gold+'" stroke-width="3" stroke-linecap="round"/>'+
+'<circle cx="102" cy="35" r="6" fill="#FFE9B5" stroke="#FFF" stroke-width="1.5"/><circle cx="102" cy="35" r="3.6" fill="'+q.dress+'"/>'+
+'<path d="M16 238Q24 224 32 219M181 238Q174 224 166 219" stroke="#fff" stroke-opacity=".58" stroke-width="3" stroke-linecap="round" fill="none"/>'+
 '</svg>';
 }
 function figureSvg(id,k,era,enemy=false,shift=0){
@@ -104,6 +118,14 @@ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 190">'+svgDefs(
 '<circle cx="67" cy="110" r="5" fill="'+q.gold+'" stroke="#fff" stroke-width="2"/>'+
 '<path d="M93 121L102 126" stroke="#FAE8C2" stroke-width="6"/>'+
 w+special+star(109,91,5,"#fff",.85)+
+/* Glossy stylized lacquer plating, boots and golden hardware on playable troops. */
+'<path d="M48 100Q54 85 61 94M85 99Q80 85 74 94" stroke="#FFFBFA" stroke-width="4" stroke-linecap="round" opacity=".9" fill="none"/>'+
+'<path d="M45 118Q64 129 90 118M41 139Q69 147 94 138" fill="none" stroke="#FFE0A2" stroke-width="2.8" opacity=".9"/>'+
+'<path d="M47 126L48 139M89 126L87 139" stroke="#FFF" stroke-width="3" stroke-linecap="round" opacity=".7"/>'+
+'<path d="M39 171L52 169M81 170L95 170" stroke="#FFFCF9" stroke-width="3.3" stroke-linecap="round" opacity=".95"/>'+
+'<path d="M54 89L68 98 81 89" fill="none" stroke="'+q.gold+'" stroke-width="2.6"/>'+
+'<circle cx="68" cy="99" r="3.8" fill="'+q.gold+'" stroke="#FFF" stroke-width="1.4"/>'+
+'<path d="M45 29Q65 14 85 28" fill="none" stroke="#FFF1D7" stroke-width="2.8" stroke-linecap="round" opacity=".72"/>'+
 '</svg>';
 }
 const cache=new Map();

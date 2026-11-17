@@ -33,8 +33,8 @@ return '<defs><linearGradient id="'+p+'Sky" x1=".1" y1="0" x2=".9" y2="1"><stop 
 function star(x,y,r,color,opacity=1){
 return '<path d="M'+x+' '+(y-r)+'Q'+(x+r*.21)+' '+(y-r*.23)+' '+(x+r)+' '+y+'Q'+(x+r*.19)+' '+(y+r*.18)+' '+x+' '+(y+r)+'Q'+(x-r*.2)+' '+(y+r*.2)+' '+(x-r)+' '+y+'Q'+(x-r*.18)+' '+(y-r*.22)+' '+x+' '+(y-r)+'Z" fill="'+color+'" opacity="'+opacity+'"/>';
 }
-function portrait(id){
-const q=get(id),p="fp"+q.id,f=shortFringes[q.style];
+function portrait(id,shift=0){
+const q=get(id,shift),p="fp"+q.id+"s"+(shift|0),f=shortFringes[q.style];
 const clip=q.id%3===0?'<circle cx="142" cy="67" r="11" fill="#FEF4BC" stroke="#B98ABA" stroke-width="2"/><circle cx="142" cy="67" r="5" fill="#FFA7C9"/>':q.id%3===1?'<path d="M132 53L149 45 149 63Z" fill="#FFE6A3"/><path d="M150 45L163 59 145 62Z" fill="#FFD6E8"/>':star(147,57,13,"#FFF2C9");
 return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 250" aria-label="Взрослая героиня в глянцевом королевском доспехе" role="img">'+svgDefs(p,q)+
 '<rect width="200" height="250" rx="13" fill="url(#'+p+'Sky)"/><circle cx="148" cy="64" r="78" fill="#fff" opacity=".36"/><circle cx="148" cy="64" r="55" fill="#fff" opacity=".24"/>'+
@@ -189,6 +189,28 @@ if(attack>0){
   c.strokeStyle="#FFF6D5";c.lineWidth=2;c.beginPath();c.arc(0,0,17+21*(1-attack),0,Math.PI*2);c.stroke();
  }else{
   c.fillStyle="#C3FFFF";c.beginPath();c.moveTo(2,0);c.lineTo(38*scale,-2);c.lineTo(3,4);c.closePath();c.fill();
+ }
+ c.restore();
+}
+if(!boss&&t.heroLevel>=2){
+ // Tiered coronation armor appears visibly on the real combat sprite.
+ const tier=Math.min(5,Math.max(2,t.heroLevel));
+ const bright=tier>=4?"#FFE487":tier>=3?"#FF93E3":"#87FFF1";
+ c.save();c.strokeStyle=bright;c.lineCap="round";c.globalAlpha=.77+.2*Math.sin(time*4+t.seed);
+ c.lineWidth=tier>=4?3.1:2;
+ c.beginPath();c.moveTo(-16*scale,-57*scale);c.quadraticCurveTo(0,-48*scale,16*scale,-57*scale);c.stroke();
+ c.beginPath();c.moveTo(-21*scale,-31*scale);c.quadraticCurveTo(0,-25*scale,21*scale,-31*scale);c.stroke();
+ c.fillStyle=bright;c.beginPath();c.arc(0,-53*scale,4.5*scale,0,Math.PI*2);c.fill();
+ if(tier>=3){
+  for(let i=0;i<4;i++){
+   const aa=time*(tier>=5?2:1.3)+i*Math.PI/2+t.seed;
+   const xx=Math.cos(aa)*29*scale,yy=-49*scale+Math.sin(aa)*37*scale;
+   c.beginPath();c.arc(xx,yy,(tier>=5?3:2)*scale,0,Math.PI*2);c.fill();
+  }
+ }
+ if(tier>=4){
+  c.strokeStyle="#FFF9CA";c.lineWidth=2.5;c.beginPath();
+  c.moveTo(-13*scale,-103*scale);c.lineTo(-8*scale,-114*scale);c.lineTo(0,-108*scale);c.lineTo(7*scale,-120*scale);c.lineTo(13*scale,-103*scale);c.stroke();
  }
  c.restore();
 }

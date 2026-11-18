@@ -1,0 +1,145 @@
+/* Crown Quest v18 — ivory, royal blue, warm gold. Layout stays in rock-v17.css. */
+@font-face{
+  font-family:Nunito;font-style:normal;font-weight:700;font-display:swap;
+  src:url("fonts/nunito-cyr-700.woff2") format("woff2");
+  unicode-range:U+0400-04FF,U+0301,U+0000-00FF;
+}
+@font-face{
+  font-family:Nunito;font-style:normal;font-weight:800;font-display:swap;
+  src:url("fonts/nunito-cyr-800.woff2") format("woff2");
+  unicode-range:U+0400-04FF,U+0301,U+0000-00FF;
+}
+@font-face{
+  font-family:Nunito;font-style:normal;font-weight:900;font-display:swap;
+  src:url("fonts/nunito-cyr-900.woff2") format("woff2");
+  unicode-range:U+0400-04FF,U+0301,U+0000-00FF;
+}
+:root{
+  --bg:#8FD4F8;--bg2:#E7F6FF;--panel:#FFF8E8;--panel2:#FFFDF6;
+  --line:#E2B15C;--silver:#FFF8E8;--muted:#8A6840;
+  --red:#E25B4A;--red-deep:#C43B4A;--gold:#F0C14A;--mint:#3CB86A;
+  --text:#4A3018;--blue:#2E6BD6;
+}
+html,body{
+  background:linear-gradient(180deg,#7EC8F5 0%,#C5EBFC 42%,#E7F6C8 100%);
+  color:var(--text);
+  font-family:Nunito,"Segoe UI",system-ui,sans-serif;
+}
+#app{
+  background:
+    radial-gradient(ellipse 80% 32% at 50% -8%,#fff 0%,transparent 55%),
+    linear-gradient(180deg,#8FD4F8,#D7F1FF 38%,#EAF7FF);
+  color:var(--text);
+}
+header{
+  background:linear-gradient(180deg,#FFFDF8,#FFF3D4);
+  border-bottom:3px solid #E2B15C;
+  box-shadow:0 3px 0 #E8C97A;
+}
+.brand-logo{height:36px;width:auto;max-width:58%;object-fit:contain;object-position:left center;display:block}
+#app.combat-cockpit .brand-logo{height:32px}
+#app.very-short .brand-logo{height:26px}
+.wallet div,.pill{
+  background:#FFFDF8;border:2px solid #E2B15C;color:#5A3A16;
+  box-shadow:0 2px 0 #E8C97A;display:flex;align-items:center;gap:4px;
+}
+.wallet img{width:16px;height:16px;object-fit:contain;flex:none}
+.champ,#audioDock,.mentor,.row,.tile,.herocard,.market-card,.missions-board,
+.free-shop-ribbon,.free-shop-banner,.free-starter,.daily-reward,.transfer-strip,
+.modalbox,.hero-status,.battleframe,.queen-feature,.dungeon-intro,.deckslot{
+  background:#FFF8E8;color:var(--text);border-color:#E2B15C;
+  box-shadow:0 3px 0 rgba(226,177,92,.45);
+}
+.battleframe{border:3px solid #E2B15C;background:#B7E4FA}
+.champtext small,.mentor-copy p,.hint,.micro,.audio-label small,.herocard small,.market-desc small{color:var(--muted)}
+.champtext label,.mentor-copy small,.eyebrow{color:#C47A12}
+h1,h2,h3,.champtext strong,.herocard strong,.queen-feature-copy h3{color:#3A2412}
+.go,.free-action,.gold-fight,.mentor-action,.daily-reward button,.free-starter button,
+.queen-feature-actions button:first-child,.market-card button{
+  background:linear-gradient(180deg,#FFE38A,#F0B429);
+  color:#5A3410;border:2px solid #E09A12;
+  box-shadow:0 4px 0 #C9840E;text-shadow:0 1px 0 #FFF6D0;
+}
+.gold-fight{
+  min-height:52px;height:52px;font-size:22px;font-weight:900;letter-spacing:.04em;
+  border-radius:18px;display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.gold-fight span{color:#F2C14A;font-size:18px;text-shadow:0 1px 0 #8A5A10}
+#app.very-short .gold-fight{height:42px;min-height:42px;font-size:18px}
+.chip,.audio-toggle,.settings-grid button,.herocard button,.free-shop-links button,.shopfilters button{
+  background:#FFFDF8;color:#5A3A16;border:2px solid #E2B15C;
+}
+.shopfilters button.active{background:#2E6BD6;color:#fff;border-color:#1E4EA8}
+nav{
+  background:#FFF6E4F2;border-top:3px solid #E2B15C;
+}
+nav button{color:#8A6840}
+nav button.active,nav button.active span{color:#2E6BD6}
+#app.combat-cockpit #battleQuick.rock-dock{
+  background:#FFF6E4F5;border-top:3px solid #E2B15C;
+}
+.quick-button{
+  background:linear-gradient(180deg,#FFFDF8,#F8E7C0);
+  border:2px solid #E2B15C;color:#4A3018;
+  box-shadow:0 3px 0 #E0B15A;
+}
+.quick-name{color:#4A3018}
+.quick-price{color:#C47A12;display:flex;align-items:center;justify-content:center;gap:2px}
+.food-ico{width:12px;height:12px;object-fit:contain}
+.quick-portrait{background:#D7F0FB}
+.heroine-frame{background:#D7F0FB;box-shadow:inset 0 0 0 2px #F4D78A}
+.quick-button.locked{filter:saturate(.35) brightness(.92)}
+.quick-button{position:relative}
+.lock-badge{position:absolute;z-index:2;top:4px;right:4px;font-size:12px}
+.recruit-meter{background:#F3E2C0}
+.recruit-meter i{background:#3CB86A}
+.icon-row{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:3px;min-width:0;width:100%;
+}
+.icon-row button{
+  flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;
+  color:#6A4A22;font-weight:800;background:none;padding:0;
+}
+.icon-row button b{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(180deg,#FFF8E4,#F0D48A);
+  border:2px solid #E2B15C;box-shadow:0 2px 0 #C9922E;
+  font-size:15px;color:#5A3410;
+}
+.icon-row button small{
+  font-size:8px;font-weight:800;letter-spacing:.02em;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.food-pill{
+  flex:0 0 auto;display:flex;align-items:center;gap:3px;
+  min-height:34px;padding:0 8px;border-radius:999px;
+  background:#FFFDF8;border:2px solid #E2B15C;color:#5A3410;font-weight:800;
+}
+.food-pill img{width:16px;height:16px}
+#app.very-short .icon-row button b{width:28px;height:28px;font-size:13px}
+#app.very-short .icon-row button small{font-size:7px}
+.topchip span{
+  background:#FFF8E8EE;border:2px solid #E2B15C;color:#5A3410;
+}
+.hpbar .track{background:#FFF8E8;border-color:#E2B15C}
+.hpbar .track i{background:linear-gradient(90deg,#7ED98A,#3CB86A)}
+.hpbar .track.enemy i{background:linear-gradient(90deg,#F0A0A0,#E25B4A)}
+.bossbar{background:#FFF8E8F2;border:2px solid #E25B4A;color:#5A3410}
+.battle-alert{background:#FFF8E8F2;color:#5A3410;border:2px solid #E2B15C}
+#toast{
+  width:max-content;max-width:min(220px,calc(var(--vvw,100%) - 36px));
+  border-radius:999px;background:#E25B4A;color:#fff;
+  box-shadow:0 4px 0 #C43B4A;font-size:13px;padding:8px 14px;
+}
+.modalbox{background:#FFF8E8;color:#4A3018;border:3px solid #E2B15C}
+.modalbox p{color:#8A6840}
+.bar{background:#F3E2C0;border-color:#E2B15C}
+.bar i{background:linear-gradient(90deg,#F0C14A,#FFE38A)}
+.free-shop-stamp{background:#E7F8EE;border-color:#3CB86A;color:#1E8A4A}
+.audio-toggle.on{border-color:#3CB86A;color:#1E8A4A}
+.transfer-strip,.transfer-launch{background:#FFF8E8;color:#5A3410;border:2px solid #E2B15C}
+.sectionname b,.sectionname h2,small{color:inherit}
+.herohead p{color:#8A6840}
+.hero-rank{background:#FFF3D2;border:2px solid #E2B15C;color:#5A3410}
+.hero-rank small,.hero-rank strong{color:#5A3410}
+#modal{background:#7EC8F0CC}

@@ -33,26 +33,27 @@
   }
 })();
 </script>
-<meta name="theme-color" content="#0C0E12">
+<meta name="theme-color" content="#7EC8F0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Воительницы">
-<meta name="description" content="Офлайн-рок-стратегия для iPhone: 18 героинь в лаковых доспехах, бесплатный магазин, бой на одном экране">
+<meta name="description" content="Офлайн-стратегия для iPhone: 18 мультяшных героинь, бесплатный магазин и бой на одном экране">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon.svg">
-<link rel="stylesheet" href="rock-v17.css?v=17.2">
+<link rel="icon" href="icon-180.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="rock-v17.css?v=18">
+<link rel="stylesheet" href="cartoon-v18.css?v=18">
 <title>Империя воительниц</title>
 </head>
 <body>
 <div id="app">
 <header id="gameHeader">
-  <div>
-    <div class="eyebrow">CROWN QUEST · V17.2</div>
-    <h1>ИМПЕРИЯ <span>ВОИТЕЛЬНИЦ</span></h1>
+  <img class="brand-logo" src="art18/ui/webp/logo.webp" alt="Империя воительниц">
+  <div class="wallet">
+    <div class="pill"><img src="art18/ui/webp/coin.webp" alt=""> <b id="gold">180</b></div>
+    <div class="pill"><img src="art18/ui/webp/gem.webp" alt=""> <b id="gems">85</b></div>
   </div>
-  <div class="wallet"><div>🪙 <b id="gold">180</b></div><div>💎 <b id="gems">85</b></div></div>
 </header>
 <div class="champ" id="champ"></div>
 <div id="audioDock" class="audio-dock" aria-label="Звуковая панель"></div>
@@ -83,10 +84,10 @@
 <div id="modal" hidden></div>
 <div id="toast"></div>
 <input id="savefile" type="file" accept=".json,application/json,text/plain" hidden>
-<script src="art.js?v=17.2" defer></script>
-<script src="storybook.js?v=17.2" defer></script>
-<script src="audio-v8.js?v=17.2" defer></script>
-<script src="battle-v9.js?v=17.2" defer></script>
-<script src="app.js?v=17.2" defer></script>
+<script src="art.js?v=18" defer></script>
+<script src="storybook.js?v=18" defer></script>
+<script src="audio-v8.js?v=18" defer></script>
+<script src="battle-v9.js?v=18" defer></script>
+<script src="app.js?v=18" defer></script>
 </body>
 </html>

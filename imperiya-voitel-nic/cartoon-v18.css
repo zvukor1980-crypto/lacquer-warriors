@@ -140,6 +140,8 @@ nav button.active,nav button.active span{color:#2E6BD6}
 .transfer-strip,.transfer-launch{background:#FFF8E8;color:#5A3410;border:2px solid #E2B15C}
 .sectionname b,.sectionname h2,small{color:inherit}
 .herohead p{color:#8A6840}
+.tile .troop-ico{width:72px;height:72px;overflow:hidden;background:#D7F0FB;border-radius:12px}
+.tile .troop-ico .heroine-frame,.tile .troop-ico img{width:100%;height:100%;object-fit:cover}
 .hero-rank{background:#FFF3D2;border:2px solid #E2B15C;color:#5A3410}
 .hero-rank small,.hero-rank strong{color:#5A3410}
 #modal{background:#7EC8F0CC}

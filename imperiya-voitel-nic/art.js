@@ -222,9 +222,13 @@ function _portraitSvgUnused(id,shift){
     '<circle cx="100" cy="196" r="2" fill="#fff" opacity=".8"/>'+
     '</g></svg>';
 }
-function figureSvg(id,k,era,enemy,shift){
+function troopPortrait(era,k){
+  const e=Math.max(0,Math.min(6,era|0)),kk=Math.max(0,Math.min(2,k|0));
+  return '<span class="heroine-frame"><img src="art19/troops/portrait/webp/'+e+'_'+kk+'.webp" alt="'+esc("Отряд "+e+"-"+kk)+'" decoding="async" draggable="false"></span>';
+}
+function figureSvg(id,k,era,enemy){
   if(enemy)return '<span class="heroine-frame foe-token" aria-hidden="true"><b>'+(k===1?"🏹":k===2?"⚒":"⚔")+'</b></span>';
-  return portrait(id,(Number(shift)||0)+(Number(k)||0));
+  return troopPortrait(era,k);
 }
 function rr(ctx,x,y,w,h,r){
   const rad=Math.min(r,w/2,h/2);
@@ -332,6 +336,10 @@ function drawHeroine(ctx,id,k,anim,shift){
   const idle=bodySprite(id,false),swing=bodySprite(id,true);
   const scalePx=screenFrac(0.20)/256;
   ctx.save();
+  ctx.fillStyle="rgba(242,193,74,.45)";
+  ctx.beginPath();ctx.ellipse(0,3,16,5,0,0,7);ctx.fill();
+  ctx.fillStyle="#FFE38A";ctx.font="700 11px Nunito,system-ui";ctx.textAlign="center";
+  ctx.fillText("★",0,8);
   ctx.fillStyle="rgba(70,50,20,.28)";
   ctx.beginPath();ctx.ellipse(lunge*.35,2,10+Math.abs(step),3.2,0,0,7);ctx.fill();
   if(death>0){ctx.globalAlpha=Math.max(0,1-death*0.92);ctx.translate(10*death,16*death);ctx.rotate(death*0.85);}
@@ -375,6 +383,53 @@ function drawHeroine(ctx,id,k,anim,shift){
     }
     ctx.restore();
   }
+}
+const troopIdle=new Map(), troopAtk=new Map();
+function troopSprite(era,k,attack){
+  const e=Math.max(0,Math.min(6,era|0)),kk=Math.max(0,Math.min(2,k|0));
+  const bag=attack?troopAtk:troopIdle,key=e+"_"+kk;
+  if(!bag.has(key)){
+    const img=new Image();
+    img.decoding="async";
+    const file="art19/troops/webp/"+key+(attack?"_atk":"")+".webp";
+    try{img.src=new URL(file,(document.baseURI||location.href)).href;}
+    catch(err){img.src=file;}
+    bag.set(key,img);
+  }
+  return bag.get(key);
+}
+function drawTroop(ctx,era,k,anim){
+  const death=anim.death||0,hit=anim.hit||0,atk=anim.attack||0;
+  const moving=!!anim.moving&&death===0;
+  const step=moving?Math.sin(anim.phase):0;
+  const breath=Math.sin(anim.time*2.15+anim.seed);
+  const sy=moving?1-Math.abs(step)*0.05:1+breath*0.02;
+  const sx=moving?1+Math.abs(step)*0.04:1-breath*0.012;
+  const tilt=(moving?step*0.07:breath*0.015)+(atk?-0.05*Math.sin(atk*Math.PI):0);
+  const bob=moving?Math.abs(step)*4.5:breath*1.6;
+  const lunge=atk*14-hit*8;
+  const heavy=k===2;
+  const scalePx=screenFrac(heavy?0.25:0.20)/256;
+  const idle=troopSprite(era,k,false),swing=troopSprite(era,k,true);
+  ctx.save();
+  ctx.fillStyle="rgba(70,50,20,.28)";
+  ctx.beginPath();ctx.ellipse(lunge*.3,2,heavy?13:10,3.2,0,0,7);ctx.fill();
+  if(death>0){ctx.globalAlpha=Math.max(0,1-death*0.92);ctx.translate(10*death,16*death);ctx.rotate(death*0.85);}
+  ctx.translate(lunge,bob);
+  ctx.rotate(tilt);
+  ctx.scale(sx,sy);
+  if(hit>0.08)ctx.filter="sepia(1) saturate(7) hue-rotate(-28deg) brightness("+(1+hit*0.35)+")";
+  const useAtk=atk>0.05&&swing&&swing.complete&&swing.naturalWidth;
+  if(useAtk){
+    const base=ctx.globalAlpha;
+    ctx.globalAlpha=base*(1-atk);
+    blitScale(ctx,idle,scalePx);
+    ctx.globalAlpha=base*atk;
+    blitScale(ctx,swing,scalePx);
+    ctx.globalAlpha=base;
+  }else blitScale(ctx,idle,scalePx);
+  ctx.filter="none";
+  ctx.restore();
 }
 function foeSprite(era,look,attack){
   const e=Math.max(0,Math.min(6,era|0));
@@ -462,11 +517,13 @@ function draw(ctx,t,era,time,shift){
   ctx.save();
   ctx.translate(t.x,t.y);
   ctx.scale(scale,scale);
+  const named=t.side==="p"&&!!t.elite;
   if(t.side==="e")drawFoe(ctx,t.look||(boss?"boss":"knight"),t.k||0,anim,era||0);
-  else drawHeroine(ctx,t.hid||0,t.k||0,anim,shift||0);
+  else if(named)drawHeroine(ctx,t.hid||0,t.k||0,anim,shift||0);
+  else drawTroop(ctx,t.era!=null?t.era:era||0,t.k||0,anim);
   ctx.restore();
   if(death>0.85)return;
-  const frac=boss?0.28:t.side==="p"?0.20:(t.look==="brute"?0.23:0.19);
+  const frac=boss?0.28:named?0.20:(t.side==="p"&&t.k===2?0.25:(t.side==="p"?0.20:(t.look==="brute"?0.23:0.19)));
   const hgt=screenFrac(frac)*scale;
   const y=t.y-hgt*0.9,w=Math.max(10,hgt*0.32),amount=Math.max(0,Math.min(1,t.hp/t.max));
   ctx.fillStyle="rgba(255,255,255,.92)";rr(ctx,t.x-w/2,y,w,4,2);ctx.fill();

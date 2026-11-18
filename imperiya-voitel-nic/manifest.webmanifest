@@ -1,7 +1,7 @@
 {
   "name": "Империя воительниц",
   "short_name": "Воительницы",
-  "start_url": "./?v=18",
+  "start_url": "./?v=19",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
